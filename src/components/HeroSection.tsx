@@ -1,6 +1,7 @@
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Play, Sparkles, Globe, Lock, Zap } from "lucide-react";
+import { ArrowRight, Github, Sparkles, Globe, Lock, Zap } from "lucide-react";
 
 const HeroSection = () => {
   return (
@@ -52,10 +53,10 @@ const HeroSection = () => {
             Launch Your Token
             <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
           </Button>
-         <Button variant="outline" size="lg" className="h-16 px-10 text-lg group" onClick={() => window.open('https://github.com/BrimoZ/xalt', '_blank')}>
-  <Github className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" />
-  Github
-</Button>
+          <Button variant="outline" size="lg" className="h-16 px-10 text-lg group" onClick={() => window.open('https://github.com/BrimoZ/xalt', '_blank')}>
+            <Github className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" />
+            Github
+          </Button>
         </div>
 
         {/* Bottom Scroll Indicator */}
