@@ -26,7 +26,7 @@ const HeroSection = () => {
         {/* Status Badge */}
         <Badge variant="secondary" className="mb-8 px-4 py-2 bg-primary/10 border-primary/20">
           <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-          Platform is Live
+          Demo is Live
         </Badge>
 
         {/* Main Heading */}
