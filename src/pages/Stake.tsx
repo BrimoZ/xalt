@@ -32,89 +32,65 @@ const Stake = () => {
       <Navbar />
       
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Unified HUD & Stats Section */}
-        <div className="mb-6">
-          <div className="relative bg-gradient-to-br from-primary/5 to-accent/5 rounded-lg p-6 border border-primary/20">
-            {/* Top Row - Main HUD */}
-            <div className="flex items-center justify-between mb-4">
-              {/* Left: Rabbit Character & Title */}
-              <div className="flex items-center gap-4">
-                <div className={`relative transition-all duration-500 ${totalStaked > 5000 ? 'text-4xl' : 'text-3xl'}`}>
-                  🐰
-                  {hasRewards && (
-                    <div className="absolute -top-1 -right-1 text-sm animate-bounce">
-                      🥕
-                    </div>
-                  )}
+        {/* Redesigned Rabbit Staking HUD */}
+        <div className="mb-8">
+          <div className="relative overflow-hidden bg-gradient-to-r from-primary/10 via-accent/5 to-primary/10 rounded-2xl p-8 border border-primary/30">
+            {/* Floating background elements */}
+            <div className="absolute top-4 right-8 text-6xl opacity-10 animate-pulse">🐰</div>
+            <div className="absolute bottom-4 left-8 text-4xl opacity-10 animate-bounce" style={{ animationDelay: '1s' }}>🐇</div>
+            <div className="absolute top-1/2 right-20 text-2xl opacity-5 animate-spin" style={{ animationDuration: '20s' }}>🥕</div>
+            
+            {/* Main HUD Content */}
+            <div className="relative z-10 flex items-center justify-center">
+              <div className="text-center space-y-4">
+                {/* Animated Rabbit Character */}
+                <div className="flex items-center justify-center gap-3">
+                  <div className={`text-5xl transition-all duration-700 ${totalStaked > 5000 ? 'scale-110' : 'scale-100'}`}>
+                    🐰
+                  </div>
+                  <div className="text-2xl animate-bounce" style={{ animationDelay: '0.5s' }}>
+                    ↔️
+                  </div>
+                  <div className="text-5xl animate-pulse" style={{ animationDelay: '1s' }}>
+                    🐇
+                  </div>
                 </div>
-                <h1 className="font-orbitron font-bold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  Rabbit Staking HUD
+                
+                {/* Title */}
+                <h1 className="font-orbitron font-bold text-3xl bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient">
+                  RABBIT ECOSYSTEM
                 </h1>
-              </div>
-
-              {/* Center: Primary Stats */}
-              <div className="flex items-center gap-6">
-                <div className="text-center">
-                  <div className="text-xs text-muted-foreground mb-1">Wallet</div>
-                  <div className="flex gap-3 text-sm">
-                    <span className="font-mono font-bold text-primary">{userStats.walletRabbit.toFixed(0)}</span>
-                    <span className="font-mono font-bold text-accent">{userStats.walletBunny.toFixed(0)}</span>
+                
+                {/* Subtitle */}
+                <p className="text-muted-foreground text-lg max-w-md mx-auto">
+                  Stake • Earn • Grow • Repeat
+                </p>
+                
+                {/* Ecosystem Flow */}
+                <div className="flex items-center justify-center gap-4 mt-6 p-4 bg-background/50 rounded-lg backdrop-blur-sm">
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-primary font-bold">$RABBIT</span>
+                    <span className="text-muted-foreground">→</span>
+                    <span className="text-accent font-bold">$BUNNY</span>
+                  </div>
+                  <div className="w-px h-6 bg-border"></div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-accent font-bold">$BUNNY</span>
+                    <span className="text-muted-foreground">→</span>
+                    <span className="text-primary font-bold">$RABBIT</span>
                   </div>
                 </div>
-                <div className="text-center">
-                  <div className="text-xs text-muted-foreground mb-1">Staked</div>
-                  <div className="flex gap-3 text-sm">
-                    <span className="font-mono font-bold text-primary">{userStats.totalStakedRabbit.toLocaleString()}</span>
-                    <span className="font-mono font-bold text-accent">{userStats.totalStakedBunny.toLocaleString()}</span>
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-xs text-muted-foreground mb-1">Rewards</div>
-                  <div className="flex gap-3 text-sm">
-                    <span className="font-mono font-bold text-primary">{userStats.rewardsRabbit.toFixed(2)}</span>
-                    <span className="font-mono font-bold text-accent">{userStats.rewardsBunny.toFixed(2)}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right: Claim Button */}
-              {hasRewards && (
-                <Button 
-                  className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold px-6 py-2 rounded-lg"
-                  size="sm"
-                >
-                  <Star className="w-4 h-4 mr-2" />
-                  Claim All
-                </Button>
-              )}
-            </div>
-
-            {/* Bottom Row - Additional Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-border/30">
-              <div className="text-center p-3 bg-primary/5 rounded-lg">
-                <div className="text-lg mb-1">🐰</div>
-                <div className="text-xs text-muted-foreground mb-1">Total $RABBIT Staked</div>
-                <div className="font-mono font-bold text-primary text-sm">{userStats.totalStakedRabbit.toLocaleString()}</div>
-              </div>
-              
-              <div className="text-center p-3 bg-accent/5 rounded-lg">
-                <div className="text-lg mb-1">🐇</div>
-                <div className="text-xs text-muted-foreground mb-1">Total $BUNNY Staked</div>
-                <div className="font-mono font-bold text-accent text-sm">{userStats.totalStakedBunny.toLocaleString()}</div>
-              </div>
-              
-              <div className="text-center p-3 bg-yellow-500/5 rounded-lg">
-                <div className="text-lg mb-1">💰</div>
-                <div className="text-xs text-muted-foreground mb-1">Lifetime Rewards</div>
-                <div className="font-mono font-bold text-yellow-600 text-sm">${userStats.lifetimeRewards.toFixed(2)}</div>
-              </div>
-              
-              <div className="text-center p-3 bg-green-500/5 rounded-lg">
-                <div className="text-lg mb-1">📈</div>
-                <div className="text-xs text-muted-foreground mb-1">Average APR</div>
-                <div className="font-mono font-bold text-green-600 text-sm">
-                  {((userStats.rabbitApr + userStats.bunnyApr) / 2).toFixed(1)}%
-                </div>
+                
+                {/* Action Button */}
+                {hasRewards && (
+                  <Button 
+                    className="bg-gradient-to-r from-primary to-accent hover:from-primary/80 hover:to-accent/80 text-primary-foreground font-bold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                    size="lg"
+                  >
+                    <Star className="w-5 h-5 mr-2 animate-pulse" />
+                    Claim All Rewards
+                  </Button>
+                )}
               </div>
             </div>
           </div>
