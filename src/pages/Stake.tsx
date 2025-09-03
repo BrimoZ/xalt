@@ -32,10 +32,11 @@ const Stake = () => {
       <Navbar />
       
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Top Section - Rabbit HUD */}
+        {/* Unified HUD & Stats Section */}
         <div className="mb-6">
-          <div className="relative bg-gradient-to-br from-primary/5 to-accent/5 rounded-lg p-4 border border-primary/20">
-            <div className="flex items-center justify-between">
+          <div className="relative bg-gradient-to-br from-primary/5 to-accent/5 rounded-lg p-6 border border-primary/20">
+            {/* Top Row - Main HUD */}
+            <div className="flex items-center justify-between mb-4">
               {/* Left: Rabbit Character & Title */}
               <div className="flex items-center gap-4">
                 <div className={`relative transition-all duration-500 ${totalStaked > 5000 ? 'text-4xl' : 'text-3xl'}`}>
@@ -51,7 +52,7 @@ const Stake = () => {
                 </h1>
               </div>
 
-              {/* Center: Compact Stats */}
+              {/* Center: Primary Stats */}
               <div className="flex items-center gap-6">
                 <div className="text-center">
                   <div className="text-xs text-muted-foreground mb-1">Wallet</div>
@@ -86,6 +87,35 @@ const Stake = () => {
                   Claim All
                 </Button>
               )}
+            </div>
+
+            {/* Bottom Row - Additional Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-border/30">
+              <div className="text-center p-3 bg-primary/5 rounded-lg">
+                <div className="text-lg mb-1">🐰</div>
+                <div className="text-xs text-muted-foreground mb-1">Total $RABBIT Staked</div>
+                <div className="font-mono font-bold text-primary text-sm">{userStats.totalStakedRabbit.toLocaleString()}</div>
+              </div>
+              
+              <div className="text-center p-3 bg-accent/5 rounded-lg">
+                <div className="text-lg mb-1">🐇</div>
+                <div className="text-xs text-muted-foreground mb-1">Total $BUNNY Staked</div>
+                <div className="font-mono font-bold text-accent text-sm">{userStats.totalStakedBunny.toLocaleString()}</div>
+              </div>
+              
+              <div className="text-center p-3 bg-yellow-500/5 rounded-lg">
+                <div className="text-lg mb-1">💰</div>
+                <div className="text-xs text-muted-foreground mb-1">Lifetime Rewards</div>
+                <div className="font-mono font-bold text-yellow-600 text-sm">${userStats.lifetimeRewards.toFixed(2)}</div>
+              </div>
+              
+              <div className="text-center p-3 bg-green-500/5 rounded-lg">
+                <div className="text-lg mb-1">📈</div>
+                <div className="text-xs text-muted-foreground mb-1">Average APR</div>
+                <div className="font-mono font-bold text-green-600 text-sm">
+                  {((userStats.rabbitApr + userStats.bunnyApr) / 2).toFixed(1)}%
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -193,42 +223,6 @@ const Stake = () => {
               </div>
             </CardContent>
           </Card>
-        </div>
-
-        {/* Bottom Section - User Stats */}
-        <div className="bg-card/30 backdrop-blur-sm rounded-2xl p-6 border border-border/50">
-          <h2 className="font-orbitron font-bold text-xl mb-6 flex items-center gap-2">
-            <Trophy className="w-6 h-6 text-yellow-500" />
-            Your Staking Stats
-          </h2>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div className="text-center p-4 bg-primary/5 rounded-xl">
-              <div className="text-2xl mb-2">🐰</div>
-              <div className="text-sm text-muted-foreground mb-1">Total $RABBIT Staked</div>
-              <div className="font-mono font-bold text-primary text-lg">{userStats.totalStakedRabbit.toLocaleString()}</div>
-            </div>
-            
-            <div className="text-center p-4 bg-accent/5 rounded-xl">
-              <div className="text-2xl mb-2">🐇</div>
-              <div className="text-sm text-muted-foreground mb-1">Total $BUNNY Staked</div>
-              <div className="font-mono font-bold text-accent text-lg">{userStats.totalStakedBunny.toLocaleString()}</div>
-            </div>
-            
-            <div className="text-center p-4 bg-yellow-500/5 rounded-xl">
-              <div className="text-2xl mb-2">💰</div>
-              <div className="text-sm text-muted-foreground mb-1">Lifetime Rewards</div>
-              <div className="font-mono font-bold text-yellow-600 text-lg">${userStats.lifetimeRewards.toFixed(2)}</div>
-            </div>
-            
-            <div className="text-center p-4 bg-green-500/5 rounded-xl">
-              <div className="text-2xl mb-2">📈</div>
-              <div className="text-sm text-muted-foreground mb-1">Average APR</div>
-              <div className="font-mono font-bold text-green-600 text-lg">
-                {((userStats.rabbitApr + userStats.bunnyApr) / 2).toFixed(1)}%
-              </div>
-            </div>
-          </div>
         </div>
       </div>
       
