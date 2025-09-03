@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, Clock, Users2, Droplets } from "lucide-react";
+import { TrendingUp, TrendingDown, Clock, Users2, Coins } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -15,8 +15,10 @@ interface LaunchCardProps {
       followers: number;
       verified: boolean;
     };
+    totalTVL: number;
+    apr: number;
     marketCap: number;
-    liquidity: number;
+    stakers: number;
     launchedAt: string;
     trend: 'up' | 'down';
     trendValue: number;
@@ -42,7 +44,7 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
     return `${Math.floor(diffInMinutes / 1440)}d ago`;
   };
 
-  const handleEnterLaunch = () => {
+  const handleEnterPool = () => {
     navigate(`/token/${token.id}`);
   };
 
@@ -69,19 +71,19 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
         </Badge>
       </div>
 
-      {/* Dev Info */}
+      {/* Pool Info */}
       <div className="mb-4 p-3 bg-background/50 rounded-sm border border-border/50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-sm text-muted-foreground">DEV:</span>
+            <span className="font-mono text-sm text-muted-foreground">POOL:</span>
             <span className="font-mono text-primary">{token.dev.handle}</span>
             {token.dev.verified && (
               <span className="text-primary text-xs">✓</span>
             )}
           </div>
           <div className="flex items-center gap-1 text-muted-foreground text-sm">
-            <Users2 className="w-3 h-3" />
-            <span className="font-mono">{formatNumber(token.dev.followers)}</span>
+            <Coins className="w-3 h-3" />
+            <span className="font-mono">{formatNumber(token.stakers)} stakers</span>
           </div>
         </div>
       </div>
@@ -89,14 +91,24 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
+          <p className="font-mono text-xs text-muted-foreground uppercase">Total TVL</p>
+          <p className="font-mono text-lg font-bold text-foreground">${formatNumber(token.totalTVL)}</p>
+        </div>
+        <div>
+          <p className="font-mono text-xs text-muted-foreground uppercase">APR</p>
+          <div className="flex items-center gap-1">
+            <p className="font-mono text-lg font-bold text-primary">{token.apr}%</p>
+          </div>
+        </div>
+        <div>
           <p className="font-mono text-xs text-muted-foreground uppercase">Market Cap</p>
           <p className="font-mono text-lg font-bold text-foreground">${formatNumber(token.marketCap)}</p>
         </div>
         <div>
-          <p className="font-mono text-xs text-muted-foreground uppercase">Token Price</p>
+          <p className="font-mono text-xs text-muted-foreground uppercase">Stakers</p>
           <div className="flex items-center gap-1">
-            <span className="text-primary text-sm">$</span>
-            <p className="font-mono text-lg font-bold text-foreground">{(token.liquidity / 1000000).toFixed(6)}</p>
+            <Users2 className="w-3 h-3 text-muted-foreground" />
+            <p className="font-mono text-lg font-bold text-foreground">{formatNumber(token.stakers)}</p>
           </div>
         </div>
       </div>
@@ -112,9 +124,9 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
         variant="cyber" 
         size="default" 
         className="w-full"
-        onClick={handleEnterLaunch}
+        onClick={handleEnterPool}
       >
-        Enter Launch
+        Enter Pool
       </Button>
     </div>
   );

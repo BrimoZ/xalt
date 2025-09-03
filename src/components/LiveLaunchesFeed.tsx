@@ -76,7 +76,7 @@ const LiveLaunchesFeed = () => {
     fetchStats();
   }, []);
 
-  // Convert tokens to launch format
+  // Convert tokens to staking pool format
   const launches = tokens.map(token => ({
     id: token.id,
     name: token.name,
@@ -87,8 +87,10 @@ const LiveLaunchesFeed = () => {
       followers: Math.floor(Math.random() * 50000) + 5000,
       verified: true,
     },
+    totalTVL: Math.floor(token.volume_24h * 5), // Simulated TVL based on volume
+    apr: Math.floor(Math.random() * 15) + 5, // Random APR between 5-20%
     marketCap: Math.floor(token.market_cap),
-    liquidity: Math.floor(token.volume_24h),
+    stakers: Math.floor(token.holders), // Use holders as stakers
     launchedAt: token.created_at,
     trend: token.price_change_24h >= 0 ? 'up' : 'down' as 'up' | 'down',
     trendValue: Math.abs(token.price_change_24h),
