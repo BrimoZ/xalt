@@ -32,65 +32,116 @@ const Stake = () => {
       <Navbar />
       
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Redesigned Rabbit Staking HUD */}
+        {/* Gaming Style Split HUD */}
         <div className="mb-8">
-          <div className="relative overflow-hidden bg-gradient-to-r from-primary/10 via-accent/5 to-primary/10 rounded-2xl p-8 border border-primary/30">
-            {/* Floating background elements */}
-            <div className="absolute top-4 right-8 text-6xl opacity-10 animate-pulse">🐰</div>
-            <div className="absolute bottom-4 left-8 text-4xl opacity-10 animate-bounce" style={{ animationDelay: '1s' }}>🐇</div>
-            <div className="absolute top-1/2 right-20 text-2xl opacity-5 animate-spin" style={{ animationDuration: '20s' }}>🥕</div>
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Left Side - Rabbit */}
+            <div className="relative overflow-hidden bg-gradient-to-br from-orange-500/20 via-red-500/10 to-purple-600/20 rounded-2xl p-6 border border-orange-500/30 shadow-2xl">
+              {/* Gaming Background Pattern */}
+              <div className="absolute inset-0 opacity-5">
+                <div className="absolute top-4 left-4 w-8 h-8 border-2 border-orange-500 rotate-45"></div>
+                <div className="absolute top-8 right-8 w-6 h-6 border-2 border-red-500 rotate-12"></div>
+                <div className="absolute bottom-8 left-8 w-4 h-4 border-2 border-purple-500 rotate-45"></div>
+              </div>
+              
+              {/* Rabbit Character */}
+              <div className="relative z-10 text-center mb-6">
+                <div className="text-6xl mb-3 hover-scale animate-bounce">🐰</div>
+                <h2 className="font-orbitron font-bold text-xl text-orange-400 mb-2">
+                  $RABBIT ZONE
+                </h2>
+                <div className="text-sm text-muted-foreground">
+                  Stake to earn $BUNNY
+                </div>
+              </div>
+              
+              {/* Rabbit Stats Grid */}
+              <div className="relative z-10 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-black/30 rounded-lg p-3 border border-orange-500/20">
+                    <div className="text-xs text-orange-300 mb-1">WALLET</div>
+                    <div className="font-mono font-bold text-orange-400">1,251</div>
+                  </div>
+                  <div className="bg-black/30 rounded-lg p-3 border border-orange-500/20">
+                    <div className="text-xs text-orange-300 mb-1">STAKED</div>
+                    <div className="font-mono font-bold text-orange-400">5,000</div>
+                  </div>
+                </div>
+                
+                <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-lg p-4 border border-orange-500/30">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-orange-300">REWARDS EARNED</span>
+                    <Trophy className="w-4 h-4 text-yellow-400 animate-pulse" />
+                  </div>
+                  <div className="font-mono font-bold text-2xl text-yellow-400">125.75</div>
+                  <div className="text-xs text-orange-300">$BUNNY tokens</div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-black/30 rounded-lg p-3 border border-orange-500/20 text-center">
+                    <div className="text-xs text-orange-300 mb-1">APR</div>
+                    <div className="font-mono font-bold text-green-400">45.2%</div>
+                  </div>
+                  <div className="bg-black/30 rounded-lg p-3 border border-orange-500/20 text-center">
+                    <div className="text-xs text-orange-300 mb-1">STATUS</div>
+                    <div className="text-xs text-green-400 font-bold">ACTIVE</div>
+                  </div>
+                </div>
+              </div>
+            </div>
             
-            {/* Main HUD Content */}
-            <div className="relative z-10 flex items-center justify-center">
-              <div className="text-center space-y-4">
-                {/* Animated Rabbit Character */}
-                <div className="flex items-center justify-center gap-3">
-                  <div className={`text-5xl transition-all duration-700 ${totalStaked > 5000 ? 'scale-110' : 'scale-100'}`}>
-                    🐰
+            {/* Right Side - Bunny */}
+            <div className="relative overflow-hidden bg-gradient-to-br from-cyan-500/20 via-blue-500/10 to-indigo-600/20 rounded-2xl p-6 border border-cyan-500/30 shadow-2xl">
+              {/* Gaming Background Pattern */}
+              <div className="absolute inset-0 opacity-5">
+                <div className="absolute top-4 right-4 w-8 h-8 border-2 border-cyan-500 rotate-45"></div>
+                <div className="absolute top-8 left-8 w-6 h-6 border-2 border-blue-500 rotate-12"></div>
+                <div className="absolute bottom-8 right-8 w-4 h-4 border-2 border-indigo-500 rotate-45"></div>
+              </div>
+              
+              {/* Bunny Character */}
+              <div className="relative z-10 text-center mb-6">
+                <div className="text-6xl mb-3 hover-scale animate-pulse">🐇</div>
+                <h2 className="font-orbitron font-bold text-xl text-cyan-400 mb-2">
+                  $BUNNY ZONE
+                </h2>
+                <div className="text-sm text-muted-foreground">
+                  Stake to earn $RABBIT
+                </div>
+              </div>
+              
+              {/* Bunny Stats Grid */}
+              <div className="relative z-10 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-black/30 rounded-lg p-3 border border-cyan-500/20">
+                    <div className="text-xs text-cyan-300 mb-1">WALLET</div>
+                    <div className="font-mono font-bold text-cyan-400">890</div>
                   </div>
-                  <div className="text-2xl animate-bounce" style={{ animationDelay: '0.5s' }}>
-                    ↔️
-                  </div>
-                  <div className="text-5xl animate-pulse" style={{ animationDelay: '1s' }}>
-                    🐇
+                  <div className="bg-black/30 rounded-lg p-3 border border-cyan-500/20">
+                    <div className="text-xs text-cyan-300 mb-1">STAKED</div>
+                    <div className="font-mono font-bold text-cyan-400">3,200</div>
                   </div>
                 </div>
                 
-                {/* Title */}
-                <h1 className="font-orbitron font-bold text-3xl bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient">
-                  RABBIT ECOSYSTEM
-                </h1>
-                
-                {/* Subtitle */}
-                <p className="text-muted-foreground text-lg max-w-md mx-auto">
-                  Stake • Earn • Grow • Repeat
-                </p>
-                
-                {/* Ecosystem Flow */}
-                <div className="flex items-center justify-center gap-4 mt-6 p-4 bg-background/50 rounded-lg backdrop-blur-sm">
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="text-primary font-bold">$RABBIT</span>
-                    <span className="text-muted-foreground">→</span>
-                    <span className="text-accent font-bold">$BUNNY</span>
+                <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-lg p-4 border border-cyan-500/30">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-cyan-300">REWARDS EARNED</span>
+                    <Trophy className="w-4 h-4 text-yellow-400 animate-pulse" />
                   </div>
-                  <div className="w-px h-6 bg-border"></div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="text-accent font-bold">$BUNNY</span>
-                    <span className="text-muted-foreground">→</span>
-                    <span className="text-primary font-bold">$RABBIT</span>
-                  </div>
+                  <div className="font-mono font-bold text-2xl text-yellow-400">89.50</div>
+                  <div className="text-xs text-cyan-300">$RABBIT tokens</div>
                 </div>
                 
-                {/* Action Button */}
-                {hasRewards && (
-                  <Button 
-                    className="bg-gradient-to-r from-primary to-accent hover:from-primary/80 hover:to-accent/80 text-primary-foreground font-bold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
-                    size="lg"
-                  >
-                    <Star className="w-5 h-5 mr-2 animate-pulse" />
-                    Claim All Rewards
-                  </Button>
-                )}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-black/30 rounded-lg p-3 border border-cyan-500/20 text-center">
+                    <div className="text-xs text-cyan-300 mb-1">APR</div>
+                    <div className="font-mono font-bold text-green-400">38.7%</div>
+                  </div>
+                  <div className="bg-black/30 rounded-lg p-3 border border-cyan-500/20 text-center">
+                    <div className="text-xs text-cyan-300 mb-1">STATUS</div>
+                    <div className="text-xs text-green-400 font-bold">ACTIVE</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
