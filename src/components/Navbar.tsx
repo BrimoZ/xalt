@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Zap, Home, Plus, User, HelpCircle, LogOut, Wallet, Bug } from "lucide-react";
+import { Zap, Home, Plus, User, HelpCircle, LogOut, Wallet } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   DropdownMenu,
@@ -91,7 +91,7 @@ const Navbar = () => {
               className="gap-2"
             >
               <Home className="w-4 h-4" />
-              Live Launches
+              Home
             </Button>
             
             <Button
@@ -112,16 +112,6 @@ const Navbar = () => {
             >
               <HelpCircle className="w-4 h-4" />
               How it works
-            </Button>
-            
-            <Button
-              variant={location.pathname === "/bug-bounty" ? "cyber" : "ghost"}
-              size="sm"
-              onClick={() => navigate("/bug-bounty")}
-              className="gap-2"
-            >
-              <Bug className="w-4 h-4" />
-              Bug Bounty
             </Button>
           </div>
 
