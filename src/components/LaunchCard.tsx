@@ -51,24 +51,35 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
   return (
     <div className="bg-card border border-border rounded-sm p-6 hover-glitch transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20 cursor-pointer">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-primary/20 rounded-sm flex items-center justify-center text-primary font-bold text-lg">
-            {token.symbol.slice(0, 2)}
+      <div className="flex items-start gap-4 mb-6">
+        {/* Larger Pool Image */}
+        <div className="w-20 h-20 bg-primary/20 rounded-lg flex items-center justify-center text-primary font-bold text-2xl border border-primary/30 flex-shrink-0">
+          {token.symbol.slice(0, 2)}
+        </div>
+        
+        {/* Token Info and Trend */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between mb-2">
+            <div className="flex-1 min-w-0 pr-2">
+              <h3 className="font-orbitron font-bold text-foreground text-lg truncate">{token.name}</h3>
+              <p className="font-mono text-sm text-muted-foreground">${token.symbol}</p>
+            </div>
+            <Badge variant={token.trend === 'up' ? 'default' : 'destructive'} className="font-mono flex-shrink-0">
+              {token.trend === 'up' ? (
+                <TrendingUp className="w-3 h-3 mr-1" />
+              ) : (
+                <TrendingDown className="w-3 h-3 mr-1" />
+              )}
+              {token.trendValue}%
+            </Badge>
           </div>
-          <div>
-            <h3 className="font-orbitron font-bold text-foreground">{token.name}</h3>
-            <p className="font-mono text-sm text-muted-foreground">${token.symbol}</p>
+          
+          {/* Time */}
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Clock className="w-3 h-3" />
+            <span className="font-mono">{getTimeAgo(token.launchedAt)}</span>
           </div>
         </div>
-        <Badge variant={token.trend === 'up' ? 'default' : 'destructive'} className="font-mono">
-          {token.trend === 'up' ? (
-            <TrendingUp className="w-3 h-3 mr-1" />
-          ) : (
-            <TrendingDown className="w-3 h-3 mr-1" />
-          )}
-          {token.trendValue}%
-        </Badge>
       </div>
 
 
@@ -99,12 +110,6 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
             <p className="font-mono font-bold text-foreground text-sm">{formatNumber(token.stakers)}</p>
           </div>
         </div>
-      </div>
-
-      {/* Time */}
-      <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
-        <Clock className="w-3 h-3" />
-        <span className="font-mono">{getTimeAgo(token.launchedAt)}</span>
       </div>
 
       {/* Action Button */}
