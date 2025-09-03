@@ -73,42 +73,43 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
 
 
       {/* Stats */}
-      <div className="mb-6">
-        {/* Compact Dashboard Style */}
-        <div className="bg-card/50 border border-border/50 rounded-lg p-4">
-          <div className="grid grid-cols-4 gap-4">
-            <div className="text-center">
-              <div className="w-8 h-8 mx-auto mb-2 bg-primary/20 rounded-full flex items-center justify-center">
-                <Coins className="w-4 h-4 text-primary" />
-              </div>
-              <p className="font-mono text-xs text-muted-foreground">TVL</p>
-              <p className="font-mono text-sm font-bold text-foreground">${formatNumber(token.totalTVL)}</p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-8 h-8 mx-auto mb-2 bg-accent/20 rounded-full flex items-center justify-center">
-                <TrendingUp className="w-4 h-4 text-accent" />
-              </div>
-              <p className="font-mono text-xs text-muted-foreground">APR</p>
-              <p className="font-mono text-sm font-bold text-accent">{token.apr}%</p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-8 h-8 mx-auto mb-2 bg-muted/20 rounded-full flex items-center justify-center">
-                <div className="w-2 h-2 bg-muted-foreground rounded-full"></div>
-              </div>
-              <p className="font-mono text-xs text-muted-foreground">MCap</p>
-              <p className="font-mono text-sm font-bold text-foreground">${formatNumber(token.marketCap)}</p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-8 h-8 mx-auto mb-2 bg-muted/20 rounded-full flex items-center justify-center">
-                <Users2 className="w-4 h-4 text-muted-foreground" />
-              </div>
-              <p className="font-mono text-xs text-muted-foreground">Stakers</p>
-              <p className="font-mono text-sm font-bold text-foreground">{formatNumber(token.stakers)}</p>
-            </div>
+      <div className="mb-6 space-y-3">
+        {/* TVL with Progress Bar */}
+        <div className="flex items-center justify-between p-3 bg-background/30 rounded-lg border border-border/30">
+          <div className="flex items-center gap-3">
+            <div className="w-3 h-3 bg-primary rounded-full"></div>
+            <span className="font-mono text-sm text-muted-foreground">Total TVL</span>
           </div>
+          <span className="font-mono text-lg font-bold text-primary">${formatNumber(token.totalTVL)}</span>
+        </div>
+
+        {/* APR with Trending Indicator */}
+        <div className="flex items-center justify-between p-3 bg-background/30 rounded-lg border border-border/30">
+          <div className="flex items-center gap-3">
+            <div className="w-6 h-3 bg-accent/20 rounded-full relative overflow-hidden">
+              <div className="absolute inset-0 bg-accent rounded-full animate-pulse" style={{width: `${Math.min(token.apr * 5, 100)}%`}}></div>
+            </div>
+            <span className="font-mono text-sm text-muted-foreground">APR</span>
+          </div>
+          <span className="font-mono text-lg font-bold text-accent">{token.apr}%</span>
+        </div>
+
+        {/* Market Cap */}
+        <div className="flex items-center justify-between p-3 bg-background/30 rounded-lg border border-border/30">
+          <div className="flex items-center gap-3">
+            <div className="w-3 h-3 bg-muted-foreground/50 rounded-sm"></div>
+            <span className="font-mono text-sm text-muted-foreground">Market Cap</span>
+          </div>
+          <span className="font-mono text-lg font-bold text-foreground">${formatNumber(token.marketCap)}</span>
+        </div>
+
+        {/* Stakers with Icon */}
+        <div className="flex items-center justify-between p-3 bg-background/30 rounded-lg border border-border/30">
+          <div className="flex items-center gap-3">
+            <Users2 className="w-4 h-4 text-muted-foreground" />
+            <span className="font-mono text-sm text-muted-foreground">Stakers</span>
+          </div>
+          <span className="font-mono text-lg font-bold text-foreground">{formatNumber(token.stakers)}</span>
         </div>
       </div>
 
