@@ -73,30 +73,27 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
 
 
       {/* Stats */}
-      <div className="mb-6 space-y-2">
-        {/* Featured Metric - TVL */}
-        <div className="bg-gradient-to-r from-primary/20 via-primary/10 to-transparent p-4 rounded-lg border-l-4 border-primary">
-          <div className="flex items-center justify-between">
-            <h4 className="font-mono text-lg font-bold text-primary">${formatNumber(token.totalTVL)}</h4>
-            <div className="px-2 py-1 bg-primary/20 rounded text-xs font-mono text-primary">TVL</div>
-          </div>
-        </div>
-
-        {/* Secondary Metrics */}
-        <div className="grid grid-cols-3 gap-2">
-          <div className="bg-accent/5 border border-accent/20 p-3 rounded text-center">
-            <p className="font-mono text-xs text-accent/80 mb-1">APR</p>
-            <p className="font-mono font-bold text-accent">{token.apr}%</p>
+      <div className="mb-6">
+        {/* Table Style Layout */}
+        <div className="border border-border/30 rounded-lg overflow-hidden">
+          <div className="flex items-center justify-between p-3 bg-primary/5 border-b border-border/20">
+            <span className="font-mono text-sm text-primary font-medium">Total TVL</span>
+            <span className="font-mono text-lg font-bold text-primary">${formatNumber(token.totalTVL)}</span>
           </div>
           
-          <div className="bg-muted/5 border border-muted/20 p-3 rounded text-center">
-            <p className="font-mono text-xs text-muted-foreground mb-1">MCap</p>
-            <p className="font-mono font-bold text-foreground text-sm">${formatNumber(token.marketCap)}</p>
+          <div className="flex items-center justify-between p-3 border-b border-border/20">
+            <span className="font-mono text-sm text-muted-foreground font-medium">APR</span>
+            <span className="font-mono text-lg font-bold text-accent">{token.apr}%</span>
           </div>
           
-          <div className="bg-muted/5 border border-muted/20 p-3 rounded text-center">
-            <p className="font-mono text-xs text-muted-foreground mb-1">Stakers</p>
-            <p className="font-mono font-bold text-foreground text-sm">{formatNumber(token.stakers)}</p>
+          <div className="flex items-center justify-between p-3 bg-muted/5 border-b border-border/20">
+            <span className="font-mono text-sm text-muted-foreground font-medium">Market Cap</span>
+            <span className="font-mono text-lg font-bold text-foreground">${formatNumber(token.marketCap)}</span>
+          </div>
+          
+          <div className="flex items-center justify-between p-3">
+            <span className="font-mono text-sm text-muted-foreground font-medium">Stakers</span>
+            <span className="font-mono text-lg font-bold text-foreground">{formatNumber(token.stakers)}</span>
           </div>
         </div>
       </div>
