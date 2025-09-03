@@ -49,65 +49,72 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-card to-card/50 border border-border/30 rounded-xl p-6 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 cursor-pointer group">
+    <div className="bg-card border border-border rounded-sm p-6 hover-glitch transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20 cursor-pointer">
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-gradient-to-br from-primary to-primary/60 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-primary/20 rounded-sm flex items-center justify-center text-primary font-bold text-lg">
             {token.symbol.slice(0, 2)}
           </div>
           <div>
-            <h3 className="font-bold text-xl text-foreground group-hover:text-primary transition-colors">{token.name}</h3>
-            <p className="font-mono text-muted-foreground uppercase tracking-wider">{token.symbol}</p>
+            <h3 className="font-orbitron font-bold text-foreground">{token.name}</h3>
+            <p className="font-mono text-sm text-muted-foreground">${token.symbol}</p>
           </div>
         </div>
-        
-        {/* Compact Top Right Info */}
-        <div className="text-right space-y-2">
-          <div className="flex items-center gap-2 justify-end text-muted-foreground">
-            <Users2 className="w-4 h-4" />
-            <span className="font-mono text-sm font-medium">{formatNumber(token.stakers)}</span>
+        <Badge variant={token.trend === 'up' ? 'default' : 'destructive'} className="font-mono">
+          {token.trend === 'up' ? (
+            <TrendingUp className="w-3 h-3 mr-1" />
+          ) : (
+            <TrendingDown className="w-3 h-3 mr-1" />
+          )}
+          {token.trendValue}%
+        </Badge>
+      </div>
+
+
+      {/* Stats */}
+      <div className="mb-6 space-y-2">
+        {/* Featured Metric - TVL */}
+        <div className="bg-gradient-to-r from-primary/20 via-primary/10 to-transparent p-4 rounded-lg border-l-4 border-primary">
+          <div className="flex items-center justify-between">
+            <h4 className="font-mono text-lg font-bold text-primary">${formatNumber(token.totalTVL)}</h4>
+            <div className="px-2 py-1 bg-primary/20 rounded text-xs font-mono text-primary">TVL</div>
           </div>
-          <p className="font-mono text-xs text-muted-foreground">MC: ${formatNumber(token.marketCap)}</p>
+        </div>
+
+        {/* Secondary Metrics */}
+        <div className="grid grid-cols-3 gap-2">
+          <div className="bg-accent/5 border border-accent/20 p-3 rounded text-center">
+            <p className="font-mono text-xs text-accent/80 mb-1">APR</p>
+            <p className="font-mono font-bold text-accent">{token.apr}%</p>
+          </div>
+          
+          <div className="bg-muted/5 border border-muted/20 p-3 rounded text-center">
+            <p className="font-mono text-xs text-muted-foreground mb-1">MCap</p>
+            <p className="font-mono font-bold text-foreground text-sm">${formatNumber(token.marketCap)}</p>
+          </div>
+          
+          <div className="bg-muted/5 border border-muted/20 p-3 rounded text-center">
+            <p className="font-mono text-xs text-muted-foreground mb-1">Stakers</p>
+            <p className="font-mono font-bold text-foreground text-sm">{formatNumber(token.stakers)}</p>
+          </div>
         </div>
       </div>
 
-      {/* Main Metrics */}
-      <div className="space-y-4 mb-6">
-        <div className="relative overflow-hidden bg-gradient-to-r from-primary/20 to-primary/5 rounded-lg p-4 border-l-4 border-primary">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-mono text-sm text-primary/80 mb-1">TOTAL LOCKED</p>
-              <p className="font-mono text-2xl font-bold text-primary">${formatNumber(token.totalTVL)}</p>
-            </div>
-            <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
-              <Coins className="w-6 h-6 text-primary" />
-            </div>
-          </div>
-        </div>
-
-        <div className="relative overflow-hidden bg-gradient-to-r from-accent/20 to-accent/5 rounded-lg p-4 border-l-4 border-accent">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-mono text-sm text-accent/80 mb-1">ANNUAL RETURN</p>
-              <p className="font-mono text-2xl font-bold text-accent">{token.apr}%</p>
-            </div>
-            <div className="w-12 h-12 bg-accent/20 rounded-full flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-accent" />
-            </div>
-          </div>
-        </div>
+      {/* Time */}
+      <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
+        <Clock className="w-3 h-3" />
+        <span className="font-mono">{getTimeAgo(token.launchedAt)}</span>
       </div>
 
       {/* Action Button */}
       <Button 
-        variant="default" 
-        size="lg" 
-        className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white font-semibold rounded-lg h-12 group-hover:shadow-lg transition-all duration-300"
+        variant="cyber" 
+        size="default" 
+        className="w-full"
         onClick={handleEnterPool}
       >
-        <span>Stake Now</span>
-        <Coins className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+        Enter Pool
       </Button>
     </div>
   );
