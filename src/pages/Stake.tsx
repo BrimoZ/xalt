@@ -33,92 +33,60 @@ const Stake = () => {
       
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Top Section - Rabbit HUD */}
-        <div className="mb-8">
-          <div className="relative bg-gradient-to-br from-primary/5 to-accent/5 rounded-xl p-6 border border-primary/20">
-            {/* Central Rabbit Character */}
-            <div className="flex flex-col items-center mb-6">
-              <div className={`relative transition-all duration-500 ${totalStaked > 5000 ? 'text-6xl' : 'text-5xl'}`}>
-                🐰
-                {hasRewards && (
-                  <div className="absolute -top-2 -right-2 text-xl animate-bounce">
-                    🥕
-                  </div>
-                )}
-              </div>
-              <h1 className="font-orbitron font-bold text-xl text-center mt-3 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Rabbit Staking HUD
-              </h1>
-            </div>
-
-            {/* Stat Bubbles */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-              {/* Wallet Balance */}
-              <div className="bg-card/50 backdrop-blur-sm rounded-xl p-4 border border-border/50">
-                <div className="flex items-center gap-2 mb-2">
-                  <Wallet className="w-5 h-5 text-primary" />
-                  <span className="font-medium text-sm text-muted-foreground">Wallet Balance</span>
+        <div className="mb-6">
+          <div className="relative bg-gradient-to-br from-primary/5 to-accent/5 rounded-lg p-4 border border-primary/20">
+            <div className="flex items-center justify-between">
+              {/* Left: Rabbit Character & Title */}
+              <div className="flex items-center gap-4">
+                <div className={`relative transition-all duration-500 ${totalStaked > 5000 ? 'text-4xl' : 'text-3xl'}`}>
+                  🐰
+                  {hasRewards && (
+                    <div className="absolute -top-1 -right-1 text-sm animate-bounce">
+                      🥕
+                    </div>
+                  )}
                 </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">$RABBIT</span>
-                    <span className="font-mono font-bold text-primary">{userStats.walletRabbit.toFixed(2)}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">$BUNNY</span>
-                    <span className="font-mono font-bold text-accent">{userStats.walletBunny.toFixed(2)}</span>
-                  </div>
-                </div>
+                <h1 className="font-orbitron font-bold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  Rabbit Staking HUD
+                </h1>
               </div>
 
-              {/* Total Staked */}
-              <div className="bg-card/50 backdrop-blur-sm rounded-xl p-4 border border-border/50">
-                <div className="flex items-center gap-2 mb-2">
-                  <Target className="w-5 h-5 text-primary" />
-                  <span className="font-medium text-sm text-muted-foreground">Total Staked</span>
+              {/* Center: Compact Stats */}
+              <div className="flex items-center gap-6">
+                <div className="text-center">
+                  <div className="text-xs text-muted-foreground mb-1">Wallet</div>
+                  <div className="flex gap-3 text-sm">
+                    <span className="font-mono font-bold text-primary">{userStats.walletRabbit.toFixed(0)}</span>
+                    <span className="font-mono font-bold text-accent">{userStats.walletBunny.toFixed(0)}</span>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">$RABBIT</span>
+                <div className="text-center">
+                  <div className="text-xs text-muted-foreground mb-1">Staked</div>
+                  <div className="flex gap-3 text-sm">
                     <span className="font-mono font-bold text-primary">{userStats.totalStakedRabbit.toLocaleString()}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">$BUNNY</span>
                     <span className="font-mono font-bold text-accent">{userStats.totalStakedBunny.toLocaleString()}</span>
                   </div>
                 </div>
-              </div>
-
-              {/* Rewards Available */}
-              <div className="bg-card/50 backdrop-blur-sm rounded-xl p-4 border border-border/50">
-                <div className="flex items-center gap-2 mb-2">
-                  <Star className="w-5 h-5 text-yellow-500" />
-                  <span className="font-medium text-sm text-muted-foreground">Rewards Available</span>
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">$RABBIT</span>
+                <div className="text-center">
+                  <div className="text-xs text-muted-foreground mb-1">Rewards</div>
+                  <div className="flex gap-3 text-sm">
                     <span className="font-mono font-bold text-primary">{userStats.rewardsRabbit.toFixed(2)}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">$BUNNY</span>
                     <span className="font-mono font-bold text-accent">{userStats.rewardsBunny.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Claim Button */}
-            {hasRewards && (
-              <div className="flex justify-center">
+              {/* Right: Claim Button */}
+              {hasRewards && (
                 <Button 
-                  className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold px-8 py-3 rounded-xl"
-                  size="lg"
+                  className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold px-6 py-2 rounded-lg"
+                  size="sm"
                 >
-                  <Star className="w-5 h-5 mr-2" />
-                  Claim All Rewards
+                  <Star className="w-4 h-4 mr-2" />
+                  Claim All
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
 
