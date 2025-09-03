@@ -11,6 +11,7 @@ import TokenDetail from "./pages/TokenDetail";
 import LaunchToken from "./pages/LaunchToken";
 import ConnectX from "./pages/ConnectX";
 import Profile from "./pages/Profile";
+import Stake from "./pages/Stake";
 import HowItWorks from "./pages/HowItWorks";
 import BugBounty from "./pages/BugBounty";
 import NotFound from "./pages/NotFound";
@@ -32,6 +33,7 @@ const App = () => (
                 <Route path="/launch" element={<LaunchToken />} />
                 <Route path="/connect-x" element={<ConnectX />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/stake" element={<Stake />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/bug-bounty" element={<BugBounty />} />

@@ -95,6 +95,16 @@ const Navbar = () => {
             </Button>
             
             <Button
+              variant={location.pathname === "/stake" ? "cyber" : "ghost"}
+              size="sm"
+              onClick={() => navigate("/stake")}
+              className="gap-2"
+            >
+              <Zap className="w-4 h-4" />
+              Stake
+            </Button>
+            
+            <Button
               variant={location.pathname === "/how-it-works" ? "cyber" : "ghost"}
               size="sm"
               onClick={() => navigate("/how-it-works")}
