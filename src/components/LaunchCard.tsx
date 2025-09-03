@@ -74,38 +74,40 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
 
       {/* Stats */}
       <div className="mb-6">
-        {/* Primary Metrics Row */}
-        <div className="grid grid-cols-2 gap-3 mb-3">
-          <div className="relative overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 rounded-lg p-4">
-            <div className="absolute top-2 right-2">
-              <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+        {/* Compact Dashboard Style */}
+        <div className="bg-card/50 border border-border/50 rounded-lg p-4">
+          <div className="grid grid-cols-4 gap-4">
+            <div className="text-center">
+              <div className="w-8 h-8 mx-auto mb-2 bg-primary/20 rounded-full flex items-center justify-center">
+                <Coins className="w-4 h-4 text-primary" />
+              </div>
+              <p className="font-mono text-xs text-muted-foreground">TVL</p>
+              <p className="font-mono text-sm font-bold text-foreground">${formatNumber(token.totalTVL)}</p>
             </div>
-            <p className="font-mono text-xs text-primary/80 uppercase mb-2">Total TVL</p>
-            <p className="font-mono text-2xl font-bold text-primary">${formatNumber(token.totalTVL)}</p>
-          </div>
-          
-          <div className="relative overflow-hidden bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20 rounded-lg p-4">
-            <div className="absolute top-2 right-2">
-              <TrendingUp className="w-4 h-4 text-accent" />
+            
+            <div className="text-center">
+              <div className="w-8 h-8 mx-auto mb-2 bg-accent/20 rounded-full flex items-center justify-center">
+                <TrendingUp className="w-4 h-4 text-accent" />
+              </div>
+              <p className="font-mono text-xs text-muted-foreground">APR</p>
+              <p className="font-mono text-sm font-bold text-accent">{token.apr}%</p>
             </div>
-            <p className="font-mono text-xs text-accent/80 uppercase mb-2">APR</p>
-            <p className="font-mono text-2xl font-bold text-accent">{token.apr}%</p>
-          </div>
-        </div>
-
-        {/* Secondary Metrics Row */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-background/50 border border-border/50 rounded-lg p-4">
-            <p className="font-mono text-xs text-muted-foreground uppercase mb-2">Market Cap</p>
-            <p className="font-mono text-lg font-bold text-foreground">${formatNumber(token.marketCap)}</p>
-          </div>
-          
-          <div className="bg-background/50 border border-border/50 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
-              <p className="font-mono text-xs text-muted-foreground uppercase">Stakers</p>
-              <Users2 className="w-3 h-3 text-muted-foreground" />
+            
+            <div className="text-center">
+              <div className="w-8 h-8 mx-auto mb-2 bg-muted/20 rounded-full flex items-center justify-center">
+                <div className="w-2 h-2 bg-muted-foreground rounded-full"></div>
+              </div>
+              <p className="font-mono text-xs text-muted-foreground">MCap</p>
+              <p className="font-mono text-sm font-bold text-foreground">${formatNumber(token.marketCap)}</p>
             </div>
-            <p className="font-mono text-lg font-bold text-foreground">{formatNumber(token.stakers)}</p>
+            
+            <div className="text-center">
+              <div className="w-8 h-8 mx-auto mb-2 bg-muted/20 rounded-full flex items-center justify-center">
+                <Users2 className="w-4 h-4 text-muted-foreground" />
+              </div>
+              <p className="font-mono text-xs text-muted-foreground">Stakers</p>
+              <p className="font-mono text-sm font-bold text-foreground">{formatNumber(token.stakers)}</p>
+            </div>
           </div>
         </div>
       </div>
