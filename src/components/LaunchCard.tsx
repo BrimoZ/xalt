@@ -73,43 +73,31 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
 
 
       {/* Stats */}
-      <div className="mb-6 space-y-3">
-        {/* TVL with Progress Bar */}
-        <div className="flex items-center justify-between p-3 bg-background/30 rounded-lg border border-border/30">
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 bg-primary rounded-full"></div>
-            <span className="font-mono text-sm text-muted-foreground">Total TVL</span>
+      <div className="mb-6">
+        {/* Horizontal Badge Layout */}
+        <div className="flex flex-wrap gap-2">
+          <div className="flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-2">
+            <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+            <span className="font-mono text-xs text-primary font-medium">TVL</span>
+            <span className="font-mono text-sm font-bold text-primary">${formatNumber(token.totalTVL)}</span>
           </div>
-          <span className="font-mono text-lg font-bold text-primary">${formatNumber(token.totalTVL)}</span>
-        </div>
-
-        {/* APR with Trending Indicator */}
-        <div className="flex items-center justify-between p-3 bg-background/30 rounded-lg border border-border/30">
-          <div className="flex items-center gap-3">
-            <div className="w-6 h-3 bg-accent/20 rounded-full relative overflow-hidden">
-              <div className="absolute inset-0 bg-accent rounded-full animate-pulse" style={{width: `${Math.min(token.apr * 5, 100)}%`}}></div>
-            </div>
-            <span className="font-mono text-sm text-muted-foreground">APR</span>
+          
+          <div className="flex items-center gap-2 bg-accent/10 border border-accent/20 rounded-full px-4 py-2">
+            <TrendingUp className="w-3 h-3 text-accent" />
+            <span className="font-mono text-xs text-accent font-medium">APR</span>
+            <span className="font-mono text-sm font-bold text-accent">{token.apr}%</span>
           </div>
-          <span className="font-mono text-lg font-bold text-accent">{token.apr}%</span>
-        </div>
-
-        {/* Market Cap */}
-        <div className="flex items-center justify-between p-3 bg-background/30 rounded-lg border border-border/30">
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 bg-muted-foreground/50 rounded-sm"></div>
-            <span className="font-mono text-sm text-muted-foreground">Market Cap</span>
+          
+          <div className="flex items-center gap-2 bg-muted/10 border border-muted/20 rounded-full px-4 py-2">
+            <span className="font-mono text-xs text-muted-foreground font-medium">MCap</span>
+            <span className="font-mono text-sm font-bold text-foreground">${formatNumber(token.marketCap)}</span>
           </div>
-          <span className="font-mono text-lg font-bold text-foreground">${formatNumber(token.marketCap)}</span>
-        </div>
-
-        {/* Stakers with Icon */}
-        <div className="flex items-center justify-between p-3 bg-background/30 rounded-lg border border-border/30">
-          <div className="flex items-center gap-3">
-            <Users2 className="w-4 h-4 text-muted-foreground" />
-            <span className="font-mono text-sm text-muted-foreground">Stakers</span>
+          
+          <div className="flex items-center gap-2 bg-muted/10 border border-muted/20 rounded-full px-4 py-2">
+            <Users2 className="w-3 h-3 text-muted-foreground" />
+            <span className="font-mono text-xs text-muted-foreground font-medium">Stakers</span>
+            <span className="font-mono text-sm font-bold text-foreground">{formatNumber(token.stakers)}</span>
           </div>
-          <span className="font-mono text-lg font-bold text-foreground">{formatNumber(token.stakers)}</span>
         </div>
       </div>
 
