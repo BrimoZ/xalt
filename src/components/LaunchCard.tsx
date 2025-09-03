@@ -73,30 +73,30 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
 
 
       {/* Stats */}
-      <div className="mb-6">
-        {/* Horizontal Badge Layout */}
-        <div className="flex flex-wrap gap-2">
-          <div className="flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-2">
-            <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-            <span className="font-mono text-xs text-primary font-medium">TVL</span>
-            <span className="font-mono text-sm font-bold text-primary">${formatNumber(token.totalTVL)}</span>
+      <div className="mb-6 space-y-2">
+        {/* Featured Metric - TVL */}
+        <div className="bg-gradient-to-r from-primary/20 via-primary/10 to-transparent p-4 rounded-lg border-l-4 border-primary">
+          <div className="flex items-center justify-between">
+            <h4 className="font-mono text-lg font-bold text-primary">${formatNumber(token.totalTVL)}</h4>
+            <div className="px-2 py-1 bg-primary/20 rounded text-xs font-mono text-primary">TVL</div>
+          </div>
+        </div>
+
+        {/* Secondary Metrics */}
+        <div className="grid grid-cols-3 gap-2">
+          <div className="bg-accent/5 border border-accent/20 p-3 rounded text-center">
+            <p className="font-mono text-xs text-accent/80 mb-1">APR</p>
+            <p className="font-mono font-bold text-accent">{token.apr}%</p>
           </div>
           
-          <div className="flex items-center gap-2 bg-accent/10 border border-accent/20 rounded-full px-4 py-2">
-            <TrendingUp className="w-3 h-3 text-accent" />
-            <span className="font-mono text-xs text-accent font-medium">APR</span>
-            <span className="font-mono text-sm font-bold text-accent">{token.apr}%</span>
+          <div className="bg-muted/5 border border-muted/20 p-3 rounded text-center">
+            <p className="font-mono text-xs text-muted-foreground mb-1">MCap</p>
+            <p className="font-mono font-bold text-foreground text-sm">${formatNumber(token.marketCap)}</p>
           </div>
           
-          <div className="flex items-center gap-2 bg-muted/10 border border-muted/20 rounded-full px-4 py-2">
-            <span className="font-mono text-xs text-muted-foreground font-medium">MCap</span>
-            <span className="font-mono text-sm font-bold text-foreground">${formatNumber(token.marketCap)}</span>
-          </div>
-          
-          <div className="flex items-center gap-2 bg-muted/10 border border-muted/20 rounded-full px-4 py-2">
-            <Users2 className="w-3 h-3 text-muted-foreground" />
-            <span className="font-mono text-xs text-muted-foreground font-medium">Stakers</span>
-            <span className="font-mono text-sm font-bold text-foreground">{formatNumber(token.stakers)}</span>
+          <div className="bg-muted/5 border border-muted/20 p-3 rounded text-center">
+            <p className="font-mono text-xs text-muted-foreground mb-1">Stakers</p>
+            <p className="font-mono font-bold text-foreground text-sm">{formatNumber(token.stakers)}</p>
           </div>
         </div>
       </div>
