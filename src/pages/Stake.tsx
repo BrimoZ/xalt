@@ -33,19 +33,19 @@ const Stake = () => {
       
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Top Section - Rabbit HUD */}
-        <div className="mb-12">
-          <div className="relative bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl p-8 border border-primary/20">
+        <div className="mb-8">
+          <div className="relative bg-gradient-to-br from-primary/5 to-accent/5 rounded-xl p-6 border border-primary/20">
             {/* Central Rabbit Character */}
-            <div className="flex flex-col items-center mb-8">
-              <div className={`relative transition-all duration-500 ${totalStaked > 5000 ? 'text-8xl' : 'text-6xl'}`}>
+            <div className="flex flex-col items-center mb-6">
+              <div className={`relative transition-all duration-500 ${totalStaked > 5000 ? 'text-6xl' : 'text-5xl'}`}>
                 🐰
                 {hasRewards && (
-                  <div className="absolute -top-2 -right-2 text-2xl animate-bounce">
+                  <div className="absolute -top-2 -right-2 text-xl animate-bounce">
                     🥕
                   </div>
                 )}
               </div>
-              <h1 className="font-orbitron font-bold text-2xl text-center mt-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              <h1 className="font-orbitron font-bold text-xl text-center mt-3 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 Rabbit Staking HUD
               </h1>
             </div>
@@ -111,7 +111,7 @@ const Stake = () => {
             {hasRewards && (
               <div className="flex justify-center">
                 <Button 
-                  className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold px-8 py-3 rounded-xl shadow-lg shadow-yellow-500/30 animate-pulse"
+                  className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold px-8 py-3 rounded-xl"
                   size="lg"
                 >
                   <Star className="w-5 h-5 mr-2" />
