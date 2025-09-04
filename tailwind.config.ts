@@ -66,11 +66,11 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				cyber: {
-					yellow: '45 100% 50%',
-					red: '0 84% 60%',
-					dark: '0 0% 0%',
-					darker: '0 0% 0%',
+				bunny: {
+					pink: 'hsl(330 81% 60%)',
+					light: 'hsl(330 81% 70%)',
+					dark: 'hsl(0 0% 3%)',
+					darker: 'hsl(0 0% 1%)',
 				}
 			},
 			borderRadius: {
