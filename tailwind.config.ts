@@ -67,10 +67,10 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				bunny: {
-					pink: 'hsl(330 81% 60%)',
-					light: 'hsl(330 81% 70%)',
-					dark: 'hsl(0 0% 3%)',
-					darker: 'hsl(0 0% 1%)',
+					pink: 'hsl(330 100% 70%)',
+					light: 'hsl(330 100% 80%)',
+					dark: 'hsl(0 0% 6%)',
+					darker: 'hsl(0 0% 4%)',
 				}
 			},
 			borderRadius: {
