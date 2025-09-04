@@ -3,7 +3,7 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, BarChart3, Shield, Zap, TrendingUp, Users, DollarSign } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Index = () => {
@@ -14,141 +14,87 @@ const Index = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="py-24 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center">
-            <Badge variant="outline" className="mb-6 px-4 py-2">
-              Next Generation DeFi Platform
-            </Badge>
-            <h1 className="font-orbitron font-bold text-5xl md:text-6xl lg:text-7xl mb-6 text-foreground">
-              Professional
-              <span className="block bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Staking Solutions
-              </span>
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
-              Institutional-grade staking infrastructure designed for maximum returns and security. 
-              Build wealth through our professionally managed dual-token ecosystem.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button 
-                size="lg" 
-                className="px-8 py-4 text-lg font-semibold"
-                onClick={() => navigate("/stake")}
-              >
-                Start Staking Now
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="px-8 py-4 text-lg"
-                onClick={() => navigate("/how-it-works")}
-              >
-                View Documentation
-              </Button>
-            </div>
+      <section className="relative py-20 px-6 overflow-hidden">
+        <div className="absolute -top-8 -left-8 text-7xl opacity-10 select-none">🐰</div>
+        <div className="absolute -bottom-10 -right-6 text-7xl opacity-10 select-none">🐇</div>
+        <div className="max-w-6xl mx-auto text-center">
+          <div className="flex justify-center gap-3 mb-4">
+            <span className="px-3 py-1 rounded-full border border-primary/30 bg-primary/10 font-mono text-xs">🐰 $RABBIT</span>
+            <span className="px-3 py-1 rounded-full border border-accent/30 bg-accent/10 font-mono text-xs">🐇 $BUNNY</span>
+          </div>
+          <h1 className="font-orbitron font-bold text-5xl md:text-6xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-4">
+            Rabbit × Bunny Ecosystem
+          </h1>
+          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
+            Stake $RABBIT to earn $BUNNY — stake $BUNNY to earn $RABBIT. Simple loop. Serious rewards.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button className="px-8" size="lg" onClick={() => navigate("/stake")}>
+              Start Staking
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+            <Button variant="outline" size="lg" className="px-8" onClick={() => navigate("/how-it-works")}>
+              How it works
+            </Button>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 px-6 bg-card/30">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="font-orbitron font-bold text-4xl mb-4">Why Choose Our Platform</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Enterprise-level features built for serious investors
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="border-border/50 bg-card/50">
-              <CardHeader>
-                <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mb-4">
-                  <Shield className="w-6 h-6 text-primary" />
-                </div>
-                <CardTitle className="font-orbitron text-xl">Maximum Security</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Multi-signature wallets, audited smart contracts, and institutional-grade security protocols protect your assets.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-border/50 bg-card/50">
-              <CardHeader>
-                <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mb-4">
-                  <TrendingUp className="w-6 h-6 text-primary" />
-                </div>
-                <CardTitle className="font-orbitron text-xl">High Yield Returns</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Competitive APR rates with compound growth potential through our dual-token staking mechanism.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-border/50 bg-card/50">
-              <CardHeader>
-                <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mb-4">
-                  <Zap className="w-6 h-6 text-primary" />
-                </div>
-                <CardTitle className="font-orbitron text-xl">Instant Liquidity</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Flexible staking terms with no lock-up periods. Withdraw your funds anytime without penalties.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+      {/* Ecosystem Loop */}
+      <section className="py-16 px-6 bg-card/30">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-6">
+          <Card className="relative overflow-hidden border-primary/30 bg-gradient-to-br from-primary/10 to-transparent hover-scale">
+            <div className="absolute top-4 right-4 text-4xl opacity-20">🐰</div>
+            <CardHeader>
+              <CardTitle className="font-orbitron text-2xl">Stake $RABBIT → Earn $BUNNY</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">Lock $RABBIT and farm $BUNNY with competitive APR.</p>
+              <div className="flex gap-3">
+                <Button size="sm" onClick={() => navigate("/stake")}>Stake $RABBIT</Button>
+                <Button size="sm" variant="outline" onClick={() => navigate("/how-it-works")}>Learn more</Button>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="relative overflow-hidden border-accent/30 bg-gradient-to-br from-accent/10 to-transparent hover-scale">
+            <div className="absolute top-4 right-4 text-4xl opacity-20">🐇</div>
+            <CardHeader>
+              <CardTitle className="font-orbitron text-2xl">Stake $BUNNY → Earn $RABBIT</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">Stake $BUNNY and grow it back into $RABBIT for the loop.</p>
+              <div className="flex gap-3">
+                <Button size="sm" onClick={() => navigate("/stake")}>Stake $BUNNY</Button>
+                <Button size="sm" variant="outline" onClick={() => navigate("/how-it-works")}>Learn more</Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-20 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="font-orbitron font-bold text-4xl mb-4">Platform Performance</h2>
-            <p className="text-xl text-muted-foreground">
-              Trusted by thousands of investors worldwide
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <DollarSign className="w-8 h-8 text-primary" />
-              </div>
-              <div className="text-3xl font-mono font-bold text-foreground mb-2">$2.5M+</div>
-              <div className="text-sm text-muted-foreground font-medium">Total Value Locked</div>
+      {/* Highlights Strip */}
+      <section className="w-full border-y border-border/50 py-5 bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div>
+              <div className="text-2xl mb-1">🥕</div>
+              <div className="font-mono text-xl font-bold text-foreground">$425K</div>
+              <div className="text-xs text-muted-foreground">Rewards Distributed</div>
             </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-8 h-8 text-primary" />
-              </div>
-              <div className="text-3xl font-mono font-bold text-foreground mb-2">3,247</div>
-              <div className="text-sm text-muted-foreground font-medium">Active Investors</div>
+            <div>
+              <div className="text-2xl mb-1">🐰</div>
+              <div className="font-mono text-xl font-bold text-foreground">2.5M</div>
+              <div className="text-xs text-muted-foreground">$RABBIT Staked</div>
             </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <BarChart3 className="w-8 h-8 text-primary" />
-              </div>
-              <div className="text-3xl font-mono font-bold text-foreground mb-2">45.2%</div>
-              <div className="text-sm text-muted-foreground font-medium">Average APR</div>
+            <div>
+              <div className="text-2xl mb-1">🐇</div>
+              <div className="font-mono text-xl font-bold text-foreground">1.8M</div>
+              <div className="text-xs text-muted-foreground">$BUNNY Staked</div>
             </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="w-8 h-8 text-primary" />
-              </div>
-              <div className="text-3xl font-mono font-bold text-foreground mb-2">$425K</div>
-              <div className="text-sm text-muted-foreground font-medium">Rewards Distributed</div>
+            <div>
+              <div className="text-2xl mb-1">🎯</div>
+              <div className="font-mono text-xl font-bold text-foreground">45.2%</div>
+              <div className="text-xs text-muted-foreground">Peak APR</div>
             </div>
           </div>
         </div>
@@ -157,17 +103,16 @@ const Index = () => {
       {/* CTA Section */}
       <section className="py-20 px-6 bg-gradient-to-r from-primary/5 to-accent/5 border-y border-border/50">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="font-orbitron font-bold text-4xl mb-6">Ready to Start Earning?</h2>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Join thousands of investors who trust our platform for their staking needs. 
-            Professional-grade infrastructure with institutional returns.
+          <h2 className="font-orbitron font-bold text-4xl mb-6">Join the Rabbit × Bunny Loop</h2>
+          <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+            A playful ecosystem with professional-grade returns. Stake today and let the loop work for you.
           </p>
           <Button 
             size="lg" 
             className="px-8 py-4 text-lg font-semibold"
             onClick={() => navigate("/stake")}
           >
-            Get Started Today
+            Stake Now
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
         </div>
