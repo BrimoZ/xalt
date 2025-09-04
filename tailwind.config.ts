@@ -12,10 +12,9 @@ export default {
 	theme: {
 		container: {
 			center: true,
-			padding: '1.5rem',
+			padding: '2rem',
 			screens: {
-				'xl': '1100px',
-				'2xl': '1100px'
+				'2xl': '1400px'
 			}
 		},
 		extend: {
@@ -67,11 +66,11 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				bunny: {
-					pink: 'hsl(330 100% 70%)',
-					light: 'hsl(330 100% 80%)',
-					dark: 'hsl(0 0% 6%)',
-					darker: 'hsl(0 0% 4%)',
+				cyber: {
+					yellow: '45 100% 50%',
+					red: '0 84% 60%',
+					dark: '0 0% 0%',
+					darker: '0 0% 0%',
 				}
 			},
 			borderRadius: {
