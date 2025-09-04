@@ -31,6 +31,55 @@ const Stake = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       
+      {/* Hero Section */}
+      <div className="text-center py-16 px-6">
+        <h1 className="text-4xl md:text-6xl font-orbitron font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-6">
+          Stake & Earn
+        </h1>
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          Stake your $RABBIT to earn $BUNNY or stake $BUNNY to earn $RABBIT. Maximize your rewards with our high-yield staking pools.
+        </p>
+      </div>
+
+      {/* Statistics Section */}
+      <div className="w-full bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 border-y border-border/50 py-8 mb-8">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="text-center group">
+              <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                <Wallet className="w-6 h-6 text-primary" />
+              </div>
+              <div className="font-mono text-2xl font-bold text-foreground">{(userStats.walletRabbit + userStats.walletBunny).toLocaleString()}</div>
+              <div className="text-sm text-muted-foreground">Total Wallet</div>
+            </div>
+            
+            <div className="text-center group">
+              <div className="w-12 h-12 bg-accent/20 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                <Target className="w-6 h-6 text-accent" />
+              </div>
+              <div className="font-mono text-2xl font-bold text-foreground">{totalStaked.toLocaleString()}</div>
+              <div className="text-sm text-muted-foreground">Total Staked</div>
+            </div>
+            
+            <div className="text-center group">
+              <div className="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                <Trophy className="w-6 h-6 text-yellow-500" />
+              </div>
+              <div className="font-mono text-2xl font-bold text-foreground">{(userStats.rewardsRabbit + userStats.rewardsBunny).toFixed(2)}</div>
+              <div className="text-sm text-muted-foreground">Pending Rewards</div>
+            </div>
+            
+            <div className="text-center group">
+              <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                <TrendingUp className="w-6 h-6 text-green-500" />
+              </div>
+              <div className="font-mono text-2xl font-bold text-foreground">{userStats.lifetimeRewards.toLocaleString()}</div>
+              <div className="text-sm text-muted-foreground">Lifetime Rewards</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Compact Gaming HUD */}
         <div className="mb-6">
