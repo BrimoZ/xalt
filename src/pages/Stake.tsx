@@ -32,11 +32,33 @@ const Stake = () => {
       <Navbar />
       
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Compact Gaming HUD */}
-        <div className="mb-6">
-          <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
-            {/* Left Side - Rabbit */}
-            <div className="relative bg-gradient-to-br from-amber-600/15 to-orange-700/10 rounded-xl p-4 border border-amber-500/25">
+        {/* Full Width Statistics Section */}
+        <div className="w-full bg-gradient-to-r from-primary/10 via-accent/5 to-primary/10 rounded-lg p-3 mb-6 border border-primary/20">
+          <div className="flex items-center justify-between max-w-6xl mx-auto">
+            <div className="text-center">
+              <div className="text-xs text-muted-foreground">Total Staked</div>
+              <div className="font-mono font-bold text-primary">{totalStaked.toLocaleString()}</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xs text-muted-foreground">Total Rewards</div>
+              <div className="font-mono font-bold text-accent">{userStats.lifetimeRewards.toFixed(2)}</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xs text-muted-foreground">Active Pools</div>
+              <div className="font-mono font-bold text-primary">2</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xs text-muted-foreground">Avg APR</div>
+              <div className="font-mono font-bold text-green-400">{((userStats.rabbitApr + userStats.bunnyApr) / 2).toFixed(1)}%</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Left Column - Vertical HUD */}
+          <div className="space-y-4">
+            {/* Rabbit HUD */}
+            <div className="relative bg-gradient-to-br from-amber-600/15 to-orange-700/10 rounded-xl p-4 border border-amber-500/25 h-48">
               <div className="flex items-center gap-3 mb-3">
                 <div className="text-3xl animate-bounce">🐰</div>
                 <div>
@@ -68,8 +90,8 @@ const Stake = () => {
               </div>
             </div>
             
-            {/* Right Side - Bunny */}
-            <div className="relative bg-gradient-to-br from-sky-600/15 to-blue-700/10 rounded-xl p-4 border border-sky-500/25">
+            {/* Bunny HUD */}
+            <div className="relative bg-gradient-to-br from-sky-600/15 to-blue-700/10 rounded-xl p-4 border border-sky-500/25 h-48">
               <div className="flex items-center gap-3 mb-3">
                 <div className="text-3xl animate-pulse">🐇</div>
                 <div>
@@ -101,111 +123,111 @@ const Stake = () => {
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Middle Section - Staking Pools */}
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
-          {/* Pool 1: Stake RABBIT → Earn BUNNY */}
-          <Card className="relative overflow-hidden border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-            <div className="absolute top-0 right-0 w-20 h-20 text-4xl opacity-20">🐰</div>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
-                  <Coins className="w-5 h-5 text-primary" />
+          {/* Right Columns - Staking Pools */}
+          <div className="lg:col-span-2 grid md:grid-cols-2 gap-8">
+            {/* Pool 1: Stake RABBIT → Earn BUNNY */}
+            <Card className="relative overflow-hidden border-primary/20 bg-gradient-to-br from-primary/5 to-transparent h-96">
+              <div className="absolute top-0 right-0 w-20 h-20 text-4xl opacity-20">🐰</div>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
+                    <Coins className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <div className="font-orbitron">Stake $RABBIT</div>
+                    <div className="text-sm text-muted-foreground font-normal">Earn $BUNNY</div>
+                  </div>
+                  <Badge variant="default" className="ml-auto">
+                    {userStats.rabbitApr}% APR
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Currently Staked</span>
+                    <div className="font-mono font-bold text-primary">{userStats.totalStakedRabbit.toLocaleString()} $RABBIT</div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Rewards</span>
+                    <div className="font-mono font-bold text-accent">{userStats.rewardsBunny.toFixed(2)} $BUNNY</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="font-orbitron">Stake $RABBIT</div>
-                  <div className="text-sm text-muted-foreground font-normal">Earn $BUNNY</div>
+                
+                <div className="space-y-3">
+                  <Input
+                    placeholder="Amount to stake/unstake"
+                    value={rabbitStakeAmount}
+                    onChange={(e) => setRabbitStakeAmount(e.target.value)}
+                    className="font-mono"
+                  />
+                  <div className="flex gap-2">
+                    <Button variant="cyber" className="flex-1">
+                      Stake
+                    </Button>
+                    <Button variant="outline" className="flex-1">
+                      Unstake
+                    </Button>
+                    <Button variant="default" disabled={userStats.rewardsBunny === 0}>
+                      Claim
+                    </Button>
+                  </div>
                 </div>
-                <Badge variant="default" className="ml-auto">
-                  {userStats.rabbitApr}% APR
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-muted-foreground">Currently Staked</span>
-                  <div className="font-mono font-bold text-primary">{userStats.totalStakedRabbit.toLocaleString()} $RABBIT</div>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Rewards</span>
-                  <div className="font-mono font-bold text-accent">{userStats.rewardsBunny.toFixed(2)} $BUNNY</div>
-                </div>
-              </div>
-              
-              <div className="space-y-3">
-                <Input
-                  placeholder="Amount to stake/unstake"
-                  value={rabbitStakeAmount}
-                  onChange={(e) => setRabbitStakeAmount(e.target.value)}
-                  className="font-mono"
-                />
-                <div className="flex gap-2">
-                  <Button variant="cyber" className="flex-1">
-                    Stake
-                  </Button>
-                  <Button variant="outline" className="flex-1">
-                    Unstake
-                  </Button>
-                  <Button variant="default" disabled={userStats.rewardsBunny === 0}>
-                    Claim
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          {/* Pool 2: Stake BUNNY → Earn RABBIT */}
-          <Card className="relative overflow-hidden border-accent/20 bg-gradient-to-br from-accent/5 to-transparent">
-            <div className="absolute top-0 right-0 w-20 h-20 text-4xl opacity-20">🐇</div>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-accent/20 rounded-lg flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-accent" />
+            {/* Pool 2: Stake BUNNY → Earn RABBIT */}
+            <Card className="relative overflow-hidden border-accent/20 bg-gradient-to-br from-accent/5 to-transparent h-96">
+              <div className="absolute top-0 right-0 w-20 h-20 text-4xl opacity-20">🐇</div>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-accent/20 rounded-lg flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-accent" />
+                  </div>
+                  <div>
+                    <div className="font-orbitron">Stake $BUNNY</div>
+                    <div className="text-sm text-muted-foreground font-normal">Earn $RABBIT</div>
+                  </div>
+                  <Badge variant="secondary" className="ml-auto">
+                    {userStats.bunnyApr}% APR
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Currently Staked</span>
+                    <div className="font-mono font-bold text-accent">{userStats.totalStakedBunny.toLocaleString()} $BUNNY</div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Rewards</span>
+                    <div className="font-mono font-bold text-primary">{userStats.rewardsRabbit.toFixed(2)} $RABBIT</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="font-orbitron">Stake $BUNNY</div>
-                  <div className="text-sm text-muted-foreground font-normal">Earn $RABBIT</div>
+                
+                <div className="space-y-3">
+                  <Input
+                    placeholder="Amount to stake/unstake"
+                    value={bunnyStakeAmount}
+                    onChange={(e) => setBunnyStakeAmount(e.target.value)}
+                    className="font-mono"
+                  />
+                  <div className="flex gap-2">
+                    <Button variant="cyber" className="flex-1">
+                      Stake
+                    </Button>
+                    <Button variant="outline" className="flex-1">
+                      Unstake
+                    </Button>
+                    <Button variant="default" disabled={userStats.rewardsRabbit === 0}>
+                      Claim
+                    </Button>
+                  </div>
                 </div>
-                <Badge variant="secondary" className="ml-auto">
-                  {userStats.bunnyApr}% APR
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-muted-foreground">Currently Staked</span>
-                  <div className="font-mono font-bold text-accent">{userStats.totalStakedBunny.toLocaleString()} $BUNNY</div>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Rewards</span>
-                  <div className="font-mono font-bold text-primary">{userStats.rewardsRabbit.toFixed(2)} $RABBIT</div>
-                </div>
-              </div>
-              
-              <div className="space-y-3">
-                <Input
-                  placeholder="Amount to stake/unstake"
-                  value={bunnyStakeAmount}
-                  onChange={(e) => setBunnyStakeAmount(e.target.value)}
-                  className="font-mono"
-                />
-                <div className="flex gap-2">
-                  <Button variant="cyber" className="flex-1">
-                    Stake
-                  </Button>
-                  <Button variant="outline" className="flex-1">
-                    Unstake
-                  </Button>
-                  <Button variant="default" disabled={userStats.rewardsRabbit === 0}>
-                    Claim
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
       
