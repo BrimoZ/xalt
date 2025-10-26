@@ -101,7 +101,7 @@ const LiveLaunchesFeed = () => {
             Active Funding Pools
           </h2>
           <p className="font-mono text-muted-foreground max-w-2xl mx-auto">
-            Support projects you believe in using your Donation Balance. Every contribution is transparent, on-chain, and trackable.
+            Support funding pools you believe in using your Donation Balance. Every contribution is transparent, on-chain, and trackable.
           </p>
         </div>
 
