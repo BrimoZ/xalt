@@ -51,65 +51,72 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
   return (
     <div className="bg-card border border-border rounded-sm p-6 hover-glitch transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20 cursor-pointer">
       {/* Header */}
-      <div className="flex items-start gap-4 mb-6">
-        {/* Larger Pool Image */}
-        <div className="w-20 h-20 bg-primary/20 rounded-lg flex items-center justify-center text-primary font-bold text-2xl border border-primary/30 flex-shrink-0">
-          {token.symbol.slice(0, 2)}
-        </div>
-        
-        {/* Token Info and Trend */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between mb-2">
-            <div className="flex-1 min-w-0 pr-2">
-              <h3 className="font-orbitron font-bold text-foreground text-lg truncate">{token.name}</h3>
-              <p className="font-mono text-sm text-muted-foreground">${token.symbol}</p>
-            </div>
-            <Badge variant={token.trend === 'up' ? 'default' : 'destructive'} className="font-mono flex-shrink-0">
-              {token.trend === 'up' ? (
-                <TrendingUp className="w-3 h-3 mr-1" />
-              ) : (
-                <TrendingDown className="w-3 h-3 mr-1" />
-              )}
-              {token.trendValue}%
-            </Badge>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-primary/20 rounded-sm flex items-center justify-center text-primary font-bold text-lg">
+            {token.symbol.slice(0, 2)}
           </div>
-          
-          {/* Time */}
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Clock className="w-3 h-3" />
-            <span className="font-mono">{getTimeAgo(token.launchedAt)}</span>
+          <div>
+            <h3 className="font-orbitron font-bold text-foreground">{token.name}</h3>
+            <p className="font-mono text-sm text-muted-foreground">${token.symbol}</p>
           </div>
         </div>
+        <Badge variant={token.trend === 'up' ? 'default' : 'destructive'} className="font-mono">
+          {token.trend === 'up' ? (
+            <TrendingUp className="w-3 h-3 mr-1" />
+          ) : (
+            <TrendingDown className="w-3 h-3 mr-1" />
+          )}
+          {token.trendValue}%
+        </Badge>
       </div>
 
 
       {/* Stats */}
-      <div className="mb-6 space-y-2">
-        {/* Featured Metric - TVL */}
-        <div className="bg-gradient-to-r from-primary/20 via-primary/10 to-transparent p-4 rounded-lg border-l-4 border-primary">
-          <div className="flex items-center justify-between">
-            <h4 className="font-mono text-lg font-bold text-primary">${formatNumber(token.totalTVL)}</h4>
-            <div className="px-2 py-1 bg-primary/20 rounded text-xs font-mono text-primary">TVL</div>
+      <div className="mb-6 space-y-3">
+        {/* TVL with Progress Bar */}
+        <div className="flex items-center justify-between p-3 bg-background/30 rounded-lg border border-border/30">
+          <div className="flex items-center gap-3">
+            <div className="w-3 h-3 bg-primary rounded-full"></div>
+            <span className="font-mono text-sm text-muted-foreground">Total TVL</span>
           </div>
+          <span className="font-mono text-lg font-bold text-primary">${formatNumber(token.totalTVL)}</span>
         </div>
 
-        {/* Secondary Metrics */}
-        <div className="grid grid-cols-3 gap-2">
-          <div className="bg-accent/5 border border-accent/20 p-3 rounded text-center">
-            <p className="font-mono text-xs text-accent/80 mb-1">APR</p>
-            <p className="font-mono font-bold text-accent">{token.apr}%</p>
+        {/* APR with Trending Indicator */}
+        <div className="flex items-center justify-between p-3 bg-background/30 rounded-lg border border-border/30">
+          <div className="flex items-center gap-3">
+            <div className="w-6 h-3 bg-accent/20 rounded-full relative overflow-hidden">
+              <div className="absolute inset-0 bg-accent rounded-full animate-pulse" style={{width: `${Math.min(token.apr * 5, 100)}%`}}></div>
+            </div>
+            <span className="font-mono text-sm text-muted-foreground">APR</span>
           </div>
-          
-          <div className="bg-muted/5 border border-muted/20 p-3 rounded text-center">
-            <p className="font-mono text-xs text-muted-foreground mb-1">MCap</p>
-            <p className="font-mono font-bold text-foreground text-sm">${formatNumber(token.marketCap)}</p>
-          </div>
-          
-          <div className="bg-muted/5 border border-muted/20 p-3 rounded text-center">
-            <p className="font-mono text-xs text-muted-foreground mb-1">Stakers</p>
-            <p className="font-mono font-bold text-foreground text-sm">{formatNumber(token.stakers)}</p>
-          </div>
+          <span className="font-mono text-lg font-bold text-accent">{token.apr}%</span>
         </div>
+
+        {/* Market Cap */}
+        <div className="flex items-center justify-between p-3 bg-background/30 rounded-lg border border-border/30">
+          <div className="flex items-center gap-3">
+            <div className="w-3 h-3 bg-muted-foreground/50 rounded-sm"></div>
+            <span className="font-mono text-sm text-muted-foreground">Market Cap</span>
+          </div>
+          <span className="font-mono text-lg font-bold text-foreground">${formatNumber(token.marketCap)}</span>
+        </div>
+
+        {/* Stakers with Icon */}
+        <div className="flex items-center justify-between p-3 bg-background/30 rounded-lg border border-border/30">
+          <div className="flex items-center gap-3">
+            <Users2 className="w-4 h-4 text-muted-foreground" />
+            <span className="font-mono text-sm text-muted-foreground">Stakers</span>
+          </div>
+          <span className="font-mono text-lg font-bold text-foreground">{formatNumber(token.stakers)}</span>
+        </div>
+      </div>
+
+      {/* Time */}
+      <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
+        <Clock className="w-3 h-3" />
+        <span className="font-mono">{getTimeAgo(token.launchedAt)}</span>
       </div>
 
       {/* Action Button */}
