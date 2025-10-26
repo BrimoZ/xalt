@@ -4,7 +4,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center">
           <div className="font-mono text-sm text-muted-foreground">
-            © 2025 Xalt. Building the future of token launches.
+            © 2025 FundMe. Building the future of crowdfunding.
           </div>
         </div>
       </div>

@@ -202,7 +202,7 @@ const LaunchToken = () => {
               <User className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
               <h2 className="text-2xl font-bold mb-2">Wallet Required</h2>
               <p className="text-muted-foreground mb-6">
-                You need to connect your Phantom wallet to launch a fund pool on Xalt.
+                You need to connect your Phantom wallet to launch a fund pool on FundMe.
               </p>
               <Button onClick={() => navigate('/connect-wallet')} className="w-full">
                 Connect Wallet

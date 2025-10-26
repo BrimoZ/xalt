@@ -2,33 +2,33 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Zap, Users, TrendingUp, Shield, Globe, Rocket, ArrowRight, Code, Settings, Target, Plus, Minus } from "lucide-react";
+import { Heart, Users, TrendingUp, Shield, Globe, Target, ArrowRight, HandHeart, DollarSign, Plus, Minus } from "lucide-react";
 import { useState } from "react";
 
 const HowItWorks = () => {
   const steps = [
     {
-      icon: <Rocket className="w-8 h-8 text-primary" />,
-      title: "Launch Your Token",
-      description: "Create and deploy your token with our easy-to-use launch pad. Set your parameters and go live in minutes.",
+      icon: <Target className="w-8 h-8 text-primary" />,
+      title: "Create Your Fund Pool",
+      description: "Set up your funding goal, describe your project, and launch your pool in minutes with transparent on-chain tracking.",
       badge: "Step 1"
     },
     {
       icon: <Users className="w-8 h-8 text-primary" />,
-      title: "Build Community",
-      description: "Connect with X users and followers. Engage your community through our integrated social features.",
+      title: "Share with Backers",
+      description: "Connect with supporters through X, Telegram, and Discord. Build your community and share your vision.",
       badge: "Step 2"
     },
     {
-      icon: <TrendingUp className="w-8 h-8 text-primary" />,
-      title: "Track Performance",
-      description: "Monitor your token's progress with real-time analytics, bonding curves, and holder tracking.",
+      icon: <Heart className="w-8 h-8 text-primary" />,
+      title: "Receive Donations",
+      description: "Backers support your pool using their Donation Balance. Every contribution is tracked on-chain for full transparency.",
       badge: "Step 3"
     },
     {
       icon: <Globe className="w-8 h-8 text-primary" />,
-      title: "Scale Globally",
-      description: "Reach a global audience and scale your project with our comprehensive tokenomics tools.",
+      title: "Reach Your Goal",
+      description: "Track progress in real-time as your funding pool grows. Engage with backers and build lasting relationships.",
       badge: "Step 4"
     }
   ];
@@ -37,51 +37,51 @@ const HowItWorks = () => {
 
   const faqs = [
     {
-      question: "How long does it take to launch a token?",
-      answer: "With Xalt, you can launch your token in just a few minutes. Our streamlined process handles smart contract deployment, verification, and initial setup automatically."
+      question: "How do I create a funding pool?",
+      answer: "Creating a fund pool on FundMe takes just minutes. Connect your wallet, set your funding goal and details, add social links, and launch. Our platform handles all the on-chain tracking automatically."
     },
     {
-      question: "Do I need technical knowledge to use Xalt?",
-      answer: "No technical knowledge required! Our user-friendly interface guides you through each step. Simply connect your X account, set your token parameters, and launch."
+      question: "What is Donation Balance?",
+      answer: "Donation Balance is the currency backers use to support funding pools on FundMe. It ensures fair and transparent contributions, with all transactions recorded on-chain."
     },
     {
-      question: "What are bonding curves and how do they work?",
-      answer: "Bonding curves automatically manage your token's price based on supply and demand. As more tokens are bought, the price increases gradually, ensuring fair price discovery."
+      question: "How does the funding process work?",
+      answer: "Backers discover your pool, review your details, and contribute using their Donation Balance. You can track all contributions in real-time, engage with backers through hearts and questions."
     },
     {
-      question: "Can I customize my token's parameters?",
-      answer: "Yes! You can set your token name, symbol, total supply, hardcap, and choose between different launch modes including community access controls."
+      question: "Can I customize my funding pool?",
+      answer: "Yes! You can set your funding goal, add detailed descriptions, upload images, and link your social media accounts (X, Telegram, Discord) to build community engagement."
     },
     {
-      question: "How does X integration work?",
-      answer: "Connect your X account to leverage your existing followers and network. You can restrict token access to your followers or make it open to all X users."
+      question: "How do backers interact with pools?",
+      answer: "Backers can give hearts to show support, donate from their balance, ask questions, and track the funding progress. All interactions are transparent and on-chain."
     },
     {
-      question: "Are the smart contracts secure?",
-      answer: "All smart contracts are audited and battle-tested. We use industry-standard security practices and automated verification to ensure your token is safe."
+      question: "Is FundMe secure?",
+      answer: "Absolutely. All transactions are on-chain using Solana blockchain, ensuring complete transparency and security. Wallet authentication through Phantom provides additional protection."
     }
   ];
 
   const platformFlow = [
     {
-      icon: <Settings className="w-8 h-8 text-primary" />,
-      title: "Configure",
-      description: "Set up your token parameters, name, symbol, and initial settings"
-    },
-    {
-      icon: <Code className="w-8 h-8 text-primary" />,
-      title: "Deploy",
-      description: "Smart contract deployment to blockchain with automated verification"
-    },
-    {
-      icon: <Users className="w-8 h-8 text-primary" />,
-      title: "Community",
-      description: "Connect your X account and start building your community"
-    },
-    {
       icon: <Target className="w-8 h-8 text-primary" />,
-      title: "Launch",
-      description: "Go live with bonding curve mechanics and real-time trading"
+      title: "Set Goal",
+      description: "Define your funding target and project details"
+    },
+    {
+      icon: <HandHeart className="w-8 h-8 text-primary" />,
+      title: "Share",
+      description: "Promote your pool across social media to attract backers"
+    },
+    {
+      icon: <DollarSign className="w-8 h-8 text-primary" />,
+      title: "Receive",
+      description: "Get donations from backers using their Donation Balance"
+    },
+    {
+      icon: <TrendingUp className="w-8 h-8 text-primary" />,
+      title: "Succeed",
+      description: "Track progress and engage with your community"
     }
   ];
 
@@ -92,11 +92,11 @@ const HowItWorks = () => {
       <div className="max-w-6xl mx-auto px-6 py-12">
         <div className="text-center mb-16">
           <h1 className="text-5xl font-orbitron font-bold text-foreground mb-6">
-            How Xalt Works
+            How FundMe Works
           </h1>
           <p className="text-muted-foreground text-xl max-w-3xl mx-auto">
-            The easiest way to launch, manage, and scale your token project. 
-            From concept to community in just a few clicks.
+            The easiest way to create, share, and fund your projects. 
+            From concept to funding in just a few clicks.
           </p>
         </div>
 
@@ -124,10 +124,10 @@ const HowItWorks = () => {
         <div className="mb-16">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-orbitron font-bold text-foreground mb-4">
-              Platform Flow
+              Funding Flow
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Our streamlined launching process takes you from concept to live token in minutes
+              Our streamlined process takes you from idea to funded project seamlessly
             </p>
           </div>
           <div className="relative">
@@ -161,7 +161,7 @@ const HowItWorks = () => {
               Frequently Asked Questions
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Everything you need to know about launching tokens on Xalt
+              Everything you need to know about crowdfunding on FundMe
             </p>
           </div>
           <div className="max-w-4xl mx-auto space-y-4">

@@ -42,18 +42,18 @@ const HeroSection = () => {
 
         {/* Subtitle */}
         <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-12 leading-relaxed">
-          Xalt is the first Solana launchpad powered by real X identities.
+          FundMe is the first Solana crowdfunding platform powered by real X identities.
           <br />
-          <span className="text-primary font-semibold">Verified devs. Real buyers. No bots. No fake launches.</span>
+          <span className="text-primary font-semibold">Verified creators. Real backers. No bots. No scams.</span>
         </p>
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-6 mb-16">
           <Button size="lg" className="h-16 px-10 text-lg font-semibold group" onClick={() => window.location.href = '/launch'}>
-            Launch Your Token
+            Launch Fund Pool
             <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
           </Button>
-          <Button variant="outline" size="lg" className="h-16 px-10 text-lg group" onClick={() => window.open('https://github.com/BrimoZ/xalt', '_blank')}>
+          <Button variant="outline" size="lg" className="h-16 px-10 text-lg group" onClick={() => window.open('https://github.com/BrimoZ/fundme', '_blank')}>
             <Github className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" />
             Github
           </Button>

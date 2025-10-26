@@ -38,12 +38,12 @@ const Navbar = () => {
               <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg hover:bg-yellow-300 transition-colors">
                 <img 
                   src="/lovable-uploads/998b4520-3cd3-4308-930f-35d870244c7d.png" 
-                  alt="Xalt Logo" 
+                  alt="FundMe Logo" 
                   className="w-6 h-6 object-contain"
                 />
               </div>
               <span className="font-orbitron font-bold text-xl text-foreground">
-                Xalt
+                FundMe
               </span>
             </div>
             
@@ -126,17 +126,6 @@ const Navbar = () => {
               <Plus className="w-4 h-4" />
               Launch Fund Pool
             </Button>
-            
-            {user && isWalletConnected && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-2 font-mono"
-              >
-                <Wallet className="w-4 h-4" />
-                {(Math.random() * 10 + 1).toFixed(2)} SOL
-              </Button>
-            )}
             
             {user && isWalletConnected ? (
               <DropdownMenu>
