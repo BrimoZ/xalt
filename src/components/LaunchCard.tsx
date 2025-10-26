@@ -235,11 +235,19 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
     >
       {/* Image */}
       <div className="h-32 bg-gradient-to-br from-primary/20 via-accent/10 to-background relative overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-12 h-12 bg-primary/30 rounded-md flex items-center justify-center backdrop-blur-sm border border-primary/50">
-            <span className="text-xl font-bold text-primary">{token.symbol.slice(0, 2)}</span>
+        {token.icon ? (
+          <img 
+            src={token.icon} 
+            alt={token.name} 
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-12 h-12 bg-primary/30 rounded-md flex items-center justify-center backdrop-blur-sm border border-primary/50">
+              <span className="text-xl font-bold text-primary">{token.symbol.slice(0, 2)}</span>
+            </div>
           </div>
-        </div>
+        )}
         <Badge variant="outline" className="absolute top-2 right-2 text-xs h-5 bg-card/90 backdrop-blur-sm">
           {token.category || 'DeFi'}
         </Badge>
@@ -433,11 +441,19 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
           <div className="space-y-6">
             {/* Banner Image */}
             <div className="h-48 bg-gradient-to-br from-primary/20 via-accent/10 to-background rounded-lg relative overflow-hidden">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-20 h-20 bg-primary/30 rounded-lg flex items-center justify-center backdrop-blur-sm border-2 border-primary/50">
-                  <span className="text-4xl font-bold text-primary">{token.symbol.slice(0, 2)}</span>
+              {token.icon ? (
+                <img 
+                  src={token.icon} 
+                  alt={token.name} 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-20 h-20 bg-primary/30 rounded-lg flex items-center justify-center backdrop-blur-sm border-2 border-primary/50">
+                    <span className="text-4xl font-bold text-primary">{token.symbol.slice(0, 2)}</span>
+                  </div>
                 </div>
-              </div>
+              )}
               <Badge variant="outline" className="absolute top-4 right-4 bg-card/90 backdrop-blur-sm">
                 {token.category || 'DeFi'}
               </Badge>
