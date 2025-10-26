@@ -30,43 +30,25 @@ const LiveLaunchesFeed = () => {
 
   const fetchStats = async () => {
     try {
-      // Fetch total bonded tokens (progress = 100)
-      const { count: bondedCount } = await supabase
+      // Fetch total bonded tokens (current_amount >= goal_amount)
+      const { data: allTokens } = await supabase
         .from('tokens')
-        .select('*', { count: 'exact', head: true })
-        .eq('progress', 100);
+        .select('current_amount, goal_amount');
       
-      setTotalBonded(bondedCount || 0);
+      const bondedCount = allTokens?.filter(t => t.current_amount >= t.goal_amount).length || 0;
+      setTotalBonded(bondedCount);
 
-      // Fetch total 24h volume
-      const { data: volumeData } = await supabase
+      // Fetch total TVL (sum of all current_amount)
+      const totalTVL = allTokens?.reduce((sum, token) => sum + Number(token.current_amount), 0) || 0;
+      setTotalVolume24h(totalTVL);
+
+      // For now, use a simple count of unique creators as active users
+      const { data: uniqueCreators } = await supabase
         .from('tokens')
-        .select('volume_24h');
-      
-      const total24hVolume = volumeData?.reduce((sum, token) => sum + Number(token.volume_24h), 0) || 0;
-      setTotalVolume24h(total24hVolume);
+        .select('creator_id');
 
-      // Fetch active users (users who made trades or comments in last 24h)
-      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-      
-      // Get unique users from trades
-      const { data: tradeUsers } = await supabase
-        .from('trades')
-        .select('user_id')
-        .gte('created_at', twentyFourHoursAgo);
-
-      // Get unique users from comments
-      const { data: commentUsers } = await supabase
-        .from('token_comments')
-        .select('user_id')
-        .gte('created_at', twentyFourHoursAgo);
-
-      const allActiveUsers = new Set([
-        ...(tradeUsers?.map(t => t.user_id) || []),
-        ...(commentUsers?.map(c => c.user_id) || [])
-      ]);
-
-      setActiveUsers(allActiveUsers.size);
+      const uniqueCount = new Set(uniqueCreators?.map(t => t.creator_id) || []).size;
+      setActiveUsers(uniqueCount);
     } catch (error) {
       console.error('Error fetching stats:', error);
     }
@@ -76,175 +58,25 @@ const LiveLaunchesFeed = () => {
     fetchStats();
   }, []);
 
-  // Mockup launches
-  const mockupLaunches = [
-    {
-      id: 'mock-1',
-      name: 'RabbitFi',
-      symbol: 'RABBIT',
-      icon: '',
-      category: 'DeFi',
-      description: 'RabbitFi is a next-generation DeFi protocol offering high-yield staking and liquidity pools. Our mission is to make DeFi accessible to everyone while maintaining security and transparency.',
-      dev: {
-        handle: '@cryptorabbit',
-        followers: 45000,
-        verified: true,
-        bio: 'Building the future of DeFi | Web3 Developer',
-        twitter: 'https://twitter.com/cryptorabbit',
-        telegram: 'https://t.me/rabbitfi',
-        website: 'https://rabbitfi.io',
-      },
-      totalTVL: 2500000,
-      apr: 18.5,
-      marketCap: 8500000,
-      stakers: 3247,
-      launchedAt: new Date(Date.now() - 3600000).toISOString(),
-      trend: 'up' as const,
-      trendValue: 12.4,
-    },
-    {
-      id: 'mock-2',
-      name: 'BunnySwap',
-      symbol: 'BUNNY',
-      icon: '',
-      category: 'DEX',
-      description: 'A decentralized exchange focused on low fees and lightning-fast swaps. Trade your favorite tokens with minimal slippage and maximum efficiency.',
-      dev: {
-        handle: '@bunnydegen',
-        followers: 32000,
-        verified: true,
-        bio: 'DEX Builder | Smart Contract Auditor',
-        twitter: 'https://twitter.com/bunnydegen',
-        discord: 'https://discord.gg/bunnyswap',
-        website: 'https://bunnyswap.finance',
-      },
-      totalTVL: 1800000,
-      apr: 24.2,
-      marketCap: 6200000,
-      stakers: 2891,
-      launchedAt: new Date(Date.now() - 7200000).toISOString(),
-      trend: 'up' as const,
-      trendValue: 8.9,
-    },
-    {
-      id: 'mock-3',
-      name: 'CarrotDAO',
-      symbol: 'CRRT',
-      icon: '',
-      category: 'DAO',
-      description: 'Community-driven governance platform empowering token holders to shape the future of decentralized organizations through transparent voting mechanisms.',
-      dev: {
-        handle: '@carrotking',
-        followers: 28000,
-        verified: true,
-        bio: 'DAO Governance Expert | Community Leader',
-        twitter: 'https://twitter.com/carrotking',
-        telegram: 'https://t.me/carrotdao',
-        discord: 'https://discord.gg/carrotdao',
-      },
-      totalTVL: 950000,
-      apr: 31.8,
-      marketCap: 3400000,
-      stakers: 1654,
-      launchedAt: new Date(Date.now() - 10800000).toISOString(),
-      trend: 'down' as const,
-      trendValue: 3.2,
-    },
-    {
-      id: 'mock-4',
-      name: 'HopToken',
-      symbol: 'HOP',
-      icon: '',
-      category: 'Gaming',
-      description: 'Revolutionary play-to-earn gaming ecosystem with NFT integration and sustainable tokenomics designed for long-term growth and player rewards.',
-      dev: {
-        handle: '@hopmaster',
-        followers: 52000,
-        verified: true,
-        bio: 'GameFi Pioneer | NFT Enthusiast',
-        twitter: 'https://twitter.com/hopmaster',
-        discord: 'https://discord.gg/hoptoken',
-        website: 'https://hoptoken.gg',
-      },
-      totalTVL: 3200000,
-      apr: 15.7,
-      marketCap: 11000000,
-      stakers: 4123,
-      launchedAt: new Date(Date.now() - 14400000).toISOString(),
-      trend: 'up' as const,
-      trendValue: 15.6,
-    },
-    {
-      id: 'mock-5',
-      name: 'FluffyFinance',
-      symbol: 'FLUFF',
-      icon: '',
-      category: 'Lending',
-      description: 'Secure lending and borrowing platform with competitive rates and instant liquidity. Earn passive income on your crypto holdings with safety first.',
-      dev: {
-        handle: '@fluffydev',
-        followers: 19000,
-        verified: true,
-        bio: 'DeFi Protocol Developer',
-        twitter: 'https://twitter.com/fluffydev',
-        telegram: 'https://t.me/fluffyfinance',
-      },
-      totalTVL: 680000,
-      apr: 42.5,
-      marketCap: 2100000,
-      stakers: 987,
-      launchedAt: new Date(Date.now() - 18000000).toISOString(),
-      trend: 'up' as const,
-      trendValue: 22.1,
-    },
-    {
-      id: 'mock-6',
-      name: 'EggDAO',
-      symbol: 'EGG',
-      icon: '',
-      category: 'NFT',
-      description: 'Exclusive NFT marketplace and launchpad for creators. Join our community of artists and collectors building the future of digital art.',
-      dev: {
-        handle: '@eggcellent',
-        followers: 38000,
-        verified: true,
-        bio: 'NFT Curator | Digital Artist',
-        twitter: 'https://twitter.com/eggcellent',
-        discord: 'https://discord.gg/eggdao',
-        website: 'https://eggdao.art',
-      },
-      totalTVL: 1500000,
-      apr: 19.3,
-      marketCap: 5800000,
-      stakers: 2345,
-      launchedAt: new Date(Date.now() - 21600000).toISOString(),
-      trend: 'down' as const,
-      trendValue: 5.8,
-    },
-  ];
-
-  // Convert tokens to staking pool format
-  const launches = [
-    ...mockupLaunches,
-    ...tokens.map(token => ({
+  // Convert tokens to staking pool format - only show real user-created pools
+  const launches = tokens.map(token => ({
     id: token.id,
     name: token.name,
     symbol: token.symbol,
     icon: token.image_url || "",
     dev: {
-      handle: `@${token.creator_username}`,
+      handle: `@${token.creator_id.slice(0, 8)}`,
       followers: Math.floor(Math.random() * 50000) + 5000,
       verified: true,
     },
-    totalTVL: Math.floor(token.volume_24h * 5), // Simulated TVL based on volume
+    totalTVL: Math.floor(token.current_amount * 5), // Simulated TVL
     apr: Math.floor(Math.random() * 15) + 5, // Random APR between 5-20%
-    marketCap: Math.floor(token.market_cap),
-    stakers: Math.floor(token.holders), // Use holders as stakers
+    marketCap: Math.floor(token.current_amount * 10),
+    stakers: Math.floor(Math.random() * 1000) + 100,
     launchedAt: token.created_at,
     trend: token.price_change_24h >= 0 ? 'up' : 'down' as 'up' | 'down',
     trendValue: Math.abs(token.price_change_24h),
-  }))
-  ];
+  }));
 
   const filteredLaunches = launches.filter(launch =>
     launch.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

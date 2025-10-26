@@ -1,27 +1,24 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { User, Session } from '@supabase/supabase-js';
 
-interface MockUser {
+interface Profile {
   id: string;
-  email: string;
-  created_at: string;
-}
-
-interface MockProfile {
-  id: string;
-  user_id: string;
-  username?: string;
-  display_name?: string;
-  avatar_url?: string;
-  wallet_address?: string;
+  wallet_address: string;
+  username: string | null;
+  display_name: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+  total_raised: number;
+  total_donated: number;
   created_at: string;
   updated_at: string;
 }
 
 interface AuthContextType {
-  user: MockUser | null;
-  session: any;
-  profile: MockProfile | null;
+  user: User | null;
+  session: Session | null;
+  profile: Profile | null;
   loading: boolean;
   connectWallet: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -59,32 +56,57 @@ const generateMockDisplayName = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<MockUser | null>(null);
-  const [session, setSession] = useState<any>(null);
-  const [profile, setProfile] = useState<MockProfile | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
   const isWalletConnected = !!(profile?.wallet_address);
 
   useEffect(() => {
-    // Check for existing session
-    const initializeAuth = async () => {
-      const savedSession = localStorage.getItem('mock_session');
-      if (savedSession) {
-        try {
-          const sessionData = JSON.parse(savedSession);
-          setUser(sessionData.user);
-          setSession(sessionData.session);
-          setProfile(sessionData.profile);
-        } catch (error) {
-          console.error('Error parsing saved session:', error);
-          localStorage.removeItem('mock_session');
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        // Fetch profile when session changes
+        if (session?.user) {
+          setTimeout(() => {
+            supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single()
+              .then(({ data }) => setProfile(data));
+          }, 0);
+        } else {
+          setProfile(null);
         }
       }
-      setLoading(false);
-    };
-    
-    initializeAuth();
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single()
+          .then(({ data }) => {
+            setProfile(data);
+            setLoading(false);
+          });
+      } else {
+        setLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const connectWallet = async () => {
@@ -95,78 +117,73 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const isPhantomInstalled = typeof window !== 'undefined' && window.solana && window.solana.isPhantom;
       
       if (!isPhantomInstalled) {
-        throw new Error('Phantom wallet is not installed');
+        throw new Error('Phantom wallet is not installed. Please install Phantom from https://phantom.app');
       }
 
-      // Simulate wallet connection delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // For demo purposes, use mock wallet address
-      const mockWalletAddress = MOCK_WALLETS[Math.floor(Math.random() * MOCK_WALLETS.length)];
+      // Connect to Phantom wallet
+      const response = await window.solana.connect();
+      const walletAddress = response.publicKey.toString();
+      
+      // Generate display name
       const displayName = generateMockDisplayName();
+      const username = walletAddress.slice(0, 8);
       
-      // Generate a proper UUID v4 format for mock user
-      const userId = crypto.randomUUID();
-      
-      const mockUser: MockUser = {
-        id: userId,
-        email: `${mockWalletAddress.slice(0, 8)}@solana.wallet`,
-        created_at: new Date().toISOString(),
-      };
-
-      const mockSession = {
-        access_token: `mock-token-${Date.now()}`,
-        token_type: 'bearer',
-        user: mockUser,
-      };
-
-      const mockProfile: MockProfile = {
-        id: `profile-${userId}`,
-        user_id: userId,
-        username: mockWalletAddress.slice(0, 8),
-        display_name: displayName,
-        avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${mockWalletAddress}`,
-        wallet_address: mockWalletAddress,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-
-      // Save profile to Supabase database
-      console.log('Saving wallet profile to database:', {
-        user_id: userId,
-        username: mockWalletAddress.slice(0, 8),
-        display_name: displayName,
-        wallet_address: mockWalletAddress,
+      // Sign up with Supabase Auth
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        email: `${walletAddress}@phantom.wallet`,
+        password: walletAddress, // Using wallet address as password
+        options: {
+          data: {
+            wallet_address: walletAddress,
+            username: username,
+            display_name: displayName,
+          }
+        }
       });
-      
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .upsert({
-          user_id: userId,
-          username: mockWalletAddress.slice(0, 8),
-          display_name: displayName,
-          avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${mockWalletAddress}`,
-          wallet_address: mockWalletAddress
-        })
-        .select();
 
-      if (profileError) {
-        console.error('Error saving profile to database:', profileError);
+      if (signUpError) {
+        // If user already exists, sign in instead
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email: `${walletAddress}@phantom.wallet`,
+          password: walletAddress,
+        });
+
+        if (signInError) throw signInError;
+        
+        setUser(signInData.user);
+        setSession(signInData.session);
+
+        // Fetch existing profile
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', signInData.user.id)
+          .single();
+
+        setProfile(profileData);
       } else {
-        console.log('Profile saved to database successfully:', profileData);
+        setUser(authData.user);
+        setSession(authData.session);
+
+        // Fetch the newly created profile
+        if (authData.user) {
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', authData.user.id)
+            .single();
+
+          setProfile(profileData);
+        }
       }
 
-      // Save to localStorage
+      // Save to localStorage for persistence
       const sessionData = {
-        user: mockUser,
-        session: mockSession,
-        profile: mockProfile,
+        user: authData?.user,
+        session: authData?.session,
       };
-      localStorage.setItem('mock_session', JSON.stringify(sessionData));
+      localStorage.setItem('wallet_session', JSON.stringify(sessionData));
 
-      setUser(mockUser);
-      setSession(mockSession);
-      setProfile(mockProfile);
     } catch (error) {
       console.error('Error connecting wallet:', error);
       throw error;
@@ -177,7 +194,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     try {
-      localStorage.removeItem('mock_session');
+      await supabase.auth.signOut();
+      if (window.solana) {
+        await window.solana.disconnect();
+      }
+      localStorage.removeItem('wallet_session');
       setUser(null);
       setSession(null);
       setProfile(null);

@@ -142,25 +142,30 @@ const LaunchToken = () => {
     setIsLaunching(true);
 
     try {
-      // Simulate launch delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Create the fund pool directly in database
+      const { data: newPool, error: insertError } = await supabase
+        .from('tokens')
+        .insert([{
+          creator_id: user.id,
+          name: formData.campaignName,
+          symbol: formData.campaignName.substring(0, 4).toUpperCase(),
+          description: formData.description,
+          goal_amount: parseFloat(formData.goalAmount),
+          current_amount: 0,
+          current_price: 0,
+          price_change_24h: 0,
+          image_url: uploadedImage || `https://api.dicebear.com/7.x/identicon/svg?seed=${formData.campaignName}`,
+          website_url: formData.website || null,
+          x_url: formData.x || null,
+          telegram_url: formData.telegram || null,
+          discord_url: formData.discord || null,
+        }])
+        .select()
+        .single();
 
-      // Store as a special token with fund pool flag
-      const newPool = await addToken({
-        name: formData.campaignName,
-        symbol: "FUND",
-        description: formData.description,
-        website_url: formData.website || undefined,
-        x_handle: formData.x || undefined,
-        telegram_url: formData.telegram || undefined,
-        discord_url: formData.discord || undefined,
-        total_supply: "0",
-        hardcap: formData.goalAmount,
-        contributor_type: 'any',
-        creator_id: user.id,
-        creator_username: formData.creatorName,
-        image_url: uploadedImage || `https://api.dicebear.com/7.x/identicon/svg?seed=${formData.campaignName}`
-      });
+      if (insertError) {
+        throw insertError;
+      }
 
       toast({
         title: "Fund Pool Launched Successfully! 🚀",
@@ -168,7 +173,7 @@ const LaunchToken = () => {
       });
 
       // Navigate to the new fund pool page
-      navigate(`/token/${newPool.id}`);
+      navigate(`/token/${newPool?.id}`);
     } catch (error) {
       console.error('Error launching fund pool:', error);
       toast({
