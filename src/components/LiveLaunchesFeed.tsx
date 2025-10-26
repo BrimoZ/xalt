@@ -76,8 +76,122 @@ const LiveLaunchesFeed = () => {
     fetchStats();
   }, []);
 
+  // Mockup launches
+  const mockupLaunches = [
+    {
+      id: 'mock-1',
+      name: 'RabbitFi',
+      symbol: 'RABBIT',
+      icon: '',
+      dev: {
+        handle: '@cryptorabbit',
+        followers: 45000,
+        verified: true,
+      },
+      totalTVL: 2500000,
+      apr: 18.5,
+      marketCap: 8500000,
+      stakers: 3247,
+      launchedAt: new Date(Date.now() - 3600000).toISOString(),
+      trend: 'up' as const,
+      trendValue: 12.4,
+    },
+    {
+      id: 'mock-2',
+      name: 'BunnySwap',
+      symbol: 'BUNNY',
+      icon: '',
+      dev: {
+        handle: '@bunnydegen',
+        followers: 32000,
+        verified: true,
+      },
+      totalTVL: 1800000,
+      apr: 24.2,
+      marketCap: 6200000,
+      stakers: 2891,
+      launchedAt: new Date(Date.now() - 7200000).toISOString(),
+      trend: 'up' as const,
+      trendValue: 8.9,
+    },
+    {
+      id: 'mock-3',
+      name: 'CarrotDAO',
+      symbol: 'CRRT',
+      icon: '',
+      dev: {
+        handle: '@carrotking',
+        followers: 28000,
+        verified: true,
+      },
+      totalTVL: 950000,
+      apr: 31.8,
+      marketCap: 3400000,
+      stakers: 1654,
+      launchedAt: new Date(Date.now() - 10800000).toISOString(),
+      trend: 'down' as const,
+      trendValue: 3.2,
+    },
+    {
+      id: 'mock-4',
+      name: 'HopToken',
+      symbol: 'HOP',
+      icon: '',
+      dev: {
+        handle: '@hopmaster',
+        followers: 52000,
+        verified: true,
+      },
+      totalTVL: 3200000,
+      apr: 15.7,
+      marketCap: 11000000,
+      stakers: 4123,
+      launchedAt: new Date(Date.now() - 14400000).toISOString(),
+      trend: 'up' as const,
+      trendValue: 15.6,
+    },
+    {
+      id: 'mock-5',
+      name: 'FluffyFinance',
+      symbol: 'FLUFF',
+      icon: '',
+      dev: {
+        handle: '@fluffydev',
+        followers: 19000,
+        verified: true,
+      },
+      totalTVL: 680000,
+      apr: 42.5,
+      marketCap: 2100000,
+      stakers: 987,
+      launchedAt: new Date(Date.now() - 18000000).toISOString(),
+      trend: 'up' as const,
+      trendValue: 22.1,
+    },
+    {
+      id: 'mock-6',
+      name: 'EggDAO',
+      symbol: 'EGG',
+      icon: '',
+      dev: {
+        handle: '@eggcellent',
+        followers: 38000,
+        verified: true,
+      },
+      totalTVL: 1500000,
+      apr: 19.3,
+      marketCap: 5800000,
+      stakers: 2345,
+      launchedAt: new Date(Date.now() - 21600000).toISOString(),
+      trend: 'down' as const,
+      trendValue: 5.8,
+    },
+  ];
+
   // Convert tokens to staking pool format
-  const launches = tokens.map(token => ({
+  const launches = [
+    ...mockupLaunches,
+    ...tokens.map(token => ({
     id: token.id,
     name: token.name,
     symbol: token.symbol,
@@ -94,7 +208,8 @@ const LiveLaunchesFeed = () => {
     launchedAt: token.created_at,
     trend: token.price_change_24h >= 0 ? 'up' : 'down' as 'up' | 'down',
     trendValue: Math.abs(token.price_change_24h),
-  }));
+  }))
+  ];
 
   const filteredLaunches = launches.filter(launch =>
     launch.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
