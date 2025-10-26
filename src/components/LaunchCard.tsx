@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, Clock, Users2, Coins } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { TrendingUp, Clock, Users2, Target, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -48,86 +49,95 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
     navigate(`/token/${token.id}`);
   };
 
+  const fundingGoal = token.marketCap;
+  const raised = token.totalTVL;
+  const progressPercentage = Math.min((raised / fundingGoal) * 100, 100);
+  const daysLeft = Math.max(7 - Math.floor((Date.now() - new Date(token.launchedAt).getTime()) / (1000 * 60 * 60 * 24)), 0);
+
   return (
-    <div className="bg-card border border-border rounded-sm p-6 hover-glitch transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20 cursor-pointer">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-primary/20 rounded-sm flex items-center justify-center text-primary font-bold text-lg">
-            {token.symbol.slice(0, 2)}
-          </div>
-          <div>
-            <h3 className="font-orbitron font-bold text-foreground">{token.name}</h3>
-            <p className="font-mono text-sm text-muted-foreground">${token.symbol}</p>
+    <div className="bg-card border border-border rounded-lg overflow-hidden transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20 cursor-pointer group">
+      {/* Banner Image */}
+      <div className="h-48 bg-gradient-to-br from-primary/20 via-accent/10 to-background relative overflow-hidden">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-20 h-20 bg-primary/30 rounded-full flex items-center justify-center backdrop-blur-sm border-2 border-primary/50">
+            <span className="text-3xl font-bold text-primary">{token.symbol.slice(0, 2)}</span>
           </div>
         </div>
-        <Badge variant={token.trend === 'up' ? 'default' : 'destructive'} className="font-mono">
-          {token.trend === 'up' ? (
+        {token.trend === 'up' && (
+          <Badge variant="default" className="absolute top-4 right-4 font-mono">
             <TrendingUp className="w-3 h-3 mr-1" />
-          ) : (
-            <TrendingDown className="w-3 h-3 mr-1" />
-          )}
-          {token.trendValue}%
-        </Badge>
+            Trending
+          </Badge>
+        )}
       </div>
 
-
-      {/* Stats */}
-      <div className="mb-6 space-y-3">
-        {/* TVL with Progress Bar */}
-        <div className="flex items-center justify-between p-3 bg-background/30 rounded-lg border border-border/30">
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 bg-primary rounded-full"></div>
-            <span className="font-mono text-sm text-muted-foreground">Total TVL</span>
-          </div>
-          <span className="font-mono text-lg font-bold text-primary">${formatNumber(token.totalTVL)}</span>
+      {/* Content */}
+      <div className="p-6">
+        {/* Header */}
+        <div className="mb-4">
+          <h3 className="font-orbitron font-bold text-xl text-foreground mb-1">{token.name}</h3>
+          <p className="text-sm text-muted-foreground">by {token.dev.handle}</p>
         </div>
 
-        {/* APR with Trending Indicator */}
-        <div className="flex items-center justify-between p-3 bg-background/30 rounded-lg border border-border/30">
-          <div className="flex items-center gap-3">
-            <div className="w-6 h-3 bg-accent/20 rounded-full relative overflow-hidden">
-              <div className="absolute inset-0 bg-accent rounded-full animate-pulse" style={{width: `${Math.min(token.apr * 5, 100)}%`}}></div>
+        {/* Funding Stats */}
+        <div className="mb-6">
+          <div className="flex items-baseline justify-between mb-2">
+            <div>
+              <span className="text-2xl font-bold text-primary">${formatNumber(raised)}</span>
+              <span className="text-sm text-muted-foreground ml-2">raised</span>
             </div>
-            <span className="font-mono text-sm text-muted-foreground">APR</span>
+            <div className="text-right">
+              <span className="text-lg font-semibold text-foreground">{progressPercentage.toFixed(0)}%</span>
+            </div>
           </div>
-          <span className="font-mono text-lg font-bold text-accent">{token.apr}%</span>
+          
+          {/* Progress Bar */}
+          <Progress value={progressPercentage} className="h-2 mb-2" />
+          
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <Target className="w-3 h-3" />
+              Goal: ${formatNumber(fundingGoal)}
+            </span>
+            <span className="font-mono">{progressPercentage >= 100 ? 'FUNDED' : `${daysLeft}d left`}</span>
+          </div>
         </div>
 
-        {/* Market Cap */}
-        <div className="flex items-center justify-between p-3 bg-background/30 rounded-lg border border-border/30">
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 bg-muted-foreground/50 rounded-sm"></div>
-            <span className="font-mono text-sm text-muted-foreground">Market Cap</span>
+        {/* Supporting Stats */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <div className="bg-background/50 rounded-lg p-3 border border-border/30">
+            <div className="flex items-center gap-2 mb-1">
+              <Users2 className="w-4 h-4 text-primary" />
+              <span className="text-xs text-muted-foreground">Backers</span>
+            </div>
+            <p className="font-mono text-lg font-bold text-foreground">{formatNumber(token.stakers)}</p>
           </div>
-          <span className="font-mono text-lg font-bold text-foreground">${formatNumber(token.marketCap)}</span>
+          
+          <div className="bg-background/50 rounded-lg p-3 border border-border/30">
+            <div className="flex items-center gap-2 mb-1">
+              <Heart className="w-4 h-4 text-accent" />
+              <span className="text-xs text-muted-foreground">APR</span>
+            </div>
+            <p className="font-mono text-lg font-bold text-accent">{token.apr}%</p>
+          </div>
         </div>
 
-        {/* Stakers with Icon */}
-        <div className="flex items-center justify-between p-3 bg-background/30 rounded-lg border border-border/30">
-          <div className="flex items-center gap-3">
-            <Users2 className="w-4 h-4 text-muted-foreground" />
-            <span className="font-mono text-sm text-muted-foreground">Stakers</span>
-          </div>
-          <span className="font-mono text-lg font-bold text-foreground">{formatNumber(token.stakers)}</span>
+        {/* Time */}
+        <div className="flex items-center gap-2 mb-4 text-xs text-muted-foreground">
+          <Clock className="w-3 h-3" />
+          <span className="font-mono">{getTimeAgo(token.launchedAt)}</span>
         </div>
+
+        {/* Action Button */}
+        <Button 
+          variant="cyber" 
+          size="lg" 
+          className="w-full group-hover:scale-[1.02] transition-transform"
+          onClick={handleEnterPool}
+        >
+          Back This Project
+        </Button>
       </div>
-
-      {/* Time */}
-      <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
-        <Clock className="w-3 h-3" />
-        <span className="font-mono">{getTimeAgo(token.launchedAt)}</span>
-      </div>
-
-      {/* Action Button */}
-      <Button 
-        variant="cyber" 
-        size="default" 
-        className="w-full"
-        onClick={handleEnterPool}
-      >
-        Enter Pool
-      </Button>
     </div>
   );
 };
