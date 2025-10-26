@@ -14,7 +14,110 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          display_name: string | null
+          id: string
+          total_donated: number | null
+          total_raised: number | null
+          updated_at: string | null
+          username: string | null
+          wallet_address: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id: string
+          total_donated?: number | null
+          total_raised?: number | null
+          updated_at?: string | null
+          username?: string | null
+          wallet_address: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          total_donated?: number | null
+          total_raised?: number | null
+          updated_at?: string | null
+          username?: string | null
+          wallet_address?: string
+        }
+        Relationships: []
+      }
+      tokens: {
+        Row: {
+          created_at: string | null
+          creator_id: string
+          current_amount: number | null
+          current_price: number | null
+          description: string | null
+          discord_url: string | null
+          goal_amount: number
+          id: string
+          image_url: string | null
+          name: string
+          price_change_24h: number | null
+          symbol: string
+          telegram_url: string | null
+          updated_at: string | null
+          website_url: string | null
+          x_url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          creator_id: string
+          current_amount?: number | null
+          current_price?: number | null
+          description?: string | null
+          discord_url?: string | null
+          goal_amount: number
+          id?: string
+          image_url?: string | null
+          name: string
+          price_change_24h?: number | null
+          symbol: string
+          telegram_url?: string | null
+          updated_at?: string | null
+          website_url?: string | null
+          x_url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          creator_id?: string
+          current_amount?: number | null
+          current_price?: number | null
+          description?: string | null
+          discord_url?: string | null
+          goal_amount?: number
+          id?: string
+          image_url?: string | null
+          name?: string
+          price_change_24h?: number | null
+          symbol?: string
+          telegram_url?: string | null
+          updated_at?: string | null
+          website_url?: string | null
+          x_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tokens_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
