@@ -12,7 +12,7 @@ import LaunchToken from "./pages/LaunchToken";
 import ConnectX from "./pages/ConnectX";
 import Profile from "./pages/Profile";
 import HowItWorks from "./pages/HowItWorks";
-import BugBounty from "./pages/BugBounty";
+import Staking from "./pages/Staking";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,7 +34,7 @@ const App = () => (
                 <Route path="/profile" element={<Profile />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="/how-it-works" element={<HowItWorks />} />
-                <Route path="/bug-bounty" element={<BugBounty />} />
+                <Route path="/staking" element={<Staking />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
