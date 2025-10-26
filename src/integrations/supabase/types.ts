@@ -83,6 +83,13 @@ export type Database = {
             referencedRelation: "tokens"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "token_donations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       token_hearts: {
@@ -151,6 +158,13 @@ export type Database = {
             columns: ["token_id"]
             isOneToOne: false
             referencedRelation: "tokens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "token_questions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
