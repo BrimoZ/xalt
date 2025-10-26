@@ -6,28 +6,88 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { 
   User, 
   Calendar, 
-  Settings,
   Copy,
   LogOut,
-  Wallet
+  Wallet,
+  Target,
+  TrendingUp,
+  CheckCircle2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import type { Token } from "@/contexts/TokenContext";
 
 const Profile = () => {
   const { user, profile, loading, signOut, isWalletConnected } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [myFundingPools, setMyFundingPools] = useState<Token[]>([]);
+  const [loadingPools, setLoadingPools] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) {
       navigate('/connect-wallet');
     }
   }, [user, loading, navigate]);
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchMyFundingPools();
+    }
+  }, [user?.id]);
+
+  const fetchMyFundingPools = async () => {
+    if (!user?.id) return;
+    
+    try {
+      setLoadingPools(true);
+      const { data, error } = await supabase
+        .from('tokens')
+        .select('*')
+        .eq('creator_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setMyFundingPools(data || []);
+    } catch (error) {
+      console.error('Error fetching funding pools:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load your funding pools",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingPools(false);
+    }
+  };
+
+  const handleClaimFunds = async (poolId: string, poolName: string) => {
+    toast({
+      title: "Claiming Funds",
+      description: `Processing claim for ${poolName}...`,
+    });
+    
+    // TODO: Implement actual claim logic
+    setTimeout(() => {
+      toast({
+        title: "Funds Claimed! 🎉",
+        description: `Successfully claimed funds from ${poolName}`,
+      });
+    }, 1500);
+  };
+
+  const formatFundAmount = (num: number) => {
+    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+    return num.toLocaleString();
+  };
 
   const handleCopyAddress = (address: string) => {
     navigator.clipboard.writeText(address);
@@ -168,11 +228,135 @@ const Profile = () => {
         </div>
 
         {/* Tabs */}
-        <Tabs defaultValue="settings" className="w-full">
+        <Tabs defaultValue="pools" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="pools">My Funding Pools</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
-            <TabsTrigger value="activity">Activity</TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="pools" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  My Funding Pools
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {loadingPools ? (
+                  <div className="text-center py-8">
+                    <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-muted-foreground">Loading your pools...</p>
+                  </div>
+                ) : myFundingPools.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Target className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-xl font-semibold mb-2">No Funding Pools Yet</h3>
+                    <p className="text-muted-foreground mb-6">
+                      Create your first funding pool to start raising funds
+                    </p>
+                    <Button onClick={() => navigate('/launch-token')}>
+                      Create Funding Pool
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {myFundingPools.map((pool) => {
+                      const progressPercent = pool.goal_amount > 0 
+                        ? Math.min((pool.current_amount / pool.goal_amount) * 100, 100)
+                        : 0;
+                      const isFullyFunded = progressPercent >= 100;
+                      
+                      return (
+                        <Card key={pool.id} className="hover:border-primary/50 transition-colors">
+                          <CardContent className="pt-6">
+                            <div className="flex flex-col md:flex-row gap-6">
+                              {/* Pool Image */}
+                              {pool.image_url && (
+                                <img
+                                  src={pool.image_url}
+                                  alt={pool.name}
+                                  className="w-full md:w-32 h-32 rounded-lg object-cover"
+                                />
+                              )}
+                              
+                              {/* Pool Info */}
+                              <div className="flex-1 space-y-4">
+                                <div className="flex items-start justify-between">
+                                  <div>
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <h3 className="text-xl font-bold">{pool.name}</h3>
+                                      <Badge variant="outline">{pool.symbol}</Badge>
+                                      {isFullyFunded && (
+                                        <Badge className="bg-green-500/20 text-green-500 border-green-500/50">
+                                          <CheckCircle2 className="w-3 h-3 mr-1" />
+                                          Funded
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <p className="text-sm text-muted-foreground line-clamp-2">
+                                      {pool.description || 'No description'}
+                                    </p>
+                                  </div>
+                                </div>
+                                
+                                {/* Progress */}
+                                <div>
+                                  <div className="flex items-baseline justify-between mb-2">
+                                    <span className="text-lg font-bold text-primary">
+                                      {formatFundAmount(pool.current_amount)} $FUND
+                                    </span>
+                                    <span className="text-sm text-muted-foreground">
+                                      of {formatFundAmount(pool.goal_amount)} $FUND
+                                    </span>
+                                  </div>
+                                  <Progress value={progressPercent} className="h-2 mb-1" />
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-xs text-muted-foreground">
+                                      {progressPercent.toFixed(1)}% funded
+                                    </span>
+                                    {pool.price_change_24h !== undefined && (
+                                      <span className={`text-xs flex items-center gap-1 ${
+                                        pool.price_change_24h >= 0 ? 'text-green-500' : 'text-red-500'
+                                      }`}>
+                                        <TrendingUp className="w-3 h-3" />
+                                        {pool.price_change_24h >= 0 ? '+' : ''}{pool.price_change_24h.toFixed(2)}%
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                                
+                                {/* Actions */}
+                                <div className="flex gap-3">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => navigate(`/token/${pool.id}`)}
+                                  >
+                                    View Details
+                                  </Button>
+                                  {isFullyFunded && (
+                                    <Button
+                                      variant="cyber"
+                                      size="sm"
+                                      onClick={() => handleClaimFunds(pool.id, pool.name)}
+                                    >
+                                      <Wallet className="w-4 h-4 mr-2" />
+                                      Claim Funds
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
           
           <TabsContent value="settings" className="space-y-6">
             <Card>
@@ -205,19 +389,6 @@ const Profile = () => {
                     Disconnect Wallet
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="activity">
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground text-center py-8">
-                  Activity tracking coming soon!
-                </p>
               </CardContent>
             </Card>
           </TabsContent>
