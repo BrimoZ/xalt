@@ -83,6 +83,7 @@ const LiveLaunchesFeed = () => {
       name: 'RabbitFi',
       symbol: 'RABBIT',
       icon: '',
+      category: 'DeFi',
       dev: {
         handle: '@cryptorabbit',
         followers: 45000,
@@ -101,6 +102,7 @@ const LiveLaunchesFeed = () => {
       name: 'BunnySwap',
       symbol: 'BUNNY',
       icon: '',
+      category: 'DEX',
       dev: {
         handle: '@bunnydegen',
         followers: 32000,
@@ -119,6 +121,7 @@ const LiveLaunchesFeed = () => {
       name: 'CarrotDAO',
       symbol: 'CRRT',
       icon: '',
+      category: 'DAO',
       dev: {
         handle: '@carrotking',
         followers: 28000,
@@ -137,6 +140,7 @@ const LiveLaunchesFeed = () => {
       name: 'HopToken',
       symbol: 'HOP',
       icon: '',
+      category: 'Gaming',
       dev: {
         handle: '@hopmaster',
         followers: 52000,
@@ -155,6 +159,7 @@ const LiveLaunchesFeed = () => {
       name: 'FluffyFinance',
       symbol: 'FLUFF',
       icon: '',
+      category: 'Lending',
       dev: {
         handle: '@fluffydev',
         followers: 19000,
@@ -173,6 +178,7 @@ const LiveLaunchesFeed = () => {
       name: 'EggDAO',
       symbol: 'EGG',
       icon: '',
+      category: 'NFT',
       dev: {
         handle: '@eggcellent',
         followers: 38000,
