@@ -3,7 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, ExternalLink, Globe, Send, Heart, Users2, Target, Clock, MessageCircle, CheckCircle2 } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ArrowLeft, ExternalLink, Globe, Send, Heart, Users2, Target, Clock, MessageCircle, Wallet, TrendingUp } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useTokens } from "@/contexts/TokenContext";
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const TokenDetail = () => {
   const { tokenId } = useParams();
@@ -26,6 +28,7 @@ const TokenDetail = () => {
   const [hasGivenHeart, setHasGivenHeart] = useState(false);
   const [isTogglingHeart, setIsTogglingHeart] = useState(false);
   const [questions, setQuestions] = useState<any[]>([]);
+  const [donations, setDonations] = useState<any[]>([]);
   const [newQuestion, setNewQuestion] = useState("");
   const [answerText, setAnswerText] = useState<{[key: string]: string}>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,6 +39,7 @@ const TokenDetail = () => {
       fetchHeartData();
       fetchBackerCount();
       fetchQuestions();
+      fetchDonations();
     }
   }, [tokenId, user?.id]);
 
@@ -100,6 +104,31 @@ const TokenDetail = () => {
       setBackers(uniqueBackers);
     } catch (error) {
       console.error('Error fetching backer count:', error);
+    }
+  };
+
+  const fetchDonations = async () => {
+    if (!tokenId) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('token_donations')
+        .select(`
+          *,
+          profiles:user_id (
+            display_name,
+            username,
+            avatar_url
+          )
+        `)
+        .eq('token_id', tokenId)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+      setDonations(data || []);
+    } catch (error) {
+      console.error('Error fetching donations:', error);
     }
   };
 
@@ -316,70 +345,39 @@ const TokenDetail = () => {
     ? Math.min((currentToken.current_amount / currentToken.goal_amount) * 100, 100)
     : 0;
 
-  const isFullyFunded = progressPercent >= 100;
-
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-        {/* Back Button */}
-        <Button
-          variant="ghost"
-          onClick={() => navigate(-1)}
-          className="mb-6 hover:bg-muted"
-        >
+        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Pools
+          Back
         </Button>
 
-        {/* Hero Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          {/* Main Content - Left Side */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Header Card */}
-            <Card className="overflow-hidden border-2 hover:border-primary/50 transition-all">
-              <div className="relative h-64 bg-gradient-to-br from-primary/20 via-accent/10 to-background">
-                {currentToken.image_url ? (
-                  <img
-                    src={currentToken.image_url}
-                    alt={currentToken.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-32 h-32 bg-primary/30 rounded-2xl flex items-center justify-center backdrop-blur-sm border-2 border-primary/50">
-                      <span className="text-6xl font-bold text-primary">{currentToken.symbol.slice(0, 2)}</span>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Left Sidebar - Profile & Creator Info */}
+          <div className="lg:col-span-3 space-y-6">
+            {/* Fund Pool Profile */}
+            <Card>
+              <CardContent className="pt-6 text-center">
+                <div className="w-32 h-32 mx-auto mb-4 rounded-lg overflow-hidden border-2 border-border">
+                  {currentToken.image_url ? (
+                    <img src={currentToken.image_url} alt={currentToken.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-primary/20 flex items-center justify-center">
+                      <span className="text-4xl font-bold text-primary">{currentToken.symbol.slice(0, 2)}</span>
                     </div>
-                  </div>
-                )}
-                {isFullyFunded && (
-                  <div className="absolute top-4 right-4">
-                    <Badge className="bg-green-500 text-white border-0 text-lg px-4 py-2">
-                      <CheckCircle2 className="w-5 h-5 mr-2" />
-                      Fully Funded!
-                    </Badge>
-                  </div>
-                )}
-              </div>
-              
-              <CardContent className="p-6 space-y-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-3">
-                      <h1 className="text-4xl font-bold">{currentToken.name}</h1>
-                      <Badge variant="outline" className="text-lg px-3 py-1">{currentToken.symbol}</Badge>
-                    </div>
-                    <p className="text-lg text-muted-foreground leading-relaxed">
-                      {currentToken.description || 'No description available'}
-                    </p>
-                  </div>
+                  )}
                 </div>
-
+                <h2 className="text-2xl font-bold mb-2">{currentToken.name}</h2>
+                <Badge variant="outline" className="mb-4">{currentToken.symbol}</Badge>
+                <p className="text-sm text-muted-foreground mb-4">{currentToken.description}</p>
+                
                 {/* Social Links */}
-                <div className="flex flex-wrap gap-3 pt-4 border-t">
+                <div className="space-y-2">
                   {currentToken.website_url && (
-                    <Button variant="outline" asChild className="hover:bg-primary hover:text-primary-foreground transition-colors">
+                    <Button variant="outline" size="sm" className="w-full" asChild>
                       <a href={currentToken.website_url} target="_blank" rel="noopener noreferrer">
                         <Globe className="w-4 h-4 mr-2" />
                         Website
@@ -387,15 +385,15 @@ const TokenDetail = () => {
                     </Button>
                   )}
                   {currentToken.x_url && (
-                    <Button variant="outline" asChild className="hover:bg-primary hover:text-primary-foreground transition-colors">
+                    <Button variant="outline" size="sm" className="w-full" asChild>
                       <a href={currentToken.x_url} target="_blank" rel="noopener noreferrer">
                         <ExternalLink className="w-4 h-4 mr-2" />
-                        X/Twitter
+                        X
                       </a>
                     </Button>
                   )}
                   {currentToken.telegram_url && (
-                    <Button variant="outline" asChild className="hover:bg-primary hover:text-primary-foreground transition-colors">
+                    <Button variant="outline" size="sm" className="w-full" asChild>
                       <a href={currentToken.telegram_url} target="_blank" rel="noopener noreferrer">
                         <Send className="w-4 h-4 mr-2" />
                         Telegram
@@ -408,222 +406,281 @@ const TokenDetail = () => {
 
             {/* Creator Info */}
             {creatorProfile && (
-              <Card className="hover:border-primary/50 transition-all">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="text-2xl">Meet the Creator</CardTitle>
+                  <CardTitle className="text-lg">Creator</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-4">
-                    <Avatar className="w-16 h-16 border-2 border-primary">
+                <CardContent className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="w-12 h-12">
                       <AvatarImage src={creatorProfile.avatar_url || ''} />
-                      <AvatarFallback className="bg-primary/20 text-primary text-xl">
-                        {creatorProfile.display_name?.charAt(0) || creatorProfile.username?.charAt(0) || 'U'}
+                      <AvatarFallback className="bg-primary/20 text-primary">
+                        {creatorProfile.display_name?.charAt(0) || 'U'}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-xl font-bold">{creatorProfile.display_name || 'Anonymous'}</p>
-                      <p className="text-muted-foreground">@{creatorProfile.username}</p>
+                      <p className="font-semibold">{creatorProfile.display_name || 'Anonymous'}</p>
+                      <p className="text-sm text-muted-foreground">@{creatorProfile.username}</p>
+                    </div>
+                  </div>
+                  <div className="pt-3 border-t space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Wallet</span>
+                      <span className="font-mono text-xs">
+                        {creatorProfile.wallet_address?.slice(0, 6)}...{creatorProfile.wallet_address?.slice(-4)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Joined</span>
+                      <span>{new Date(creatorProfile.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Total Raised</span>
+                      <span className="font-semibold">${formatNumber(creatorProfile.total_raised)}</span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             )}
 
-            {/* Q&A Section */}
-            <Card className="hover:border-primary/50 transition-all">
+            {/* Stats */}
+            <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-2xl">
-                  <MessageCircle className="w-6 h-6" />
-                  Questions & Answers
-                </CardTitle>
+                <CardTitle className="text-lg">Community</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Ask Question Form */}
-                <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
-                  <h3 className="font-semibold text-lg">Have a question?</h3>
-                  <Textarea
-                    placeholder="Ask the creator anything about this fund pool..."
-                    value={newQuestion}
-                    onChange={(e) => setNewQuestion(e.target.value)}
-                    className="min-h-[120px] text-base"
-                    disabled={!user || !isWalletConnected}
-                  />
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-muted-foreground">
-                      {!user || !isWalletConnected ? 'Connect your wallet to ask questions' : 'Be respectful and constructive'}
-                    </p>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Users2 className="w-5 h-5 text-muted-foreground" />
+                    <span className="text-sm">Backers</span>
+                  </div>
+                  <span className="text-xl font-bold">{formatNumber(backers)}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Heart className="w-5 h-5 text-accent" />
+                    <span className="text-sm">Hearts</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl font-bold text-accent">{formatNumber(hearts)}</span>
                     <Button
-                      onClick={handleAskQuestion}
-                      disabled={!user || !isWalletConnected || isSubmitting || !newQuestion.trim()}
-                      className="min-w-[140px]"
+                      size="sm"
+                      variant={hasGivenHeart ? "default" : "outline"}
+                      onClick={handleGiveHeart}
+                      disabled={isTogglingHeart}
                     >
-                      <MessageCircle className="w-4 h-4 mr-2" />
-                      {isSubmitting ? 'Posting...' : 'Ask Question'}
+                      <Heart className={`w-4 h-4 ${hasGivenHeart ? 'fill-current' : ''}`} />
                     </Button>
                   </div>
                 </div>
-
-                {/* Questions List */}
-                <div className="space-y-4">
-                  <h3 className="font-semibold text-lg">{questions.length} Question{questions.length !== 1 ? 's' : ''}</h3>
-                  
-                  {questions.length === 0 ? (
-                    <div className="text-center py-12 bg-muted/20 rounded-lg">
-                      <MessageCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                      <p className="text-muted-foreground text-lg">No questions yet. Be the first to ask!</p>
-                    </div>
-                  ) : (
-                    questions.map((q) => (
-                      <Card key={q.id} className="bg-muted/20 hover:bg-muted/30 transition-colors">
-                        <CardContent className="pt-6 space-y-4">
-                          {/* Question */}
-                          <div className="flex gap-4">
-                            <Avatar className="w-10 h-10 border-2 border-border">
-                              <AvatarImage src={q.profiles?.avatar_url || ''} />
-                              <AvatarFallback className="bg-primary/20 text-primary">
-                                {q.profiles?.display_name?.charAt(0) || 'U'}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <span className="font-semibold">
-                                  {q.profiles?.display_name || 'Anonymous'}
-                                </span>
-                                <span className="text-sm text-muted-foreground">
-                                  • {getTimeAgo(q.created_at)}
-                                </span>
-                              </div>
-                              <p className="text-foreground text-base leading-relaxed">{q.question}</p>
-                            </div>
-                          </div>
-
-                          {/* Answer */}
-                          {q.answer ? (
-                            <div className="ml-14 pl-6 border-l-4 border-primary/40 bg-primary/5 rounded-r-lg p-4">
-                              <div className="flex items-center gap-2 mb-3">
-                                <Badge className="bg-primary/20 text-primary border-primary/30">
-                                  Creator's Answer
-                                </Badge>
-                                <span className="text-sm text-muted-foreground">
-                                  {getTimeAgo(q.answered_at)}
-                                </span>
-                              </div>
-                              <p className="text-foreground text-base leading-relaxed">{q.answer}</p>
-                            </div>
-                          ) : isCreator ? (
-                            <div className="ml-14 space-y-3 p-4 bg-background rounded-lg border-2 border-dashed border-border">
-                              <Textarea
-                                placeholder="Write your answer..."
-                                value={answerText[q.id] || ''}
-                                onChange={(e) => setAnswerText(prev => ({ ...prev, [q.id]: e.target.value }))}
-                                className="min-h-[100px] text-base"
-                              />
-                              <Button
-                                onClick={() => handleAnswerQuestion(q.id)}
-                                disabled={!answerText[q.id]?.trim()}
-                                className="w-full sm:w-auto"
-                              >
-                                Post Answer
-                              </Button>
-                            </div>
-                          ) : (
-                            <div className="ml-14 text-muted-foreground italic p-3 bg-muted/20 rounded-lg">
-                              Awaiting creator's response...
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    ))
-                  )}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-muted-foreground" />
+                    <span className="text-sm">Launched</span>
+                  </div>
+                  <span className="text-sm">{getTimeAgo(currentToken.created_at)}</span>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Sidebar - Right Side */}
-          <div className="lg:col-span-1 space-y-6">
-            {/* Funding Progress - Sticky */}
-            <div className="sticky top-6 space-y-6">
-              {/* Progress Card */}
-              <Card className="border-2 border-primary/50">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center gap-2 text-xl">
-                    <Target className="w-5 h-5 text-primary" />
-                    Funding Progress
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Amounts */}
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1">Raised</p>
-                      <p className="text-3xl font-bold text-primary">{formatFundAmount(currentToken.current_amount)}</p>
-                    </div>
-                    
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1">Goal</p>
-                      <p className="text-xl font-bold">{formatFundAmount(currentToken.goal_amount)}</p>
-                    </div>
+          {/* Main Content */}
+          <div className="lg:col-span-9 space-y-6">
+            {/* Funding Progress */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  Funding Progress
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Raised</p>
+                    <p className="text-3xl font-bold text-primary">{formatFundAmount(currentToken.current_amount)}</p>
                   </div>
-
-                  {/* Progress Bar */}
-                  <div className="space-y-2">
-                    <Progress value={progressPercent} className="h-4" />
-                    <p className="text-center text-lg font-semibold text-primary">
-                      {progressPercent.toFixed(1)}% funded
-                    </p>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Goal</p>
+                    <p className="text-3xl font-bold">{formatFundAmount(currentToken.goal_amount)}</p>
                   </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Progress</p>
+                    <p className="text-3xl font-bold text-accent">{progressPercent.toFixed(1)}%</p>
+                  </div>
+                </div>
+                <Progress value={progressPercent} className="h-3" />
+                <Button className="w-full" size="lg" disabled={!isWalletConnected}>
+                  <Wallet className="w-4 h-4 mr-2" />
+                  {isWalletConnected ? 'Support This Pool' : 'Connect Wallet to Support'}
+                </Button>
+              </CardContent>
+            </Card>
 
-                  {/* Stats */}
-                  <div className="grid grid-cols-2 gap-3 pt-4 border-t">
-                    <div className="bg-muted/50 rounded-lg p-3 text-center">
-                      <Users2 className="w-5 h-5 text-primary mx-auto mb-1" />
-                      <p className="text-2xl font-bold">{formatNumber(backers)}</p>
-                      <p className="text-xs text-muted-foreground">Backers</p>
-                    </div>
-                    <button
-                      onClick={handleGiveHeart}
-                      disabled={isTogglingHeart}
-                      className="bg-muted/50 hover:bg-accent/20 rounded-lg p-3 text-center cursor-pointer transition-all disabled:opacity-50"
-                    >
-                      <Heart 
-                        className={`w-5 h-5 mx-auto mb-1 transition-all ${
-                          hasGivenHeart ? 'text-accent fill-accent' : 'text-accent'
-                        }`} 
+            {/* Tabs */}
+            <Tabs defaultValue="donors" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="donors">Recent Donors</TabsTrigger>
+                <TabsTrigger value="qa">Q&A ({questions.length})</TabsTrigger>
+              </TabsList>
+
+              {/* Donors Table */}
+              <TabsContent value="donors">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Recent Donations</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {donations.length === 0 ? (
+                      <div className="text-center py-12 text-muted-foreground">
+                        <TrendingUp className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                        <p>No donations yet. Be the first to support!</p>
+                      </div>
+                    ) : (
+                      <div className="rounded-md border">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Donor</TableHead>
+                              <TableHead>Amount</TableHead>
+                              <TableHead className="text-right">Time</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {donations.map((donation) => (
+                              <TableRow key={donation.id}>
+                                <TableCell>
+                                  <div className="flex items-center gap-3">
+                                    <Avatar className="w-8 h-8">
+                                      <AvatarImage src={donation.profiles?.avatar_url || ''} />
+                                      <AvatarFallback className="bg-primary/20 text-primary text-xs">
+                                        {donation.profiles?.display_name?.charAt(0) || 'A'}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                      <p className="font-medium text-sm">
+                                        {donation.profiles?.display_name || 'Anonymous'}
+                                      </p>
+                                      <p className="text-xs text-muted-foreground">
+                                        @{donation.profiles?.username || 'anonymous'}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </TableCell>
+                                <TableCell className="font-semibold">
+                                  {formatFundAmount(donation.amount)}
+                                </TableCell>
+                                <TableCell className="text-right text-sm text-muted-foreground">
+                                  {getTimeAgo(donation.created_at)}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Q&A */}
+              <TabsContent value="qa">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <MessageCircle className="w-5 h-5" />
+                      Questions & Answers
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {/* Ask Question */}
+                    <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
+                      <Textarea
+                        placeholder="Ask the creator a question..."
+                        value={newQuestion}
+                        onChange={(e) => setNewQuestion(e.target.value)}
+                        className="min-h-[100px]"
+                        disabled={!user || !isWalletConnected}
                       />
-                      <p className="text-2xl font-bold text-accent">{formatNumber(hearts)}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {hasGivenHeart ? 'You ❤️' : 'Hearts'}
-                      </p>
-                    </button>
-                  </div>
+                      <Button
+                        onClick={handleAskQuestion}
+                        disabled={!user || !isWalletConnected || isSubmitting || !newQuestion.trim()}
+                      >
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        {isSubmitting ? 'Posting...' : 'Ask Question'}
+                      </Button>
+                      {(!user || !isWalletConnected) && (
+                        <p className="text-sm text-muted-foreground">Connect wallet to ask questions</p>
+                      )}
+                    </div>
 
-                  {/* Time */}
-                  <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground pt-4 border-t">
-                    <Clock className="w-4 h-4" />
-                    Launched {getTimeAgo(currentToken.created_at)}
-                  </div>
+                    {/* Questions List */}
+                    <div className="space-y-4">
+                      {questions.length === 0 ? (
+                        <div className="text-center py-8 text-muted-foreground">
+                          <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                          <p>No questions yet. Be the first to ask!</p>
+                        </div>
+                      ) : (
+                        questions.map((q) => (
+                          <div key={q.id} className="p-4 border rounded-lg space-y-3">
+                            <div className="flex gap-3">
+                              <Avatar className="w-10 h-10">
+                                <AvatarImage src={q.profiles?.avatar_url || ''} />
+                                <AvatarFallback className="bg-primary/20">
+                                  {q.profiles?.display_name?.charAt(0) || 'U'}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="font-semibold text-sm">
+                                    {q.profiles?.display_name || 'Anonymous'}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">
+                                    {getTimeAgo(q.created_at)}
+                                  </span>
+                                </div>
+                                <p className="text-sm">{q.question}</p>
+                              </div>
+                            </div>
 
-                  {/* CTA Button */}
-                  <Button 
-                    className="w-full h-12 text-lg"
-                    disabled={!isWalletConnected}
-                    onClick={() => {
-                      if (!isWalletConnected) {
-                        navigate('/connect-wallet');
-                      } else {
-                        toast({
-                          title: "Coming Soon",
-                          description: "Donation functionality will be available soon!",
-                        });
-                      }
-                    }}
-                  >
-                    {isWalletConnected ? 'Support This Pool' : 'Connect Wallet to Support'}
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+                            {q.answer ? (
+                              <div className="ml-13 pl-4 border-l-2 border-primary">
+                                <Badge variant="outline" className="mb-2">Creator</Badge>
+                                <p className="text-sm">{q.answer}</p>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {getTimeAgo(q.answered_at)}
+                                </p>
+                              </div>
+                            ) : isCreator ? (
+                              <div className="ml-13 space-y-2">
+                                <Textarea
+                                  placeholder="Write your answer..."
+                                  value={answerText[q.id] || ''}
+                                  onChange={(e) => setAnswerText(prev => ({ ...prev, [q.id]: e.target.value }))}
+                                  className="min-h-[80px]"
+                                />
+                                <Button
+                                  onClick={() => handleAnswerQuestion(q.id)}
+                                  size="sm"
+                                  disabled={!answerText[q.id]?.trim()}
+                                >
+                                  Post Answer
+                                </Button>
+                              </div>
+                            ) : (
+                              <p className="ml-13 text-xs text-muted-foreground italic">
+                                Awaiting response...
+                              </p>
+                            )}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>
