@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, ExternalLink, Globe, Send, Heart, Users2, Target, Clock, MessageCircle, Wallet, TrendingUp } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { ArrowLeft, ExternalLink, Globe, Send, Heart, Users2, Target, Clock, MessageCircle, Wallet, TrendingUp, Gift } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useTokens } from "@/contexts/TokenContext";
 import { useToast } from "@/hooks/use-toast";
@@ -32,6 +34,11 @@ const TokenDetail = () => {
   const [newQuestion, setNewQuestion] = useState("");
   const [answerText, setAnswerText] = useState<{[key: string]: string}>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showDonateDialog, setShowDonateDialog] = useState(false);
+  const [donateAmount, setDonateAmount] = useState("");
+  const [walletBalance] = useState(1000);
+  const [donationBalance] = useState(250.5);
+  const [myPoolContribution] = useState(0);
 
   useEffect(() => {
     if (tokenId) {
@@ -303,6 +310,48 @@ const TokenDetail = () => {
     }
   };
 
+  const handleDonate = async () => {
+    if (!user || !isWalletConnected) {
+      toast({
+        title: "Connect your wallet",
+        description: "Please connect your wallet to donate",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!donateAmount || parseFloat(donateAmount) <= 0) {
+      toast({
+        title: "Invalid amount",
+        description: "Please enter a valid amount to donate",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (parseFloat(donateAmount) > donationBalance) {
+      toast({
+        title: "Insufficient balance",
+        description: "You don't have enough in your Donation Balance. Stake tokens to earn more!",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // TODO: Implement actual donation logic with backend
+    toast({
+      title: "Donation successful!",
+      description: `You've donated ${donateAmount} tokens to ${currentToken.name}`,
+    });
+    setDonateAmount("");
+    setShowDonateDialog(false);
+    
+    // Refresh data
+    await loadTokenData();
+    await fetchBackerCount();
+    await fetchDonations();
+  };
+
   const isCreator = user?.id === currentToken?.creator_id;
 
   const formatNumber = (num: number | undefined) => {
@@ -509,13 +558,131 @@ const TokenDetail = () => {
                     <Heart className={`w-4 h-4 mr-2 ${hasGivenHeart ? 'fill-current' : ''}`} />
                     {hasGivenHeart ? 'Liked' : 'Like'}
                   </Button>
-                  <Button className="flex-1" disabled={!isWalletConnected}>
+                  <Button 
+                    className="flex-1" 
+                    disabled={!isWalletConnected}
+                    onClick={() => {
+                      if (!isWalletConnected) {
+                        navigate('/connect-wallet');
+                      } else {
+                        setShowDonateDialog(true);
+                      }
+                    }}
+                  >
                     <Wallet className="w-4 h-4 mr-2" />
                     {isWalletConnected ? 'Back This Pool' : 'Connect Wallet'}
                   </Button>
                 </div>
               </CardContent>
             </Card>
+
+            {/* Donate Dialog */}
+            <Dialog open={showDonateDialog} onOpenChange={setShowDonateDialog}>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-orbitron">Donate to {currentToken.name}</DialogTitle>
+                </DialogHeader>
+
+                <div className="space-y-6">
+                  {/* Balances */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Wallet className="w-4 h-4 text-primary" />
+                        <p className="text-xs text-muted-foreground">Wallet Balance</p>
+                      </div>
+                      <p className="text-2xl font-bold text-foreground">{walletBalance.toLocaleString()}</p>
+                      <p className="text-xs text-muted-foreground mt-1">$GIVE tokens</p>
+                    </div>
+                    
+                    <div className="bg-accent/5 border border-accent/20 rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Gift className="w-4 h-4 text-accent" />
+                        <p className="text-xs text-muted-foreground">Donation Balance</p>
+                      </div>
+                      <p className="text-2xl font-bold text-accent">{donationBalance.toFixed(2)}</p>
+                      <p className="text-xs text-muted-foreground mt-1">Available to donate</p>
+                    </div>
+                  </div>
+
+                  {/* Pool Funding Progress */}
+                  <div className="bg-card/50 border border-border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-sm font-medium">Pool Funding Progress</p>
+                      <Badge variant="outline" className="text-xs">{progressPercent.toFixed(1)}% funded</Badge>
+                    </div>
+                    <div className="flex items-baseline justify-between mb-2">
+                      <span className="text-2xl font-bold text-primary">{formatFundAmount(currentToken.current_amount)}</span>
+                      <span className="text-sm text-muted-foreground">of {formatFundAmount(currentToken.goal_amount)}</span>
+                    </div>
+                    <Progress value={progressPercent} className="h-2.5 mb-2" />
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>{formatNumber(backers)} backers</span>
+                      <span>{formatFundAmount(currentToken.goal_amount - currentToken.current_amount)} remaining</span>
+                    </div>
+                  </div>
+
+                  {/* My Contribution */}
+                  <div className="bg-muted/30 rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-muted-foreground">Your contribution to this pool</p>
+                      <span className="text-sm font-semibold text-accent">{myPoolContribution} tokens</span>
+                    </div>
+                  </div>
+
+                  {/* Donation Input */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Amount to Donate</label>
+                    <div className="relative">
+                      <Input
+                        type="number"
+                        placeholder="0.00"
+                        value={donateAmount}
+                        onChange={(e) => setDonateAmount(e.target.value)}
+                        className="text-lg pr-20"
+                      />
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 h-7 text-xs"
+                        onClick={() => setDonateAmount(donationBalance.toString())}
+                      >
+                        Max
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Donations use your Donation Balance from staking rewards
+                    </p>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-3">
+                    <Button 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => setShowDonateDialog(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      variant="cyber" 
+                      className="flex-1"
+                      onClick={handleDonate}
+                      disabled={!user || !isWalletConnected}
+                    >
+                      <Gift className="w-4 h-4 mr-2" />
+                      Donate Now
+                    </Button>
+                  </div>
+
+                  {(!user || !isWalletConnected) && (
+                    <p className="text-xs text-center text-muted-foreground">
+                      Connect your wallet to start donating
+                    </p>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
 
             {/* Tabs */}
             <Tabs defaultValue="donors" className="w-full">

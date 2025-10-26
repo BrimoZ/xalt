@@ -178,16 +178,16 @@ const LiveLaunchesFeed = () => {
           <div className="mb-8 p-4 bg-card border border-border rounded-sm">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Button variant="outline" size="sm" className="justify-start">
-                🔥 Trending
+                💖 Most Loved
               </Button>
               <Button variant="outline" size="sm" className="justify-start">
-                📈 High Funding
+                🚀 Nearly There
               </Button>
               <Button variant="outline" size="sm" className="justify-start">
-                ⚡ New Pools
+                🆕 Fresh Dreams
               </Button>
               <Button variant="outline" size="sm" className="justify-start">
-                💎 Low Goal
+                🌱 Early Stage
               </Button>
             </div>
           </div>
