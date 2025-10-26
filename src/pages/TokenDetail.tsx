@@ -18,7 +18,7 @@ const TokenDetail = () => {
   const navigate = useNavigate();
   const { tokens, buyToken, sellToken } = useTokens();
   const { toast } = useToast();
-  const { user, isXConnected } = useAuth();
+  const { user, isWalletConnected } = useAuth();
   const [buyAmount, setBuyAmount] = useState("");
   const [tradingMode, setTradingMode] = useState<'buy' | 'sell'>('buy');
   const [loading, setLoading] = useState(false);

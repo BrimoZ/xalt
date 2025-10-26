@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
 const LaunchToken = () => {
-  const { user, profile, isXConnected } = useAuth();
+  const { user, profile, isWalletConnected } = useAuth();
   const { addToken } = useTokens();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -119,13 +119,13 @@ const LaunchToken = () => {
   };
 
   const handleLaunch = async () => {
-    if (!user || !isXConnected) {
+    if (!user || !isWalletConnected) {
       toast({
-        title: "Authentication Required",
-        description: "Please connect your X account to launch a fund pool.",
+        title: "Wallet Required",
+        description: "Please connect your Phantom wallet to launch a fund pool.",
         variant: "destructive",
       });
-      navigate('/connect-x');
+      navigate('/connect-wallet');
       return;
     }
 
@@ -185,18 +185,18 @@ const LaunchToken = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <Navbar />
       
-      {/* Authentication Check */}
-      {!user || !isXConnected ? (
+      {/* Wallet Check */}
+      {!user || !isWalletConnected ? (
         <div className="max-w-3xl mx-auto px-6 py-16">
           <Card className="bg-card/60 border-primary/20 backdrop-blur-sm shadow-2xl">
             <CardContent className="pt-6 text-center">
               <User className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-              <h2 className="text-2xl font-bold mb-2">X Account Required</h2>
+              <h2 className="text-2xl font-bold mb-2">Wallet Required</h2>
               <p className="text-muted-foreground mb-6">
-                You need to connect your X account to launch a fund pool on Xalt.
+                You need to connect your Phantom wallet to launch a fund pool on Xalt.
               </p>
-              <Button onClick={() => navigate('/connect-x')} className="w-full">
-                Connect X Account
+              <Button onClick={() => navigate('/connect-wallet')} className="w-full">
+                Connect Wallet
               </Button>
             </CardContent>
           </Card>

@@ -39,7 +39,7 @@ interface LaunchCardProps {
 
 const LaunchCard = ({ token }: LaunchCardProps) => {
   const navigate = useNavigate();
-  const { user, isXConnected } = useAuth();
+  const { user, isWalletConnected } = useAuth();
   const { toast } = useToast();
   const [showDetails, setShowDetails] = useState(false);
   const [showDonateDialog, setShowDonateDialog] = useState(false);
@@ -71,7 +71,7 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
   };
 
   const handleDonate = () => {
-    if (!user || !isXConnected) {
+    if (!user || !isWalletConnected) {
       toast({
         title: "Connect your account",
         description: "Please connect your X account to donate",
@@ -282,16 +282,16 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
                 variant="cyber" 
                 className="flex-1"
                 onClick={handleDonate}
-                disabled={!user || !isXConnected}
+                disabled={!user || !isWalletConnected}
               >
                 <Gift className="w-4 h-4 mr-2" />
                 Donate Now
               </Button>
             </div>
 
-            {!user || !isXConnected && (
+            {!user || !isWalletConnected && (
               <p className="text-xs text-center text-muted-foreground">
-                Connect your X account to start donating
+                Connect your wallet to start donating
               </p>
             )}
           </div>

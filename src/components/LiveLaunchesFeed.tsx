@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const LiveLaunchesFeed = () => {
   const { tokens } = useTokens();
-  const { user, isXConnected } = useAuth();
+  const { user, isWalletConnected } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);

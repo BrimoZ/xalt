@@ -14,7 +14,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, profile, isXConnected, signOut } = useAuth();
+  const { user, profile, isWalletConnected, signOut } = useAuth();
 
   const handleSignOut = async () => {
     try {
@@ -124,10 +124,10 @@ const Navbar = () => {
               className="gap-2"
             >
               <Plus className="w-4 h-4" />
-              Launch Token
+              Launch Fund Pool
             </Button>
             
-            {user && isXConnected && (
+            {user && isWalletConnected && (
               <Button
                 variant="outline"
                 size="sm"
@@ -138,17 +138,17 @@ const Navbar = () => {
               </Button>
             )}
             
-            {user && isXConnected ? (
+            {user && isWalletConnected ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="gap-2">
                     <Avatar className="w-6 h-6">
                       <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                        {profile?.x_username?.[0]?.toUpperCase() || profile?.username?.[0]?.toUpperCase() || 'U'}
+                        {profile?.wallet_address?.[0] || profile?.username?.[0]?.toUpperCase() || 'W'}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="hidden sm:inline">
-                      @{profile?.x_username || profile?.username || 'user'}
+                    <span className="hidden sm:inline font-mono">
+                      {profile?.wallet_address?.slice(0, 4)}...{profile?.wallet_address?.slice(-4)}
                     </span>
                   </Button>
                 </DropdownMenuTrigger>
@@ -160,7 +160,7 @@ const Navbar = () => {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
                     <LogOut className="w-4 h-4 mr-2" />
-                    Sign Out
+                    Disconnect
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -168,13 +168,11 @@ const Navbar = () => {
               <Button
                 variant="default"
                 size="sm"
-                onClick={() => navigate("/connect-x")}
-                className="gap-2 bg-black hover:bg-black/90 text-white border-2 border-yellow-400 hover:border-yellow-300 shadow-lg hover:shadow-yellow-400/20 transition-all duration-200"
+                onClick={() => navigate("/connect-wallet")}
+                className="gap-2 bg-gradient-to-r from-[#AB9FF2] to-[#9945FF] hover:from-[#9C8FE3] hover:to-[#8A3FF0] text-white border-2 border-[#AB9FF2] hover:border-[#9C8FE3] shadow-lg hover:shadow-[#9945FF]/20 transition-all duration-200"
               >
-                <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                </svg>
-                Connect X
+                <Wallet className="w-4 h-4" />
+                Connect Wallet
               </Button>
             )}
           </div>

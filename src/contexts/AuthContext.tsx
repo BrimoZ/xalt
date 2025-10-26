@@ -13,9 +13,7 @@ interface MockProfile {
   username?: string;
   display_name?: string;
   avatar_url?: string;
-  x_account_id?: string;
-  x_username?: string;
-  x_display_name?: string;
+  wallet_address?: string;
   created_at: string;
   updated_at: string;
 }
@@ -25,9 +23,9 @@ interface AuthContextType {
   session: any;
   profile: MockProfile | null;
   loading: boolean;
-  signInWithX: () => Promise<void>;
+  connectWallet: () => Promise<void>;
   signOut: () => Promise<void>;
-  isXConnected: boolean;
+  isWalletConnected: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -40,21 +38,25 @@ export const useAuth = () => {
   return context;
 };
 
-// Mock data for demonstration - expanded with more unique profiles
-const MOCK_X_USERS = [
-  { x_account_id: "123456789", x_username: "crypto_trader", x_display_name: "Crypto Trader 🚀" },
-  { x_account_id: "987654321", x_username: "web3_builder", x_display_name: "Web3 Builder" },
-  { x_account_id: "456789123", x_username: "defi_enthusiast", x_display_name: "DeFi Enthusiast" },
-  { x_account_id: "789123456", x_username: "nft_collector", x_display_name: "NFT Collector ✨" },
-  { x_account_id: "321654987", x_username: "yield_farmer", x_display_name: "Yield Farmer 🌾" },
-  { x_account_id: "147258369", x_username: "moon_seeker", x_display_name: "Moon Seeker 🌙" },
-  { x_account_id: "963852741", x_username: "diamond_hands", x_display_name: "Diamond Hands 💎" },
-  { x_account_id: "258147369", x_username: "degen_trader", x_display_name: "Degen Trader 🔥" },
-  { x_account_id: "741963852", x_username: "alpha_hunter", x_display_name: "Alpha Hunter 🎯" },
-  { x_account_id: "159753486", x_username: "whale_watcher", x_display_name: "Whale Watcher 🐋" }
+// Mock Solana wallet addresses for demonstration
+const MOCK_WALLETS = [
+  "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+  "GrDMoeqMLFjeXQ24H56S1RLgT4R76jsuWCd6SvXyGPQ5",
+  "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+  "HN7cABqLq46Es1jh92dQQisAq662SmxELLLsHHe4YWrH",
+  "DYw8jCTfwHNRJhhmFcbXvVDTqWMEVFBX6ZKUmG5CNSKK",
+  "5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1",
+  "CuieVDEDtLo7FypA9SbLM9saXFdb1dsshEkyErMqkRQq",
+  "8Kag8CqNdCLRbv7oYvTjPzqGcfZkN7zWeSLuqHYzLSXo",
+  "AdH2Utn6Fus15ZhtenW4hZBQnvtLgM1YCW2MfVp7pYS5",
+  "3JCjFpY1JjUhPVHWNYvdGpvEHhN2rSqmjMwVm9hm3gxY"
 ];
 
-const generateRandomFollowers = () => Math.floor(Math.random() * 45000) + 5000;
+const generateMockDisplayName = () => {
+  const prefixes = ["Crypto", "Solana", "DeFi", "NFT", "Web3", "Degen", "Whale", "Diamond", "Moon", "Alpha"];
+  const suffixes = ["Trader", "Builder", "Collector", "Farmer", "Hunter", "Seeker", "Hands", "Enthusiast", "Legend", "Pro"];
+  return `${prefixes[Math.floor(Math.random() * prefixes.length)]} ${suffixes[Math.floor(Math.random() * suffixes.length)]}`;
+};
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<MockUser | null>(null);
@@ -62,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<MockProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const isXConnected = !!(profile?.x_account_id && profile?.x_username);
+  const isWalletConnected = !!(profile?.wallet_address);
 
   useEffect(() => {
     // Check for existing session
@@ -85,21 +87,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initializeAuth();
   }, []);
 
-  const signInWithX = async () => {
+  const connectWallet = async () => {
     try {
       setLoading(true);
       
-      // Simulate OAuth redirect delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Check if Phantom is installed
+      const isPhantomInstalled = typeof window !== 'undefined' && window.solana && window.solana.isPhantom;
+      
+      if (!isPhantomInstalled) {
+        throw new Error('Phantom wallet is not installed');
+      }
 
-      // Generate mock user data with proper UUID format
-      const mockXUser = MOCK_X_USERS[Math.floor(Math.random() * MOCK_X_USERS.length)];
+      // Simulate wallet connection delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // For demo purposes, use mock wallet address
+      const mockWalletAddress = MOCK_WALLETS[Math.floor(Math.random() * MOCK_WALLETS.length)];
+      const displayName = generateMockDisplayName();
+      
       // Generate a proper UUID v4 format for mock user
       const userId = crypto.randomUUID();
       
       const mockUser: MockUser = {
         id: userId,
-        email: `${mockXUser.x_username}@example.com`,
+        email: `${mockWalletAddress.slice(0, 8)}@solana.wallet`,
         created_at: new Date().toISOString(),
       };
 
@@ -112,33 +123,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const mockProfile: MockProfile = {
         id: `profile-${userId}`,
         user_id: userId,
-        username: mockXUser.x_username,
-        display_name: mockXUser.x_display_name,
-        avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${mockXUser.x_username}`,
-        x_account_id: mockXUser.x_account_id,
-        x_username: mockXUser.x_username,
-        x_display_name: mockXUser.x_display_name,
+        username: mockWalletAddress.slice(0, 8),
+        display_name: displayName,
+        avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${mockWalletAddress}`,
+        wallet_address: mockWalletAddress,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
 
       // Save profile to Supabase database
-      console.log('Saving profile to database:', {
+      console.log('Saving wallet profile to database:', {
         user_id: userId,
-        username: mockXUser.x_username,
-        display_name: mockXUser.x_display_name,
+        username: mockWalletAddress.slice(0, 8),
+        display_name: displayName,
+        wallet_address: mockWalletAddress,
       });
       
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .upsert({
           user_id: userId,
-          username: mockXUser.x_username,
-          display_name: mockXUser.x_display_name,
-          avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${mockXUser.x_username}`,
-          x_account_id: mockXUser.x_account_id,
-          x_username: mockXUser.x_username,
-          x_display_name: mockXUser.x_display_name
+          username: mockWalletAddress.slice(0, 8),
+          display_name: displayName,
+          avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${mockWalletAddress}`,
+          wallet_address: mockWalletAddress
         })
         .select();
 
@@ -160,7 +168,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(mockSession);
       setProfile(mockProfile);
     } catch (error) {
-      console.error('Error in mock signInWithX:', error);
+      console.error('Error connecting wallet:', error);
       throw error;
     } finally {
       setLoading(false);
@@ -174,7 +182,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(null);
       setProfile(null);
     } catch (error) {
-      console.error('Error in mock signOut:', error);
+      console.error('Error disconnecting wallet:', error);
       throw error;
     }
   };
@@ -184,10 +192,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     session,
     profile,
     loading,
-    signInWithX,
+    connectWallet,
     signOut,
-    isXConnected,
+    isWalletConnected,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+
+// Type declaration for Phantom wallet
+declare global {
+  interface Window {
+    solana?: {
+      isPhantom?: boolean;
+      connect: () => Promise<{ publicKey: { toString: () => string } }>;
+      disconnect: () => Promise<void>;
+      on: (event: string, callback: () => void) => void;
+    };
+  }
+}

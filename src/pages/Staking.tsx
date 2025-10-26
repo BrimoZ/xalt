@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
 const Staking = () => {
-  const { user, isXConnected } = useAuth();
+  const { user, isWalletConnected } = useAuth();
   const { toast } = useToast();
   const [stakeAmount, setStakeAmount] = useState("");
   const [unstakeAmount, setUnstakeAmount] = useState("");

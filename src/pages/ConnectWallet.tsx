@@ -6,35 +6,38 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { Wallet } from "lucide-react";
 
-const ConnectX = () => {
-  const { user, profile, loading, signInWithX, signOut, isXConnected } = useAuth();
+const ConnectWallet = () => {
+  const { user, profile, loading, connectWallet, signOut, isWalletConnected } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
   // Redirect authenticated users to home if they're already connected
   useEffect(() => {
-    if (!loading && user && isXConnected) {
+    if (!loading && user && isWalletConnected) {
       navigate('/');
     }
-  }, [user, isXConnected, loading, navigate]);
+  }, [user, isWalletConnected, loading, navigate]);
 
-  const handleConnectX = async () => {
+  const handleConnectWallet = async () => {
     try {
       toast({
-        title: "Connecting to X...",
-        description: "Redirecting to X for authentication",
+        title: "Connecting Wallet...",
+        description: "Please approve the connection in Phantom",
       });
-      await signInWithX();
+      await connectWallet();
       toast({
-        title: "Successfully Connected!",
-        description: "Your X account has been linked to Xalt.",
+        title: "Wallet Connected! 🎉",
+        description: "Your Phantom wallet has been successfully connected.",
       });
     } catch (error) {
-      console.error('Error connecting X account:', error);
+      console.error('Error connecting wallet:', error);
       toast({
         title: "Connection Failed",
-        description: "Failed to connect X account. Please try again.",
+        description: error instanceof Error && error.message.includes('not installed') 
+          ? "Please install Phantom wallet first" 
+          : "Failed to connect wallet. Please try again.",
         variant: "destructive",
       });
     }
@@ -45,7 +48,7 @@ const ConnectX = () => {
       await signOut();
       toast({
         title: "Disconnected",
-        description: "Successfully disconnected from X.",
+        description: "Successfully disconnected from Phantom wallet.",
       });
     } catch (error) {
       console.error('Error disconnecting:', error);
@@ -76,38 +79,34 @@ const ConnectX = () => {
         <div className="w-full max-w-md">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-black rounded-xl flex items-center justify-center mx-auto mb-4 border border-border">
-              <svg viewBox="0 0 24 24" className="w-8 h-8 fill-white">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-              </svg>
+            <div className="w-16 h-16 bg-gradient-to-br from-[#AB9FF2] to-[#9945FF] rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <Wallet className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-3xl font-bold text-foreground mb-2">
-              {isXConnected ? 'X Account Connected' : 'Connect Your X Account'}
+              {isWalletConnected ? 'Wallet Connected' : 'Connect Your Wallet'}
             </h1>
             <p className="text-muted-foreground">
-              {isXConnected 
-                ? 'Your X account is successfully connected to Xalt'
-                : 'Link your X account to access exclusive features and verify your identity'
+              {isWalletConnected 
+                ? 'Your Phantom wallet is successfully connected'
+                : 'Link your Phantom wallet to access the platform and manage your funds'
               }
             </p>
           </div>
 
           {/* Connected State */}
-          {isXConnected && profile ? (
+          {isWalletConnected && profile ? (
             <Card className="bg-card border-border overflow-hidden">
               <CardContent className="p-6">
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/60 rounded-full flex items-center justify-center">
-                    <svg viewBox="0 0 24 24" className="w-6 h-6 fill-white">
-                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                    </svg>
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#AB9FF2] to-[#9945FF] rounded-full flex items-center justify-center">
+                    <Wallet className="w-6 h-6 text-white" />
                   </div>
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-foreground">
-                      {profile.x_display_name || profile.display_name || 'Connected User'}
+                      {profile.display_name || 'Connected User'}
                     </h3>
-                    <p className="text-sm text-muted-foreground">
-                      @{profile.x_username || profile.username || 'username'}
+                    <p className="text-sm text-muted-foreground font-mono truncate">
+                      {profile.wallet_address}
                     </p>
                   </div>
                 </div>
@@ -115,15 +114,15 @@ const ConnectX = () => {
                 <div className="space-y-3 mb-6">
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm text-foreground">Account verified</span>
+                    <span className="text-sm text-foreground">Wallet verified</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm text-foreground">Access to exclusive features</span>
+                    <span className="text-sm text-foreground">Access to all features</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm text-foreground">Enhanced security enabled</span>
+                    <span className="text-sm text-foreground">Secure transactions enabled</span>
                   </div>
                 </div>
 
@@ -132,7 +131,7 @@ const ConnectX = () => {
                   variant="outline" 
                   className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
                 >
-                  Disconnect X Account
+                  Disconnect Wallet
                 </Button>
               </CardContent>
             </Card>
@@ -142,24 +141,24 @@ const ConnectX = () => {
               <CardContent className="p-0">
                 {/* Benefits Section */}
                 <div className="p-6 space-y-4">
-                  <h3 className="font-semibold text-foreground mb-4">Why connect your X account?</h3>
+                  <h3 className="font-semibold text-foreground mb-4">Why connect your wallet?</h3>
                   
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
                       <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span className="text-sm text-foreground">Verify token ownership</span>
+                      <span className="text-sm text-foreground">Launch fund pools</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span className="text-sm text-foreground">Access exclusive launches</span>
+                      <span className="text-sm text-foreground">Donate to campaigns</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span className="text-sm text-foreground">Enhanced security features</span>
+                      <span className="text-sm text-foreground">Stake $FUND tokens</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span className="text-sm text-foreground">Community engagement tools</span>
+                      <span className="text-sm text-foreground">Track your contributions</span>
                     </div>
                   </div>
                 </div>
@@ -167,18 +166,27 @@ const ConnectX = () => {
                 {/* Connect Button */}
                 <div className="border-t border-border p-6">
                   <Button 
-                    onClick={handleConnectX}
-                    className="w-full bg-black hover:bg-black/90 text-white border-0 h-12 text-base font-medium"
+                    onClick={handleConnectWallet}
+                    className="w-full bg-gradient-to-r from-[#AB9FF2] to-[#9945FF] hover:from-[#9C8FE3] hover:to-[#8A3FF0] text-white border-0 h-12 text-base font-medium"
                   >
-                    <svg viewBox="0 0 24 24" className="w-5 h-5 mr-2 fill-white">
-                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                    </svg>
-                    Connect with X
+                    <Wallet className="w-5 h-5 mr-2" />
+                    Connect Phantom Wallet
                   </Button>
                   
                   <p className="text-xs text-muted-foreground text-center mt-4">
-                    Secure OAuth 2.0 connection. We never store your password.
+                    Secure connection. We never have access to your private keys.
                   </p>
+                  
+                  <div className="mt-4 text-center">
+                    <a 
+                      href="https://phantom.app/" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-xs text-primary hover:underline"
+                    >
+                      Don't have Phantom? Get it here →
+                    </a>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -193,8 +201,8 @@ const ConnectX = () => {
               <span className="font-medium text-amber-800 dark:text-amber-200">Demo Mode</span>
             </div>
             <p className="text-xs text-amber-700 dark:text-amber-300">
-              This is a mock authentication system for testing. No real X API connection is made. 
-              Click "Connect with X" to simulate the OAuth flow with random demo data.
+              This is a mock wallet connection for testing. No real Phantom connection is made. 
+              Click "Connect Phantom Wallet" to simulate the connection flow with random demo data.
             </p>
           </div>
 
@@ -215,4 +223,4 @@ const ConnectX = () => {
   );
 };
 
-export default ConnectX;
+export default ConnectWallet;

@@ -9,7 +9,7 @@ import { UserDataProvider } from "./contexts/UserDataContext";
 import Index from "./pages/Index";
 import TokenDetail from "./pages/TokenDetail";
 import LaunchToken from "./pages/LaunchToken";
-import ConnectX from "./pages/ConnectX";
+import ConnectWallet from "./pages/ConnectWallet";
 import Profile from "./pages/Profile";
 import HowItWorks from "./pages/HowItWorks";
 import Staking from "./pages/Staking";
@@ -30,7 +30,7 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/token/:tokenId" element={<TokenDetail />} />
                 <Route path="/launch" element={<LaunchToken />} />
-                <Route path="/connect-x" element={<ConnectX />} />
+                <Route path="/connect-wallet" element={<ConnectWallet />} />
                 <Route path="/profile" element={<Profile />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="/how-it-works" element={<HowItWorks />} />
