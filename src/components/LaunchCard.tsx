@@ -219,16 +219,29 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
               </div>
             </div>
 
-            {/* My Contribution */}
+            {/* Pool Funding Progress */}
             <div className="bg-card/50 border border-border rounded-lg p-4">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-sm text-muted-foreground">Your Total Contribution</p>
-                <Badge variant="outline" className="text-xs">{myPoolContribution} tokens</Badge>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm font-medium">Pool Funding Progress</p>
+                <Badge variant="outline" className="text-xs">{progressPercentage.toFixed(1)}% funded</Badge>
               </div>
-              <Progress value={(myPoolContribution / token.totalTVL) * 100} className="h-2" />
-              <p className="text-xs text-muted-foreground mt-2">
-                You've contributed {((myPoolContribution / token.totalTVL) * 100).toFixed(2)}% of this pool
-              </p>
+              <div className="flex items-baseline justify-between mb-2">
+                <span className="text-2xl font-bold text-primary">${formatNumber(raised)}</span>
+                <span className="text-sm text-muted-foreground">of ${formatNumber(fundingGoal)}</span>
+              </div>
+              <Progress value={progressPercentage} className="h-2.5 mb-2" />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{formatNumber(token.stakers)} backers</span>
+                <span>${formatNumber(fundingGoal - raised)} remaining</span>
+              </div>
+            </div>
+
+            {/* My Contribution */}
+            <div className="bg-muted/30 rounded-lg p-3">
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">Your contribution to this pool</p>
+                <span className="text-sm font-semibold text-accent">{myPoolContribution} tokens</span>
+              </div>
             </div>
 
             {/* Donation Input */}
@@ -254,22 +267,6 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
               <p className="text-xs text-muted-foreground">
                 Donations use your Donation Balance from staking rewards
               </p>
-            </div>
-
-            {/* Pool Info */}
-            <div className="bg-muted/30 rounded-lg p-4 space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Pool APR</span>
-                <span className="font-semibold text-accent">{token.apr}%</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Total Raised</span>
-                <span className="font-semibold">${formatNumber(token.totalTVL)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Total Backers</span>
-                <span className="font-semibold">{formatNumber(token.stakers)}</span>
-              </div>
             </div>
 
             {/* Action Buttons */}
