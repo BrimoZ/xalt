@@ -3,13 +3,15 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, ExternalLink, Globe, Send, Heart, Users2, Target, Clock } from "lucide-react";
+import { ArrowLeft, ExternalLink, Globe, Send, Heart, Users2, Target, Clock, MessageCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useTokens } from "@/contexts/TokenContext";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Progress } from "@/components/ui/progress";
+import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const TokenDetail = () => {
   const { tokenId } = useParams();
@@ -23,6 +25,10 @@ const TokenDetail = () => {
   const [backers, setBackers] = useState(0);
   const [hasGivenHeart, setHasGivenHeart] = useState(false);
   const [isTogglingHeart, setIsTogglingHeart] = useState(false);
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [newQuestion, setNewQuestion] = useState("");
+  const [answerText, setAnswerText] = useState<{[key: string]: string}>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Load token, creator data, hearts, and backers
   useEffect(() => {
@@ -30,6 +36,7 @@ const TokenDetail = () => {
       loadTokenData();
       fetchHeartData();
       fetchBackerCount();
+      fetchQuestions();
     }
   }, [tokenId, user?.id]);
 
@@ -161,6 +168,120 @@ const TokenDetail = () => {
       setIsTogglingHeart(false);
     }
   };
+
+  const fetchQuestions = async () => {
+    if (!tokenId) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('token_questions')
+        .select(`
+          *,
+          profiles:user_id (
+            display_name,
+            username,
+            avatar_url
+          )
+        `)
+        .eq('token_id', tokenId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setQuestions(data || []);
+    } catch (error) {
+      console.error('Error fetching questions:', error);
+    }
+  };
+
+  const handleAskQuestion = async () => {
+    if (!user || !isWalletConnected) {
+      toast({
+        title: "Connect your wallet",
+        description: "Please connect your wallet to ask questions",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!newQuestion.trim()) {
+      toast({
+        title: "Empty question",
+        description: "Please enter a question",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const { error } = await supabase
+        .from('token_questions')
+        .insert({
+          token_id: tokenId!,
+          user_id: user.id,
+          question: newQuestion.trim(),
+        });
+
+      if (error) throw error;
+
+      setNewQuestion("");
+      await fetchQuestions();
+      toast({
+        title: "Question posted!",
+        description: "The fund creator will be notified",
+      });
+    } catch (error: any) {
+      console.error('Error posting question:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to post question",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleAnswerQuestion = async (questionId: string) => {
+    const answer = answerText[questionId]?.trim();
+    
+    if (!answer) {
+      toast({
+        title: "Empty answer",
+        description: "Please enter an answer",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('token_questions')
+        .update({
+          answer: answer,
+          answered_at: new Date().toISOString(),
+        })
+        .eq('id', questionId);
+
+      if (error) throw error;
+
+      setAnswerText(prev => ({ ...prev, [questionId]: "" }));
+      await fetchQuestions();
+      toast({
+        title: "Answer posted!",
+        description: "Your answer has been published",
+      });
+    } catch (error: any) {
+      console.error('Error posting answer:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to post answer",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const isCreator = user?.id === currentToken?.creator_id;
 
   const formatNumber = (num: number | undefined) => {
     if (num === undefined || num === null) return '0';
@@ -344,13 +465,12 @@ const TokenDetail = () => {
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-4">
-                {creatorProfile.avatar_url && (
-                  <img
-                    src={creatorProfile.avatar_url}
-                    alt={creatorProfile.display_name || 'Creator'}
-                    className="w-12 h-12 rounded-full"
-                  />
-                )}
+                <Avatar className="w-12 h-12">
+                  <AvatarImage src={creatorProfile.avatar_url || ''} />
+                  <AvatarFallback>
+                    {creatorProfile.display_name?.charAt(0) || creatorProfile.username?.charAt(0) || 'U'}
+                  </AvatarFallback>
+                </Avatar>
                 <div>
                   <p className="font-medium">{creatorProfile.display_name || 'Anonymous'}</p>
                   <p className="text-sm text-muted-foreground">@{creatorProfile.username}</p>
@@ -359,6 +479,113 @@ const TokenDetail = () => {
             </CardContent>
           </Card>
         )}
+
+        {/* Q&A Section */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MessageCircle className="w-5 h-5" />
+              Questions & Answers
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Ask Question Form */}
+            <div className="space-y-3">
+              <h3 className="font-semibold">Ask the Fund Creator</h3>
+              <Textarea
+                placeholder="What would you like to know about this fund pool?"
+                value={newQuestion}
+                onChange={(e) => setNewQuestion(e.target.value)}
+                className="min-h-[100px]"
+                disabled={!user || !isWalletConnected}
+              />
+              <Button
+                onClick={handleAskQuestion}
+                disabled={!user || !isWalletConnected || isSubmitting || !newQuestion.trim()}
+                className="w-full sm:w-auto"
+              >
+                <MessageCircle className="w-4 h-4 mr-2" />
+                {isSubmitting ? 'Posting...' : 'Ask Question'}
+              </Button>
+              {(!user || !isWalletConnected) && (
+                <p className="text-sm text-muted-foreground">
+                  Connect your wallet to ask questions
+                </p>
+              )}
+            </div>
+
+            {/* Questions List */}
+            <div className="space-y-4">
+              {questions.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">
+                  No questions yet. Be the first to ask!
+                </p>
+              ) : (
+                questions.map((q) => (
+                  <Card key={q.id} className="bg-muted/30">
+                    <CardContent className="pt-6 space-y-4">
+                      {/* Question */}
+                      <div className="flex gap-3">
+                        <Avatar className="w-8 h-8">
+                          <AvatarImage src={q.profiles?.avatar_url || ''} />
+                          <AvatarFallback>
+                            {q.profiles?.display_name?.charAt(0) || 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-medium text-sm">
+                              {q.profiles?.display_name || 'Anonymous'}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(q.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <p className="text-foreground">{q.question}</p>
+                        </div>
+                      </div>
+
+                      {/* Answer */}
+                      {q.answer ? (
+                        <div className="ml-11 pl-4 border-l-2 border-primary/30">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant="outline" className="text-xs">
+                              Creator's Answer
+                            </Badge>
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(q.answered_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <p className="text-foreground">{q.answer}</p>
+                        </div>
+                      ) : isCreator ? (
+                        <div className="ml-11 space-y-2">
+                          <Textarea
+                            placeholder="Write your answer..."
+                            value={answerText[q.id] || ''}
+                            onChange={(e) => setAnswerText(prev => ({ ...prev, [q.id]: e.target.value }))}
+                            className="min-h-[80px]"
+                          />
+                          <Button
+                            onClick={() => handleAnswerQuestion(q.id)}
+                            size="sm"
+                            disabled={!answerText[q.id]?.trim()}
+                          >
+                            Post Answer
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="ml-11 text-sm text-muted-foreground">
+                          Awaiting creator's response...
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Donation Notice */}
         <Card>
