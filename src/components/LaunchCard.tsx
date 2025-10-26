@@ -44,6 +44,8 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
   const [showDetails, setShowDetails] = useState(false);
   const [showDonateDialog, setShowDonateDialog] = useState(false);
   const [donateAmount, setDonateAmount] = useState("");
+  const [hearts, setHearts] = useState(token.stakers); // Use stakers count as hearts
+  const [hasGivenHeart, setHasGivenHeart] = useState(false);
   
   // Mock data - replace with real data from backend
   const [walletBalance] = useState(5000); // User's main wallet balance
@@ -73,6 +75,35 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
 
   const handleEnterPool = () => {
     navigate(`/token/${token.id}`);
+  };
+
+  const handleGiveHeart = () => {
+    if (!user || !isWalletConnected) {
+      toast({
+        title: "Connect your wallet",
+        description: "Please connect your wallet to show support",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (hasGivenHeart) {
+      // Remove heart
+      setHearts(prev => prev - 1);
+      setHasGivenHeart(false);
+      toast({
+        title: "Heart removed",
+        description: `You've removed your support from ${token.name}`,
+      });
+    } else {
+      // Add heart
+      setHearts(prev => prev + 1);
+      setHasGivenHeart(true);
+      toast({
+        title: "Heart given! ❤️",
+        description: `You're now supporting ${token.name}`,
+      });
+    }
   };
 
   const handleDonate = () => {
@@ -158,8 +189,8 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
               {formatNumber(token.stakers)}
             </span>
             <span className="flex items-center gap-1 text-accent">
-              <Heart className="w-3 h-3" />
-              {token.apr}%
+              <Heart className={`w-3 h-3 ${hasGivenHeart ? 'fill-accent' : ''}`} />
+              {formatNumber(hearts)}
             </span>
           </div>
           <span className="flex items-center gap-1 text-muted-foreground">
@@ -346,10 +377,21 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
                 <p className="text-2xl font-bold text-foreground">{formatNumber(token.stakers)}</p>
                 <p className="text-xs text-muted-foreground">Backers</p>
               </div>
-              <div className="bg-card/50 border border-border rounded-lg p-4 text-center">
-                <Heart className="w-5 h-5 text-accent mx-auto mb-2" />
-                <p className="text-2xl font-bold text-accent">{token.apr}%</p>
-                <p className="text-xs text-muted-foreground">APR</p>
+              <div 
+                className="bg-card/50 border border-border rounded-lg p-4 text-center cursor-pointer hover:border-accent/50 transition-all"
+                onClick={handleGiveHeart}
+              >
+                <Heart 
+                  className={`w-5 h-5 mx-auto mb-2 transition-all ${
+                    hasGivenHeart 
+                      ? 'text-accent fill-accent' 
+                      : 'text-accent'
+                  }`} 
+                />
+                <p className="text-2xl font-bold text-accent">{formatNumber(hearts)}</p>
+                <p className="text-xs text-muted-foreground">
+                  {hasGivenHeart ? 'You ❤️ this' : 'Give Heart'}
+                </p>
               </div>
               <div className="bg-card/50 border border-border rounded-lg p-4 text-center">
                 <Clock className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
