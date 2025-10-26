@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { RefreshCw, Filter, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTokens } from "@/contexts/TokenContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +17,7 @@ const LiveLaunchesFeed = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
+  const [activeTab, setActiveTab] = useState("live");
   const [totalBonded, setTotalBonded] = useState(0);
   const [totalVolume24h, setTotalVolume24h] = useState(0);
   const [activeUsers, setActiveUsers] = useState(0);
@@ -85,6 +87,38 @@ const LiveLaunchesFeed = () => {
     launch.dev.handle.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Filter launches by status
+  const liveLaunches = filteredLaunches.filter(launch => {
+    const progressPercent = (launch.totalTVL / launch.marketCap) * 100;
+    return progressPercent < 100;
+  });
+
+  const completedLaunches = filteredLaunches.filter(launch => {
+    const progressPercent = (launch.totalTVL / launch.marketCap) * 100;
+    return progressPercent >= 100;
+  });
+
+  const failedLaunches = filteredLaunches.filter(launch => {
+    // For now, we don't have a "failed" status, so this is empty
+    // You could add logic here based on your business rules
+    return false;
+  });
+
+  const getDisplayedLaunches = () => {
+    switch (activeTab) {
+      case "live":
+        return liveLaunches;
+      case "completed":
+        return completedLaunches;
+      case "failed":
+        return failedLaunches;
+      default:
+        return liveLaunches;
+    }
+  };
+
+  const displayedLaunches = getDisplayedLaunches();
+
   return (
     <section className="py-8 px-6">
       <div className="max-w-7xl mx-auto">
@@ -93,12 +127,12 @@ const LiveLaunchesFeed = () => {
           <div className="flex items-center justify-center gap-2 mb-4">
             <span className="font-mono text-primary text-lg">&gt;</span>
             <Badge variant="default" className="font-mono">
-              ACTIVE POOLS
+              LIVE FUNDING
             </Badge>
             <span className="w-3 h-3 bg-primary rounded-full animate-pulse"></span>
           </div>
           <h2 className="text-3xl md:text-4xl font-orbitron font-bold mb-4">
-            Active Funding Pools
+            Live Funding Pools
           </h2>
           <p className="font-mono text-muted-foreground max-w-2xl mx-auto">
             Support funding pools you believe in using your Donation Balance. Every contribution is transparent, on-chain, and trackable.
@@ -111,7 +145,7 @@ const LiveLaunchesFeed = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
-                placeholder="Search tokens or devs..."
+                placeholder="Search pools or creators..."
                 className="pl-10 w-64 font-mono bg-background/50 border-border"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -147,13 +181,13 @@ const LiveLaunchesFeed = () => {
                 🔥 Trending
               </Button>
               <Button variant="outline" size="sm" className="justify-start">
-                📈 High Volume
+                📈 High Funding
               </Button>
               <Button variant="outline" size="sm" className="justify-start">
-                ⚡ New Launches
+                ⚡ New Pools
               </Button>
               <Button variant="outline" size="sm" className="justify-start">
-                💎 Low Market Cap
+                💎 Low Goal
               </Button>
             </div>
           </div>
@@ -163,11 +197,11 @@ const LiveLaunchesFeed = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-card border border-border p-4 rounded-sm">
             <p className="font-mono text-sm text-muted-foreground">ACTIVE_POOLS</p>
-            <p className="font-mono text-2xl font-bold text-primary">{filteredLaunches.length}</p>
+            <p className="font-mono text-2xl font-bold text-primary">{liveLaunches.length}</p>
           </div>
           <div className="bg-card border border-border p-4 rounded-sm">
-            <p className="font-mono text-sm text-muted-foreground">TOTAL_FUNDED</p>
-            <p className="font-mono text-2xl font-bold text-primary">{totalBonded.toLocaleString()}</p>
+            <p className="font-mono text-sm text-muted-foreground">COMPLETED</p>
+            <p className="font-mono text-2xl font-bold text-primary">{completedLaunches.length}</p>
           </div>
           <div className="bg-card border border-border p-4 rounded-sm">
             <p className="font-mono text-sm text-muted-foreground">TOTAL_FUNDING</p>
@@ -185,19 +219,62 @@ const LiveLaunchesFeed = () => {
           </div>
         </div>
 
-        {/* Launches Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {filteredLaunches.map((launch) => (
-            <LaunchCard key={launch.id} token={launch} />
-          ))}
-        </div>
+        {/* Tabs and Launches Grid */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-8">
+            <TabsTrigger value="live" className="font-mono">
+              Live ({liveLaunches.length})
+            </TabsTrigger>
+            <TabsTrigger value="completed" className="font-mono">
+              Completed ({completedLaunches.length})
+            </TabsTrigger>
+            <TabsTrigger value="failed" className="font-mono">
+              Failed ({failedLaunches.length})
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Load More */}
-        <div className="text-center mt-12">
-          <Button variant="cyber" size="lg">
-            Load More Pools
-          </Button>
-        </div>
+          <TabsContent value="live">
+            {displayedLaunches.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground font-mono">No live funding pools found</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {displayedLaunches.map((launch) => (
+                  <LaunchCard key={launch.id} token={launch} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="completed">
+            {displayedLaunches.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground font-mono">No completed funding pools found</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {displayedLaunches.map((launch) => (
+                  <LaunchCard key={launch.id} token={launch} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="failed">
+            {displayedLaunches.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground font-mono">No failed funding pools found</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {displayedLaunches.map((launch) => (
+                  <LaunchCard key={launch.id} token={launch} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
     </section>
   );

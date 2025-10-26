@@ -91,7 +91,7 @@ const Navbar = () => {
               className="gap-2"
             >
               <Home className="w-4 h-4" />
-              Live Launches
+              Live Funding
             </Button>
             
             <Button
