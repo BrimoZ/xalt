@@ -3,10 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, TrendingUp, TrendingDown, ExternalLink, Globe, Send, Heart, Users2, Target, Clock } from "lucide-react";
+import { ArrowLeft, ExternalLink, Globe, Send, Heart, Users2, Target, Clock } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useTokens } from "@/contexts/TokenContext";
-import { TokenChart } from "@/components/TokenChart";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -360,21 +359,6 @@ const TokenDetail = () => {
             </CardContent>
           </Card>
         )}
-
-        {/* Price Chart */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Funding Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <TokenChart
-              currentPrice={currentToken.current_price}
-              tokenSymbol={currentToken.symbol}
-              tokenId={currentToken.id}
-              totalSupply={currentToken.goal_amount}
-            />
-          </CardContent>
-        </Card>
 
         {/* Donation Notice */}
         <Card>
