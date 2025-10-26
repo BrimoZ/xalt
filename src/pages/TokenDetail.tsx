@@ -263,13 +263,13 @@ const TokenDetail = () => {
   const handleBuy = async () => {
     if (!displayToken || !buyAmount) return;
     
-    if (!user || !isXConnected) {
+    if (!user || !isWalletConnected) {
       toast({
         title: "Authentication Required",
-        description: "Please connect with X to trade tokens.",
+        description: "Please connect your wallet to trade tokens.",
         variant: "destructive",
       });
-      navigate("/auth");
+      navigate("/connect-wallet");
       return;
     }
     
@@ -392,13 +392,13 @@ const TokenDetail = () => {
   const handleSell = async () => {
     if (!displayToken || !buyAmount) return;
     
-    if (!user || !isXConnected) {
+    if (!user || !isWalletConnected) {
       toast({
         title: "Authentication Required",
-        description: "Please connect with X to trade tokens.",
+        description: "Please connect your wallet to trade tokens.",
         variant: "destructive",
       });
-      navigate("/auth");
+      navigate("/connect-wallet");
       return;
     }
     
@@ -711,7 +711,7 @@ const TokenDetail = () => {
                     )}
                     
                     {/* Comment Input */}
-                    {user && isXConnected && (
+                    {user && isWalletConnected && (
                       <div className="mt-4 p-3 bg-secondary/10 rounded-lg border-t">
                         <div className="flex gap-3">
                           <Input

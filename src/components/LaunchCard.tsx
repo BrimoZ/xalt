@@ -73,8 +73,8 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
   const handleDonate = () => {
     if (!user || !isWalletConnected) {
       toast({
-        title: "Connect your account",
-        description: "Please connect your X account to donate",
+        title: "Connect your wallet",
+        description: "Please connect your wallet to donate",
         variant: "destructive",
       });
       return;

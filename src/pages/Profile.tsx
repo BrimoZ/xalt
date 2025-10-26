@@ -33,14 +33,14 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 
 const Profile = () => {
-  const { user, profile, loading, signOut, isXConnected } = useAuth();
+  const { user, profile, loading, signOut, isWalletConnected } = useAuth();
   const { holdings, claims, trades, loading: userDataLoading, totalPortfolioValue, claimToken } = useUserData();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/connect-x');
+      navigate('/connect-wallet');
     }
   }, [user, loading, navigate]);
 
@@ -79,7 +79,7 @@ const Profile = () => {
     );
   }
 
-  if (!user || !isXConnected) {
+  if (!user || !isWalletConnected) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -87,12 +87,12 @@ const Profile = () => {
           <Card className="w-full max-w-md">
             <CardContent className="pt-6 text-center">
               <User className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-              <h2 className="text-2xl font-bold mb-2">Account Required</h2>
+              <h2 className="text-2xl font-bold mb-2">Wallet Required</h2>
               <p className="text-muted-foreground mb-6">
-                Please connect your X account to access your profile
+                Please connect your wallet to access your profile
               </p>
-              <Button onClick={() => navigate('/connect-x')} className="w-full">
-                Connect X Account
+              <Button onClick={() => navigate('/connect-wallet')} className="w-full">
+                Connect Wallet
               </Button>
             </CardContent>
           </Card>
@@ -116,14 +116,14 @@ const Profile = () => {
                 <Avatar className="w-20 h-20">
                   <AvatarImage src={profile?.avatar_url} />
                   <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
-                    {profile?.x_username?.[0]?.toUpperCase() || 'U'}
+                    {profile?.username?.[0]?.toUpperCase() || profile?.wallet_address?.[0] || 'W'}
                   </AvatarFallback>
                 </Avatar>
                 
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <h1 className="text-2xl font-bold">
-                      {profile?.x_display_name || profile?.display_name || 'User'}
+                      {profile?.display_name || 'User'}
                     </h1>
                     <Badge variant="secondary" className="gap-1">
                       <Twitter className="w-3 h-3" />
@@ -131,8 +131,8 @@ const Profile = () => {
                     </Badge>
                   </div>
                   
-                  <p className="text-muted-foreground mb-3">
-                    @{profile?.x_username || profile?.username || 'username'}
+                  <p className="text-muted-foreground mb-3 font-mono">
+                    {profile?.wallet_address?.slice(0, 8)}...{profile?.wallet_address?.slice(-8)}
                   </p>
                   
                   <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
@@ -365,7 +365,7 @@ const Profile = () => {
                       <div>
                         <div className="font-medium">Display Name</div>
                         <div className="text-sm text-muted-foreground">
-                          {profile?.x_display_name || profile?.display_name || 'Not set'}
+                          {profile?.display_name || 'Not set'}
                         </div>
                       </div>
                       <Button variant="outline" size="sm">
@@ -374,13 +374,13 @@ const Profile = () => {
                     </div>
                     <div className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
-                        <div className="font-medium">Username</div>
-                        <div className="text-sm text-muted-foreground">
-                          @{profile?.x_username || profile?.username || 'Not set'}
+                        <div className="font-medium">Wallet Address</div>
+                        <div className="text-sm text-muted-foreground font-mono">
+                          {profile?.wallet_address?.slice(0, 8)}...{profile?.wallet_address?.slice(-8) || 'Not set'}
                         </div>
                       </div>
                       <Button variant="outline" size="sm">
-                        View Profile
+                        Copy Address
                       </Button>
                     </div>
                   </div>
@@ -395,9 +395,9 @@ const Profile = () => {
                       <div className="flex items-center gap-3">
                         <Twitter className="w-5 h-5 text-blue-500" />
                         <div>
-                          <div className="font-medium">X (Twitter)</div>
-                          <div className="text-sm text-muted-foreground">
-                            Connected as @{profile?.x_username}
+                          <div className="font-medium">Phantom Wallet</div>
+                          <div className="text-sm text-muted-foreground font-mono">
+                            Connected: {profile?.wallet_address?.slice(0, 8)}...{profile?.wallet_address?.slice(-8)}
                           </div>
                         </div>
                       </div>

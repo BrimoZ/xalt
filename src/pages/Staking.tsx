@@ -42,10 +42,10 @@ const Staking = () => {
   ];
 
   const handleStake = () => {
-    if (!user || !isXConnected) {
+    if (!user || !isWalletConnected) {
       toast({
-        title: "Connect your account",
-        description: "Please connect your X account to stake tokens",
+        title: "Connect your wallet",
+        description: "Please connect your wallet to stake tokens",
         variant: "destructive",
       });
       return;
@@ -68,10 +68,10 @@ const Staking = () => {
   };
 
   const handleUnstake = () => {
-    if (!user || !isXConnected) {
+    if (!user || !isWalletConnected) {
       toast({
-        title: "Connect your account",
-        description: "Please connect your X account to unstake tokens",
+        title: "Connect your wallet",
+        description: "Please connect your wallet to unstake tokens",
         variant: "destructive",
       });
       return;
@@ -94,10 +94,10 @@ const Staking = () => {
   };
 
   const handleClaim = () => {
-    if (!user || !isXConnected) {
+    if (!user || !isWalletConnected) {
       toast({
-        title: "Connect your account",
-        description: "Please connect your X account to claim rewards",
+        title: "Connect your wallet",
+        description: "Please connect your wallet to claim rewards",
         variant: "destructive",
       });
       return;
@@ -215,7 +215,7 @@ const Staking = () => {
                     <Button 
                       onClick={handleStake} 
                       className="w-full h-14 text-base"
-                      disabled={!user || !isXConnected}
+                      disabled={!user || !isWalletConnected}
                     >
                       <Sparkles className="w-5 h-5 mr-2" />
                       Stake Now
@@ -250,7 +250,7 @@ const Staking = () => {
                       onClick={handleUnstake} 
                       variant="outline"
                       className="w-full h-14 text-base"
-                      disabled={!user || !isXConnected}
+                      disabled={!user || !isWalletConnected}
                     >
                       <ArrowRight className="w-5 h-5 mr-2" />
                       Unstake
@@ -275,7 +275,7 @@ const Staking = () => {
                   <Button 
                     onClick={handleClaim} 
                     className="w-full h-12"
-                    disabled={!user || !isXConnected || claimableRewards <= 0}
+                    disabled={!user || !isWalletConnected || claimableRewards <= 0}
                   >
                     <ArrowDownToLine className="w-4 h-4 mr-2" />
                     Claim to Wallet
