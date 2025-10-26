@@ -3,29 +3,36 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, TrendingUp, TrendingDown, ExternalLink, Globe, Send } from "lucide-react";
+import { ArrowLeft, TrendingUp, TrendingDown, ExternalLink, Globe, Send, Heart, Users2, Target, Clock } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useTokens } from "@/contexts/TokenContext";
 import { TokenChart } from "@/components/TokenChart";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { Progress } from "@/components/ui/progress";
 
 const TokenDetail = () => {
   const { tokenId } = useParams();
   const navigate = useNavigate();
   const { tokens } = useTokens();
   const { toast } = useToast();
-  const { isWalletConnected } = useAuth();
+  const { user, isWalletConnected } = useAuth();
   const [currentToken, setCurrentToken] = useState<any>(tokens.find(t => t.id === tokenId));
   const [creatorProfile, setCreatorProfile] = useState<any>(null);
+  const [hearts, setHearts] = useState(0);
+  const [backers, setBackers] = useState(0);
+  const [hasGivenHeart, setHasGivenHeart] = useState(false);
+  const [isTogglingHeart, setIsTogglingHeart] = useState(false);
 
-  // Load token and creator data
+  // Load token, creator data, hearts, and backers
   useEffect(() => {
     if (tokenId) {
       loadTokenData();
+      fetchHeartData();
+      fetchBackerCount();
     }
-  }, [tokenId]);
+  }, [tokenId, user?.id]);
 
   const loadTokenData = async () => {
     const { data: tokenData } = await supabase
@@ -50,11 +57,132 @@ const TokenDetail = () => {
     }
   };
 
+  const fetchHeartData = async () => {
+    if (!tokenId) return;
+    
+    try {
+      // Get total hearts count
+      const { count: heartCount } = await supabase
+        .from('token_hearts')
+        .select('*', { count: 'exact', head: true })
+        .eq('token_id', tokenId);
+
+      setHearts(heartCount || 0);
+
+      // Check if current user has given a heart
+      if (user?.id) {
+        const { data } = await supabase
+          .from('token_hearts')
+          .select('id')
+          .eq('token_id', tokenId)
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        setHasGivenHeart(!!data);
+      }
+    } catch (error) {
+      console.error('Error fetching heart data:', error);
+    }
+  };
+
+  const fetchBackerCount = async () => {
+    if (!tokenId) return;
+    
+    try {
+      // Get unique backer count
+      const { data } = await supabase
+        .from('token_donations')
+        .select('user_id')
+        .eq('token_id', tokenId);
+
+      const uniqueBackers = new Set(data?.map(d => d.user_id) || []).size;
+      setBackers(uniqueBackers);
+    } catch (error) {
+      console.error('Error fetching backer count:', error);
+    }
+  };
+
+  const handleGiveHeart = async () => {
+    if (!user || !isWalletConnected) {
+      toast({
+        title: "Connect your wallet",
+        description: "Please connect your wallet to show support",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (isTogglingHeart) return;
+
+    try {
+      setIsTogglingHeart(true);
+
+      if (hasGivenHeart) {
+        // Remove heart
+        const { error } = await supabase
+          .from('token_hearts')
+          .delete()
+          .eq('token_id', tokenId!)
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+
+        setHearts(prev => prev - 1);
+        setHasGivenHeart(false);
+        toast({
+          title: "Heart removed",
+          description: `You've removed your support from ${currentToken?.name}`,
+        });
+      } else {
+        // Add heart
+        const { error } = await supabase
+          .from('token_hearts')
+          .insert({
+            token_id: tokenId!,
+            user_id: user.id,
+          });
+
+        if (error) throw error;
+
+        setHearts(prev => prev + 1);
+        setHasGivenHeart(true);
+        toast({
+          title: "Heart given! ❤️",
+          description: `You're now supporting ${currentToken?.name}`,
+        });
+      }
+    } catch (error: any) {
+      console.error('Error toggling heart:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update heart status",
+        variant: "destructive",
+      });
+    } finally {
+      setIsTogglingHeart(false);
+    }
+  };
+
   const formatNumber = (num: number | undefined) => {
     if (num === undefined || num === null) return '0';
     if (num >= 1000000) return `${(num / 1000000).toFixed(2)}M`;
     if (num >= 1000) return `${(num / 1000).toFixed(2)}K`;
-    return num.toFixed(2);
+    return num.toLocaleString();
+  };
+
+  const formatFundAmount = (num: number | undefined) => {
+    const formatted = formatNumber(num);
+    return `${formatted} $FUND`;
+  };
+
+  const getTimeAgo = (timestamp: string) => {
+    const now = new Date();
+    const created = new Date(timestamp);
+    const diffInMinutes = Math.floor((now.getTime() - created.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+    return `${Math.floor(diffInMinutes / 1440)}d ago`;
   };
 
   const handleCopy = (text: string, label: string) => {
@@ -152,36 +280,58 @@ const TokenDetail = () => {
             </CardHeader>
           </Card>
 
-          {/* Stats Card */}
+          {/* Funding Progress Card */}
           <Card>
             <CardHeader>
-              <CardTitle>Fund Pool Stats</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="w-5 h-5" />
+                Funding Progress
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
+              {/* Amounts */}
               <div>
-                <p className="text-sm text-muted-foreground">Current Amount</p>
-                <p className="text-2xl font-bold">${formatNumber(currentToken.current_amount)}</p>
+                <p className="text-sm text-muted-foreground mb-1">Total Raised</p>
+                <p className="text-3xl font-bold text-primary mb-4">{formatFundAmount(currentToken.current_amount)}</p>
+                
+                <p className="text-sm text-muted-foreground mb-1">Goal</p>
+                <p className="text-xl font-bold mb-4">{formatFundAmount(currentToken.goal_amount)}</p>
               </div>
+
+              {/* Progress Bar */}
               <div>
-                <p className="text-sm text-muted-foreground">Goal</p>
-                <p className="text-xl font-bold">${formatNumber(currentToken.goal_amount)}</p>
+                <Progress value={progressPercent} className="h-3 mb-2" />
+                <p className="text-sm text-muted-foreground text-center">{progressPercent.toFixed(1)}% funded</p>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground mb-2">Progress</p>
-                <div className="w-full bg-secondary rounded-full h-2">
-                  <div
-                    className="bg-primary h-2 rounded-full transition-all"
-                    style={{ width: `${progressPercent}%` }}
+
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-card/50 border border-border rounded-lg p-3 text-center">
+                  <Users2 className="w-4 h-4 text-primary mx-auto mb-1" />
+                  <p className="text-xl font-bold text-foreground">{formatNumber(backers)}</p>
+                  <p className="text-xs text-muted-foreground">Backers</p>
+                </div>
+                <button
+                  onClick={handleGiveHeart}
+                  disabled={isTogglingHeart}
+                  className="bg-card/50 border border-border rounded-lg p-3 text-center cursor-pointer hover:border-accent/50 transition-all disabled:opacity-50"
+                >
+                  <Heart 
+                    className={`w-4 h-4 mx-auto mb-1 transition-all ${
+                      hasGivenHeart ? 'text-accent fill-accent' : 'text-accent'
+                    }`} 
                   />
-                </div>
-                <p className="text-sm text-muted-foreground mt-1">{progressPercent.toFixed(1)}%</p>
+                  <p className="text-xl font-bold text-accent">{formatNumber(hearts)}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {hasGivenHeart ? 'You ❤️' : 'Hearts'}
+                  </p>
+                </button>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Price Change 24h</p>
-                <div className={`flex items-center gap-1 ${currentToken.price_change_24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  {currentToken.price_change_24h >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-                  <span className="font-bold">{currentToken.price_change_24h >= 0 ? '+' : ''}{currentToken.price_change_24h.toFixed(2)}%</span>
-                </div>
+
+              {/* Time */}
+              <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                <Clock className="w-4 h-4" />
+                Launched {getTimeAgo(currentToken.created_at)}
               </div>
             </CardContent>
           </Card>
@@ -214,7 +364,7 @@ const TokenDetail = () => {
         {/* Price Chart */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Price Chart</CardTitle>
+            <CardTitle>Funding Activity</CardTitle>
           </CardHeader>
           <CardContent>
             <TokenChart
@@ -233,7 +383,7 @@ const TokenDetail = () => {
               <p className="text-lg mb-4">
                 {isWalletConnected 
                   ? 'Donation functionality coming soon!'
-                  : 'Connect your wallet to donate to this fund pool'
+                  : 'Connect your wallet to support this fund pool'
                 }
               </p>
               {!isWalletConnected && (
