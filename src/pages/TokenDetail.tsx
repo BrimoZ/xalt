@@ -448,69 +448,83 @@ const TokenDetail = () => {
           {/* Main Content - Now on Left */}
           <div className="lg:col-span-9 space-y-6 lg:order-1">
             {/* Funding Progress */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="w-5 h-5" />
-                  Funding Progress
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Raised</p>
-                    <p className="text-3xl font-bold text-primary">{formatFundAmount(currentToken.current_amount)}</p>
+            <Card className="overflow-hidden">
+              <CardContent className="p-8 space-y-6">
+                {/* Main Funding Display */}
+                <div className="text-center space-y-4">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10">
+                    <Target className="w-5 h-5 text-primary" />
+                    <span className="text-sm font-semibold">Funding Progress</span>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Goal</p>
-                    <p className="text-3xl font-bold">{formatFundAmount(currentToken.goal_amount)}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Progress</p>
-                    <p className="text-3xl font-bold text-accent">{progressPercent.toFixed(1)}%</p>
-                  </div>
-                </div>
-                <Progress value={progressPercent} className="h-3" />
-                
-                {/* Community Stats */}
-                <div className="grid grid-cols-3 gap-4 pt-4 border-t">
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-1 mb-1">
-                      <Users2 className="w-4 h-4 text-muted-foreground" />
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-end justify-center gap-3">
+                      <span className="text-6xl font-bold text-primary tracking-tight">
+                        {formatFundAmount(currentToken.current_amount)}
+                      </span>
+                      <span className="text-2xl text-muted-foreground pb-2">
+                        / {formatFundAmount(currentToken.goal_amount)}
+                      </span>
                     </div>
-                    <p className="text-2xl font-bold">{formatNumber(backers)}</p>
-                    <p className="text-xs text-muted-foreground">Backers</p>
+                    <p className="text-lg text-muted-foreground">raised of goal</p>
                   </div>
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-1 mb-1">
-                      <Heart className="w-4 h-4 text-accent" />
-                    </div>
-                    <p className="text-2xl font-bold text-accent">{formatNumber(hearts)}</p>
-                    <p className="text-xs text-muted-foreground">Hearts</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-1 mb-1">
-                      <Clock className="w-4 h-4 text-muted-foreground" />
-                    </div>
-                    <p className="text-sm font-semibold">{getTimeAgo(currentToken.created_at)}</p>
-                    <p className="text-xs text-muted-foreground">Launched</p>
+
+                  {/* Large Progress Percentage */}
+                  <div className="py-4">
+                    <span className="text-5xl font-bold text-accent">{progressPercent.toFixed(1)}%</span>
+                    <p className="text-sm text-muted-foreground mt-1">funded</p>
                   </div>
                 </div>
 
-                {/* Heart Button and Support */}
-                <div className="flex gap-2">
+                {/* Progress Bar */}
+                <div className="space-y-2">
+                  <Progress value={progressPercent} className="h-4" />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>0%</span>
+                    <span>100%</span>
+                  </div>
+                </div>
+
+                {/* Community Stats Grid */}
+                <div className="grid grid-cols-3 gap-6 py-6 border-y">
+                  <div className="text-center space-y-2">
+                    <div className="w-12 h-12 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
+                      <Users2 className="w-6 h-6 text-primary" />
+                    </div>
+                    <p className="text-3xl font-bold">{formatNumber(backers)}</p>
+                    <p className="text-sm text-muted-foreground">Backers</p>
+                  </div>
+                  <div className="text-center space-y-2">
+                    <div className="w-12 h-12 mx-auto rounded-full bg-accent/10 flex items-center justify-center">
+                      <Heart className="w-6 h-6 text-accent" />
+                    </div>
+                    <p className="text-3xl font-bold text-accent">{formatNumber(hearts)}</p>
+                    <p className="text-sm text-muted-foreground">Hearts</p>
+                  </div>
+                  <div className="text-center space-y-2">
+                    <div className="w-12 h-12 mx-auto rounded-full bg-muted flex items-center justify-center">
+                      <Clock className="w-6 h-6 text-foreground" />
+                    </div>
+                    <p className="text-xl font-bold">{getTimeAgo(currentToken.created_at)}</p>
+                    <p className="text-sm text-muted-foreground">Launched</p>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-2">
                   <Button
                     variant={hasGivenHeart ? "default" : "outline"}
                     onClick={handleGiveHeart}
                     disabled={isTogglingHeart}
-                    className="flex-shrink-0"
+                    size="lg"
+                    className="flex-shrink-0 min-w-[120px]"
                   >
-                    <Heart className={`w-4 h-4 mr-2 ${hasGivenHeart ? 'fill-current' : ''}`} />
-                    {hasGivenHeart ? 'Liked' : 'Like'}
+                    <Heart className={`w-5 h-5 mr-2 ${hasGivenHeart ? 'fill-current' : ''}`} />
+                    {hasGivenHeart ? 'Liked' : 'Give Heart'}
                   </Button>
                   <Button className="flex-1" size="lg" disabled={!isWalletConnected}>
-                    <Wallet className="w-4 h-4 mr-2" />
-                    {isWalletConnected ? 'Support This Pool' : 'Connect Wallet to Support'}
+                    <Wallet className="w-5 h-5 mr-2" />
+                    {isWalletConnected ? 'Back This Pool' : 'Connect Wallet to Back'}
                   </Button>
                 </div>
               </CardContent>
