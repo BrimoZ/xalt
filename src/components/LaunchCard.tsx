@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { TrendingUp, Clock, Users2, Target, Heart, ExternalLink, Globe } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { TrendingUp, Clock, Users2, Target, Heart, ExternalLink, Globe, Wallet, Gift } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface LaunchCardProps {
   token: {
@@ -38,7 +40,15 @@ interface LaunchCardProps {
 const LaunchCard = ({ token }: LaunchCardProps) => {
   const navigate = useNavigate();
   const { user, isXConnected } = useAuth();
+  const { toast } = useToast();
   const [showDetails, setShowDetails] = useState(false);
+  const [showDonateDialog, setShowDonateDialog] = useState(false);
+  const [donateAmount, setDonateAmount] = useState("");
+  
+  // Mock data - replace with real data from backend
+  const [walletBalance] = useState(5000); // User's main wallet balance
+  const [donationBalance] = useState(42.5); // User's donation balance from staking rewards
+  const [myPoolContribution] = useState(125); // How much user has already donated to this pool
 
   const formatNumber = (num: number) => {
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
@@ -58,6 +68,43 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
 
   const handleEnterPool = () => {
     navigate(`/token/${token.id}`);
+  };
+
+  const handleDonate = () => {
+    if (!user || !isXConnected) {
+      toast({
+        title: "Connect your account",
+        description: "Please connect your X account to donate",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!donateAmount || parseFloat(donateAmount) <= 0) {
+      toast({
+        title: "Invalid amount",
+        description: "Please enter a valid amount to donate",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (parseFloat(donateAmount) > donationBalance) {
+      toast({
+        title: "Insufficient balance",
+        description: "You don't have enough in your Donation Balance. Stake tokens to earn more!",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // TODO: Implement actual donation logic with backend
+    toast({
+      title: "Donation successful!",
+      description: `You've donated ${donateAmount} tokens to ${token.name}`,
+    });
+    setDonateAmount("");
+    setShowDonateDialog(false);
   };
 
   const fundingGoal = token.marketCap;
@@ -133,12 +180,126 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
             variant="cyber" 
             size="sm" 
             className="flex-1 h-8 text-xs"
-            onClick={handleEnterPool}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowDonateDialog(true);
+            }}
           >
             Donate
           </Button>
         </div>
       </div>
+
+      {/* Donate Dialog */}
+      <Dialog open={showDonateDialog} onOpenChange={setShowDonateDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-orbitron">Donate to {token.name}</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            {/* Balances */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Wallet className="w-4 h-4 text-primary" />
+                  <p className="text-xs text-muted-foreground">Wallet Balance</p>
+                </div>
+                <p className="text-2xl font-bold text-foreground">{walletBalance.toLocaleString()}</p>
+                <p className="text-xs text-muted-foreground mt-1">$GIVE tokens</p>
+              </div>
+              
+              <div className="bg-accent/5 border border-accent/20 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Gift className="w-4 h-4 text-accent" />
+                  <p className="text-xs text-muted-foreground">Donation Balance</p>
+                </div>
+                <p className="text-2xl font-bold text-accent">{donationBalance.toFixed(2)}</p>
+                <p className="text-xs text-muted-foreground mt-1">Available to donate</p>
+              </div>
+            </div>
+
+            {/* My Contribution */}
+            <div className="bg-card/50 border border-border rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm text-muted-foreground">Your Total Contribution</p>
+                <Badge variant="outline" className="text-xs">{myPoolContribution} tokens</Badge>
+              </div>
+              <Progress value={(myPoolContribution / token.totalTVL) * 100} className="h-2" />
+              <p className="text-xs text-muted-foreground mt-2">
+                You've contributed {((myPoolContribution / token.totalTVL) * 100).toFixed(2)}% of this pool
+              </p>
+            </div>
+
+            {/* Donation Input */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Amount to Donate</label>
+              <div className="relative">
+                <Input
+                  type="number"
+                  placeholder="0.00"
+                  value={donateAmount}
+                  onChange={(e) => setDonateAmount(e.target.value)}
+                  className="text-lg pr-20"
+                />
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-7 text-xs"
+                  onClick={() => setDonateAmount(donationBalance.toString())}
+                >
+                  Max
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Donations use your Donation Balance from staking rewards
+              </p>
+            </div>
+
+            {/* Pool Info */}
+            <div className="bg-muted/30 rounded-lg p-4 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Pool APR</span>
+                <span className="font-semibold text-accent">{token.apr}%</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Total Raised</span>
+                <span className="font-semibold">${formatNumber(token.totalTVL)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Total Backers</span>
+                <span className="font-semibold">{formatNumber(token.stakers)}</span>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => setShowDonateDialog(false)}
+              >
+                Cancel
+              </Button>
+              <Button 
+                variant="cyber" 
+                className="flex-1"
+                onClick={handleDonate}
+                disabled={!user || !isXConnected}
+              >
+                <Gift className="w-4 h-4 mr-2" />
+                Donate Now
+              </Button>
+            </div>
+
+            {!user || !isXConnected && (
+              <p className="text-xs text-center text-muted-foreground">
+                Connect your X account to start donating
+              </p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Details Dialog */}
       <Dialog open={showDetails} onOpenChange={setShowDetails}>
