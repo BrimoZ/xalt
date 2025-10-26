@@ -356,8 +356,8 @@ const TokenDetail = () => {
         </Button>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Sidebar - Profile & Creator Info */}
-          <div className="lg:col-span-3 space-y-6">
+          {/* Right Sidebar - Profile & Creator Info */}
+          <div className="lg:col-span-3 space-y-6 lg:order-2">
             {/* Fund Pool Profile */}
             <Card>
               <CardContent className="pt-6 text-center">
@@ -484,8 +484,8 @@ const TokenDetail = () => {
             </Card>
           </div>
 
-          {/* Main Content */}
-          <div className="lg:col-span-9 space-y-6">
+          {/* Main Content - Now on Left */}
+          <div className="lg:col-span-9 space-y-6 lg:order-1">
             {/* Funding Progress */}
             <Card>
               <CardHeader>
