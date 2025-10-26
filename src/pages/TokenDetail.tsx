@@ -443,45 +443,6 @@ const TokenDetail = () => {
               </Card>
             )}
 
-            {/* Stats */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Community</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Users2 className="w-5 h-5 text-muted-foreground" />
-                    <span className="text-sm">Backers</span>
-                  </div>
-                  <span className="text-xl font-bold">{formatNumber(backers)}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Heart className="w-5 h-5 text-accent" />
-                    <span className="text-sm">Hearts</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl font-bold text-accent">{formatNumber(hearts)}</span>
-                    <Button
-                      size="sm"
-                      variant={hasGivenHeart ? "default" : "outline"}
-                      onClick={handleGiveHeart}
-                      disabled={isTogglingHeart}
-                    >
-                      <Heart className={`w-4 h-4 ${hasGivenHeart ? 'fill-current' : ''}`} />
-                    </Button>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-muted-foreground" />
-                    <span className="text-sm">Launched</span>
-                  </div>
-                  <span className="text-sm">{getTimeAgo(currentToken.created_at)}</span>
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
           {/* Main Content - Now on Left */}
@@ -510,10 +471,48 @@ const TokenDetail = () => {
                   </div>
                 </div>
                 <Progress value={progressPercent} className="h-3" />
-                <Button className="w-full" size="lg" disabled={!isWalletConnected}>
-                  <Wallet className="w-4 h-4 mr-2" />
-                  {isWalletConnected ? 'Support This Pool' : 'Connect Wallet to Support'}
-                </Button>
+                
+                {/* Community Stats */}
+                <div className="grid grid-cols-3 gap-4 pt-4 border-t">
+                  <div className="text-center">
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                      <Users2 className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                    <p className="text-2xl font-bold">{formatNumber(backers)}</p>
+                    <p className="text-xs text-muted-foreground">Backers</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                      <Heart className="w-4 h-4 text-accent" />
+                    </div>
+                    <p className="text-2xl font-bold text-accent">{formatNumber(hearts)}</p>
+                    <p className="text-xs text-muted-foreground">Hearts</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                      <Clock className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                    <p className="text-sm font-semibold">{getTimeAgo(currentToken.created_at)}</p>
+                    <p className="text-xs text-muted-foreground">Launched</p>
+                  </div>
+                </div>
+
+                {/* Heart Button and Support */}
+                <div className="flex gap-2">
+                  <Button
+                    variant={hasGivenHeart ? "default" : "outline"}
+                    onClick={handleGiveHeart}
+                    disabled={isTogglingHeart}
+                    className="flex-shrink-0"
+                  >
+                    <Heart className={`w-4 h-4 mr-2 ${hasGivenHeart ? 'fill-current' : ''}`} />
+                    {hasGivenHeart ? 'Liked' : 'Like'}
+                  </Button>
+                  <Button className="flex-1" size="lg" disabled={!isWalletConnected}>
+                    <Wallet className="w-4 h-4 mr-2" />
+                    {isWalletConnected ? 'Support This Pool' : 'Connect Wallet to Support'}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 
