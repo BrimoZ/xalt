@@ -15,7 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const LaunchToken = () => {
   const { user, profile, isWalletConnected } = useAuth();
-  const { addToken } = useTokens();
+  const { refreshTokens } = useTokens();
   const { toast } = useToast();
   const navigate = useNavigate();
   
@@ -71,11 +71,12 @@ const LaunchToken = () => {
         title: "Image Uploaded",
         description: "Your campaign image has been uploaded successfully.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading image:', error);
+      const errorMessage = error?.message || 'Failed to upload image. Please try again.';
       toast({
         title: "Upload Failed",
-        description: "Failed to upload image. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -166,6 +167,9 @@ const LaunchToken = () => {
       if (insertError) {
         throw insertError;
       }
+
+      // Refresh the tokens list
+      await refreshTokens();
 
       toast({
         title: "Fund Pool Launched Successfully! 🚀",
