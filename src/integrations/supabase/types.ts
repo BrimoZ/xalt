@@ -53,6 +53,67 @@ export type Database = {
         }
         Relationships: []
       }
+      token_donations: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          token_id: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: string
+          token_id: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          token_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "token_donations_token_id_fkey"
+            columns: ["token_id"]
+            isOneToOne: false
+            referencedRelation: "tokens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      token_hearts: {
+        Row: {
+          created_at: string
+          id: string
+          token_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          token_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          token_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "token_hearts_token_id_fkey"
+            columns: ["token_id"]
+            isOneToOne: false
+            referencedRelation: "tokens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tokens: {
         Row: {
           created_at: string | null

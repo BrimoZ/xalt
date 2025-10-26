@@ -71,9 +71,9 @@ const LiveLaunchesFeed = () => {
       verified: true,
     },
     totalTVL: Number(token.current_amount), // Actual current amount raised
-    apr: Math.floor(Math.random() * 15) + 5, // Random APR between 5-20%
+    apr: 0, // Not used anymore
     marketCap: Number(token.goal_amount), // Actual goal amount
-    stakers: Math.floor(Math.random() * 1000) + 100,
+    stakers: 0, // Will be fetched from database in LaunchCard
     launchedAt: token.created_at,
     trend: token.price_change_24h >= 0 ? 'up' : 'down' as 'up' | 'down',
     trendValue: Math.abs(token.price_change_24h),

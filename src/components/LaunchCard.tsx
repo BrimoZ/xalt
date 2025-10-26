@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -8,6 +8,7 @@ import { TrendingUp, Clock, Users2, Target, Heart, ExternalLink, Globe, Wallet, 
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface LaunchCardProps {
   token: {
@@ -44,13 +45,62 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
   const [showDetails, setShowDetails] = useState(false);
   const [showDonateDialog, setShowDonateDialog] = useState(false);
   const [donateAmount, setDonateAmount] = useState("");
-  const [hearts, setHearts] = useState(token.stakers); // Use stakers count as hearts
+  const [hearts, setHearts] = useState(0);
+  const [backers, setBackers] = useState(0);
   const [hasGivenHeart, setHasGivenHeart] = useState(false);
+  const [isTogglingHeart, setIsTogglingHeart] = useState(false);
   
   // Mock data - replace with real data from backend
   const [walletBalance] = useState(5000); // User's main wallet balance
   const [donationBalance] = useState(42.5); // User's donation balance from staking rewards
   const [myPoolContribution] = useState(125); // How much user has already donated to this pool
+
+  // Fetch real heart and backer counts
+  useEffect(() => {
+    fetchHeartData();
+    fetchBackerCount();
+  }, [token.id, user?.id]);
+
+  const fetchHeartData = async () => {
+    try {
+      // Get total hearts count
+      const { count: heartCount } = await supabase
+        .from('token_hearts')
+        .select('*', { count: 'exact', head: true })
+        .eq('token_id', token.id);
+
+      setHearts(heartCount || 0);
+
+      // Check if current user has given a heart
+      if (user?.id) {
+        const { data } = await supabase
+          .from('token_hearts')
+          .select('id')
+          .eq('token_id', token.id)
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        setHasGivenHeart(!!data);
+      }
+    } catch (error) {
+      console.error('Error fetching heart data:', error);
+    }
+  };
+
+  const fetchBackerCount = async () => {
+    try {
+      // Get unique backer count
+      const { data } = await supabase
+        .from('token_donations')
+        .select('user_id')
+        .eq('token_id', token.id);
+
+      const uniqueBackers = new Set(data?.map(d => d.user_id) || []).size;
+      setBackers(uniqueBackers);
+    } catch (error) {
+      console.error('Error fetching backer count:', error);
+    }
+  };
 
   const formatNumber = (num: number) => {
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
@@ -77,7 +127,7 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
     navigate(`/token/${token.id}`);
   };
 
-  const handleGiveHeart = () => {
+  const handleGiveHeart = async () => {
     if (!user || !isWalletConnected) {
       toast({
         title: "Connect your wallet",
@@ -87,22 +137,54 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
       return;
     }
 
-    if (hasGivenHeart) {
-      // Remove heart
-      setHearts(prev => prev - 1);
-      setHasGivenHeart(false);
+    if (isTogglingHeart) return;
+
+    try {
+      setIsTogglingHeart(true);
+
+      if (hasGivenHeart) {
+        // Remove heart from database
+        const { error } = await supabase
+          .from('token_hearts')
+          .delete()
+          .eq('token_id', token.id)
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+
+        setHearts(prev => prev - 1);
+        setHasGivenHeart(false);
+        toast({
+          title: "Heart removed",
+          description: `You've removed your support from ${token.name}`,
+        });
+      } else {
+        // Add heart to database
+        const { error } = await supabase
+          .from('token_hearts')
+          .insert({
+            token_id: token.id,
+            user_id: user.id,
+          });
+
+        if (error) throw error;
+
+        setHearts(prev => prev + 1);
+        setHasGivenHeart(true);
+        toast({
+          title: "Heart given! ❤️",
+          description: `You're now supporting ${token.name}`,
+        });
+      }
+    } catch (error: any) {
+      console.error('Error toggling heart:', error);
       toast({
-        title: "Heart removed",
-        description: `You've removed your support from ${token.name}`,
+        title: "Error",
+        description: error.message || "Failed to update heart status",
+        variant: "destructive",
       });
-    } else {
-      // Add heart
-      setHearts(prev => prev + 1);
-      setHasGivenHeart(true);
-      toast({
-        title: "Heart given! ❤️",
-        description: `You're now supporting ${token.name}`,
-      });
+    } finally {
+      setIsTogglingHeart(false);
     }
   };
 
@@ -186,12 +268,19 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1 text-muted-foreground">
               <Users2 className="w-3 h-3" />
-              {formatNumber(token.stakers)}
+              {formatNumber(backers)}
             </span>
-            <span className="flex items-center gap-1 text-accent">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleGiveHeart();
+              }}
+              disabled={isTogglingHeart}
+              className="flex items-center gap-1 text-accent hover:text-accent/80 transition-colors cursor-pointer"
+            >
               <Heart className={`w-3 h-3 ${hasGivenHeart ? 'fill-accent' : ''}`} />
               {formatNumber(hearts)}
-            </span>
+            </button>
           </div>
           <span className="flex items-center gap-1 text-muted-foreground">
             <Clock className="w-3 h-3" />
@@ -267,7 +356,7 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
               </div>
               <Progress value={progressPercentage} className="h-2.5 mb-2" />
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>{formatNumber(token.stakers)} backers</span>
+                <span>{formatNumber(backers)} backers</span>
                 <span>{formatFundAmount(fundingGoal - raised)} remaining</span>
               </div>
             </div>
@@ -374,12 +463,13 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
             <div className="grid grid-cols-3 gap-4">
               <div className="bg-card/50 border border-border rounded-lg p-4 text-center">
                 <Users2 className="w-5 h-5 text-primary mx-auto mb-2" />
-                <p className="text-2xl font-bold text-foreground">{formatNumber(token.stakers)}</p>
+                <p className="text-2xl font-bold text-foreground">{formatNumber(backers)}</p>
                 <p className="text-xs text-muted-foreground">Backers</p>
               </div>
-              <div 
-                className="bg-card/50 border border-border rounded-lg p-4 text-center cursor-pointer hover:border-accent/50 transition-all"
+              <button
                 onClick={handleGiveHeart}
+                disabled={isTogglingHeart}
+                className="bg-card/50 border border-border rounded-lg p-4 text-center cursor-pointer hover:border-accent/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Heart 
                   className={`w-5 h-5 mx-auto mb-2 transition-all ${
@@ -392,7 +482,7 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
                 <p className="text-xs text-muted-foreground">
                   {hasGivenHeart ? 'You ❤️ this' : 'Give Heart'}
                 </p>
-              </div>
+              </button>
               <div className="bg-card/50 border border-border rounded-lg p-4 text-center">
                 <Clock className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
                 <p className="text-sm font-bold text-foreground">{getTimeAgo(token.launchedAt)}</p>
