@@ -86,7 +86,7 @@ const Staking = () => {
             Staking Pool
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Stake your tokens to earn APR rewards that go directly to your Donation Balance for funding donation pools
+            Stake your $GIVE tokens to earn APR. Your rewards are automatically split 50/50 — half for you to claim, half to your Donation Balance to fund projects you believe in.
           </p>
         </div>
 
@@ -142,7 +142,7 @@ const Staking = () => {
                 Stake Tokens
               </CardTitle>
               <CardDescription>
-                Stake your tokens to start earning rewards in your Donation Balance
+                Stake your tokens and earn rewards split 50/50 between claimable yield and your Donation Balance
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -172,8 +172,16 @@ const Staking = () => {
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Reward Destination</span>
-                  <span className="font-semibold text-accent">Donation Balance</span>
+                  <span className="text-muted-foreground">Your Claimable (50%)</span>
+                  <span className="font-semibold text-primary">
+                    {stakeAmount ? (((parseFloat(stakeAmount) * apr) / 365 / 100) / 2).toFixed(2) : "0.00"} tokens/day
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Donation Balance (50%)</span>
+                  <span className="font-semibold text-accent">
+                    {stakeAmount ? (((parseFloat(stakeAmount) * apr) / 365 / 100) / 2).toFixed(2) : "0.00"} tokens/day
+                  </span>
                 </div>
               </div>
 
@@ -265,18 +273,18 @@ const Staking = () => {
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
                 2
               </div>
-              <h3 className="font-semibold">Earn Rewards</h3>
+              <h3 className="font-semibold">Earn Rewards — Split with Purpose</h3>
               <p className="text-sm text-muted-foreground">
-                Your rewards accumulate daily and are automatically credited to your Donation Balance
+                Your rewards are automatically split 50/50: half claimable for you, half to your Donation Balance to fund others
               </p>
             </div>
             <div className="space-y-2">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
                 3
               </div>
-              <h3 className="font-semibold">Fund Donation Pools</h3>
+              <h3 className="font-semibold">Support Projects You Believe In</h3>
               <p className="text-sm text-muted-foreground">
-                Use your Donation Balance to support donation pools and make an impact
+                Browse funding pools and use your Donation Balance to support causes that matter to you
               </p>
             </div>
           </CardContent>
