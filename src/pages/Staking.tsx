@@ -124,82 +124,46 @@ const Staking = () => {
       
       <main className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Statistics Overview - First Section */}
-        <div className="mb-8">
-          <div className="mb-6">
-            <h2 className="text-3xl font-bold mb-2">Platform Statistics</h2>
-            <p className="text-muted-foreground">Real-time overview of the staking ecosystem</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="relative overflow-hidden group hover:shadow-lg transition-all border-2">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <CardContent className="p-6 relative">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="p-3 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                    <TrendingUp className="w-6 h-6 text-primary" />
-                  </div>
-                  <Badge variant="outline" className="text-xs">Live</Badge>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Annual APR</p>
-                  <p className="text-4xl font-bold text-primary">{apr}%</p>
-                  <p className="text-xs text-muted-foreground">Competitive returns</p>
-                </div>
-              </CardContent>
-            </Card>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <Card className="p-4 hover:border-primary/50 transition-colors">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <TrendingUp className="w-4 h-4 text-primary" />
+              </div>
+              <span className="text-xs font-medium text-muted-foreground">APR</span>
+            </div>
+            <p className="text-2xl font-bold text-primary">{apr}%</p>
+          </Card>
 
-            <Card className="relative overflow-hidden group hover:shadow-lg transition-all border-2">
-              <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <CardContent className="p-6 relative">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="p-3 rounded-xl bg-accent/10 group-hover:bg-accent/20 transition-colors">
-                    <Users className="w-6 h-6 text-accent" />
-                  </div>
-                  <Badge variant="outline" className="text-xs">Total</Badge>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Total Pool Size</p>
-                  <p className="text-4xl font-bold">{totalPoolSize.toLocaleString()}</p>
-                  <p className="text-xs text-muted-foreground">$GIVE tokens staked</p>
-                </div>
-              </CardContent>
-            </Card>
+          <Card className="p-4 hover:border-primary/50 transition-colors">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 rounded-lg bg-accent/10">
+                <Users className="w-4 h-4 text-accent" />
+              </div>
+              <span className="text-xs font-medium text-muted-foreground">Pool Size</span>
+            </div>
+            <p className="text-2xl font-bold">{totalPoolSize.toLocaleString()}</p>
+          </Card>
 
-            <Card className="relative overflow-hidden group hover:shadow-lg transition-all border-2">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <CardContent className="p-6 relative">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="p-3 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                    <Coins className="w-6 h-6 text-primary" />
-                  </div>
-                  <Badge variant="outline" className="text-xs">Your Stake</Badge>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Staked Balance</p>
-                  <p className="text-4xl font-bold">{stakedBalance.toLocaleString()}</p>
-                  <Progress value={(stakedBalance / totalPoolSize) * 100} className="h-2" />
-                  <p className="text-xs text-muted-foreground">{((stakedBalance / totalPoolSize) * 100).toFixed(2)}% of pool</p>
-                </div>
-              </CardContent>
-            </Card>
+          <Card className="p-4 hover:border-primary/50 transition-colors">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Coins className="w-4 h-4 text-primary" />
+              </div>
+              <span className="text-xs font-medium text-muted-foreground">Your Stake</span>
+            </div>
+            <p className="text-2xl font-bold">{stakedBalance.toLocaleString()}</p>
+          </Card>
 
-            <Card className="relative overflow-hidden group hover:shadow-lg transition-all border-2">
-              <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <CardContent className="p-6 relative">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="p-3 rounded-xl bg-accent/10 group-hover:bg-accent/20 transition-colors">
-                    <Wallet className="w-6 h-6 text-accent" />
-                  </div>
-                  <Badge variant="outline" className="text-xs">Available</Badge>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Wallet Balance</p>
-                  <p className="text-4xl font-bold">{walletBalance.toLocaleString()}</p>
-                  <p className="text-xs text-muted-foreground">Ready to stake</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <Card className="p-4 hover:border-primary/50 transition-colors">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 rounded-lg bg-accent/10">
+                <Wallet className="w-4 h-4 text-accent" />
+              </div>
+              <span className="text-xs font-medium text-muted-foreground">Wallet</span>
+            </div>
+            <p className="text-2xl font-bold">{walletBalance.toLocaleString()}</p>
+          </Card>
         </div>
 
         {/* Hero Card - Main Staking Interface */}
@@ -321,13 +285,13 @@ const Staking = () => {
                 <div className="p-6 rounded-xl bg-gradient-to-br from-accent/10 to-primary/10 border-2 border-accent/20">
                   <div className="flex items-center gap-2 mb-4">
                     <Heart className="w-5 h-5 text-accent" />
-                    <span className="text-sm font-medium">Auto-Donated</span>
+                    <span className="text-sm font-medium">Donation APR</span>
                   </div>
                   <div className="text-4xl font-bold text-accent mb-2">
                     {donationBalance.toFixed(2)} $GIVE
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    50% of your rewards automatically support the community
+                    50% of rewards available for you to donate
                   </p>
                 </div>
               </div>
