@@ -335,16 +335,16 @@ const Profile = () => {
                                   >
                                     View Details
                                   </Button>
-                                  {isFullyFunded && (
-                                    <Button
-                                      variant="cyber"
-                                      size="sm"
-                                      onClick={() => handleClaimFunds(pool.id, pool.name)}
-                                    >
-                                      <Wallet className="w-4 h-4 mr-2" />
-                                      Claim Funds
-                                    </Button>
-                                  )}
+                                  <Button
+                                    variant={isFullyFunded ? "cyber" : "outline"}
+                                    size="sm"
+                                    disabled={!isFullyFunded}
+                                    onClick={() => handleClaimFunds(pool.id, pool.name)}
+                                    className={!isFullyFunded ? "opacity-60 cursor-not-allowed" : ""}
+                                  >
+                                    <Wallet className="w-4 h-4 mr-2" />
+                                    {isFullyFunded ? "Claim Funds" : "Claim at 100%"}
+                                  </Button>
                                 </div>
                               </div>
                             </div>
