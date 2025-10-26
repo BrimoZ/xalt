@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { TrendingUp, Clock, Users2, Target, Heart } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { TrendingUp, Clock, Users2, Target, Heart, ExternalLink, Globe } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -11,10 +13,16 @@ interface LaunchCardProps {
     name: string;
     symbol: string;
     icon: string;
+    description?: string;
     dev: {
       handle: string;
       followers: number;
       verified: boolean;
+      bio?: string;
+      website?: string;
+      twitter?: string;
+      telegram?: string;
+      discord?: string;
     };
     totalTVL: number;
     apr: number;
@@ -30,6 +38,8 @@ interface LaunchCardProps {
 const LaunchCard = ({ token }: LaunchCardProps) => {
   const navigate = useNavigate();
   const { user, isXConnected } = useAuth();
+  const [showDetails, setShowDetails] = useState(false);
+
   const formatNumber = (num: number) => {
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
     if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
@@ -112,7 +122,10 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
             variant="outline" 
             size="sm" 
             className="flex-1 h-8 text-xs"
-            onClick={handleEnterPool}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowDetails(true);
+            }}
           >
             Details
           </Button>
@@ -126,6 +139,142 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
           </Button>
         </div>
       </div>
+
+      {/* Details Dialog */}
+      <Dialog open={showDetails} onOpenChange={setShowDetails}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-orbitron">{token.name} Details</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            {/* Banner Image */}
+            <div className="h-48 bg-gradient-to-br from-primary/20 via-accent/10 to-background rounded-lg relative overflow-hidden">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-20 h-20 bg-primary/30 rounded-lg flex items-center justify-center backdrop-blur-sm border-2 border-primary/50">
+                  <span className="text-4xl font-bold text-primary">{token.symbol.slice(0, 2)}</span>
+                </div>
+              </div>
+              <Badge variant="outline" className="absolute top-4 right-4 bg-card/90 backdrop-blur-sm">
+                {token.category || 'DeFi'}
+              </Badge>
+            </div>
+
+            {/* Funding Progress */}
+            <div className="bg-card/50 border border-border rounded-lg p-6">
+              <div className="flex items-baseline justify-between mb-3">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Total Raised</p>
+                  <span className="text-3xl font-bold text-primary">${formatNumber(raised)}</span>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-muted-foreground mb-1">Goal</p>
+                  <span className="text-xl font-semibold text-foreground">${formatNumber(fundingGoal)}</span>
+                </div>
+              </div>
+              <Progress value={progressPercentage} className="h-3 mb-2" />
+              <p className="text-sm text-muted-foreground text-center">{progressPercentage.toFixed(1)}% funded</p>
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="bg-card/50 border border-border rounded-lg p-4 text-center">
+                <Users2 className="w-5 h-5 text-primary mx-auto mb-2" />
+                <p className="text-2xl font-bold text-foreground">{formatNumber(token.stakers)}</p>
+                <p className="text-xs text-muted-foreground">Backers</p>
+              </div>
+              <div className="bg-card/50 border border-border rounded-lg p-4 text-center">
+                <Heart className="w-5 h-5 text-accent mx-auto mb-2" />
+                <p className="text-2xl font-bold text-accent">{token.apr}%</p>
+                <p className="text-xs text-muted-foreground">APR</p>
+              </div>
+              <div className="bg-card/50 border border-border rounded-lg p-4 text-center">
+                <Clock className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
+                <p className="text-sm font-bold text-foreground">{getTimeAgo(token.launchedAt)}</p>
+                <p className="text-xs text-muted-foreground">Launched</p>
+              </div>
+            </div>
+
+            {/* Description */}
+            <div>
+              <h3 className="font-semibold text-lg mb-2">About This Project</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                {token.description || "This is an innovative DeFi project bringing new opportunities to the community. Join us in building the future of decentralized finance."}
+              </p>
+            </div>
+
+            {/* Creator Info */}
+            <div className="border-t border-border pt-6">
+              <h3 className="font-semibold text-lg mb-4">Created By</h3>
+              <div className="flex items-start gap-4">
+                <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center">
+                  <span className="text-2xl font-bold text-primary">{token.dev.handle.slice(1, 3).toUpperCase()}</span>
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <p className="font-semibold text-foreground">{token.dev.handle}</p>
+                    {token.dev.verified && (
+                      <Badge variant="default" className="text-xs">Verified</Badge>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    {token.dev.bio || `${formatNumber(token.dev.followers)} followers on X`}
+                  </p>
+                  
+                  {/* Social Links */}
+                  <div className="flex gap-2 flex-wrap">
+                    {token.dev.twitter && (
+                      <Button variant="outline" size="sm" asChild>
+                        <a href={token.dev.twitter} target="_blank" rel="noopener noreferrer" className="gap-1">
+                          <ExternalLink className="w-3 h-3" />
+                          X/Twitter
+                        </a>
+                      </Button>
+                    )}
+                    {token.dev.telegram && (
+                      <Button variant="outline" size="sm" asChild>
+                        <a href={token.dev.telegram} target="_blank" rel="noopener noreferrer" className="gap-1">
+                          <ExternalLink className="w-3 h-3" />
+                          Telegram
+                        </a>
+                      </Button>
+                    )}
+                    {token.dev.discord && (
+                      <Button variant="outline" size="sm" asChild>
+                        <a href={token.dev.discord} target="_blank" rel="noopener noreferrer" className="gap-1">
+                          <ExternalLink className="w-3 h-3" />
+                          Discord
+                        </a>
+                      </Button>
+                    )}
+                    {token.dev.website && (
+                      <Button variant="outline" size="sm" asChild>
+                        <a href={token.dev.website} target="_blank" rel="noopener noreferrer" className="gap-1">
+                          <Globe className="w-3 h-3" />
+                          Website
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* CTA */}
+            <Button 
+              variant="cyber" 
+              size="lg" 
+              className="w-full"
+              onClick={() => {
+                setShowDetails(false);
+                handleEnterPool();
+              }}
+            >
+              Donate Now
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
