@@ -170,13 +170,13 @@ const LiveLaunchesFeed = () => {
             <p className="font-mono text-2xl font-bold text-primary">{totalBonded.toLocaleString()}</p>
           </div>
           <div className="bg-card border border-border p-4 rounded-sm">
-            <p className="font-mono text-sm text-muted-foreground">TOTAL_TVL</p>
+            <p className="font-mono text-sm text-muted-foreground">TOTAL_FUNDING</p>
             <p className="font-mono text-2xl font-bold text-primary">
-              ${totalVolume24h >= 1000000 
+              {totalVolume24h >= 1000000 
                 ? `${(totalVolume24h / 1000000).toFixed(1)}M` 
                 : totalVolume24h >= 1000 
                 ? `${(totalVolume24h / 1000).toFixed(1)}K` 
-                : totalVolume24h.toFixed(0)}
+                : totalVolume24h.toFixed(0)} $FUND
             </p>
           </div>
           <div className="bg-card border border-border p-4 rounded-sm">
