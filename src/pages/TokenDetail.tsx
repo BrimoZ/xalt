@@ -449,82 +449,69 @@ const TokenDetail = () => {
           <div className="lg:col-span-9 space-y-6 lg:order-1">
             {/* Funding Progress */}
             <Card className="overflow-hidden">
-              <CardContent className="p-8 space-y-6">
+              <CardContent className="p-6 space-y-4">
                 {/* Main Funding Display */}
-                <div className="text-center space-y-4">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10">
-                    <Target className="w-5 h-5 text-primary" />
-                    <span className="text-sm font-semibold">Funding Progress</span>
+                <div className="space-y-3">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10">
+                    <Target className="w-4 h-4 text-primary" />
+                    <span className="text-xs font-semibold">Funding Progress</span>
                   </div>
                   
-                  <div className="space-y-2">
-                    <div className="flex items-end justify-center gap-3">
-                      <span className="text-6xl font-bold text-primary tracking-tight">
+                  <div className="space-y-1">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold text-primary">
                         {formatFundAmount(currentToken.current_amount)}
                       </span>
-                      <span className="text-2xl text-muted-foreground pb-2">
-                        / {formatFundAmount(currentToken.goal_amount)}
+                      <span className="text-sm text-muted-foreground">
+                        of {formatFundAmount(currentToken.goal_amount)}
                       </span>
                     </div>
-                    <p className="text-lg text-muted-foreground">raised of goal</p>
+                    <p className="text-xs text-muted-foreground">raised</p>
                   </div>
 
-                  {/* Large Progress Percentage */}
-                  <div className="py-4">
-                    <span className="text-5xl font-bold text-accent">{progressPercent.toFixed(1)}%</span>
-                    <p className="text-sm text-muted-foreground mt-1">funded</p>
+                  {/* Progress Percentage */}
+                  <div className="inline-flex items-center gap-2">
+                    <span className="text-xl font-bold text-accent">{progressPercent.toFixed(1)}%</span>
+                    <span className="text-xs text-muted-foreground">funded</span>
                   </div>
                 </div>
 
                 {/* Progress Bar */}
-                <div className="space-y-2">
-                  <Progress value={progressPercent} className="h-4" />
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>0%</span>
-                    <span>100%</span>
-                  </div>
-                </div>
+                <Progress value={progressPercent} className="h-2" />
 
                 {/* Community Stats Grid */}
-                <div className="grid grid-cols-3 gap-6 py-6 border-y">
-                  <div className="text-center space-y-2">
-                    <div className="w-12 h-12 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
-                      <Users2 className="w-6 h-6 text-primary" />
-                    </div>
-                    <p className="text-3xl font-bold">{formatNumber(backers)}</p>
-                    <p className="text-sm text-muted-foreground">Backers</p>
+                <div className="grid grid-cols-3 gap-4 py-3 border-y">
+                  <div className="text-center space-y-1">
+                    <Users2 className="w-4 h-4 mx-auto text-muted-foreground" />
+                    <p className="text-lg font-bold">{formatNumber(backers)}</p>
+                    <p className="text-xs text-muted-foreground">Backers</p>
                   </div>
-                  <div className="text-center space-y-2">
-                    <div className="w-12 h-12 mx-auto rounded-full bg-accent/10 flex items-center justify-center">
-                      <Heart className="w-6 h-6 text-accent" />
-                    </div>
-                    <p className="text-3xl font-bold text-accent">{formatNumber(hearts)}</p>
-                    <p className="text-sm text-muted-foreground">Hearts</p>
+                  <div className="text-center space-y-1">
+                    <Heart className="w-4 h-4 mx-auto text-accent" />
+                    <p className="text-lg font-bold text-accent">{formatNumber(hearts)}</p>
+                    <p className="text-xs text-muted-foreground">Hearts</p>
                   </div>
-                  <div className="text-center space-y-2">
-                    <div className="w-12 h-12 mx-auto rounded-full bg-muted flex items-center justify-center">
-                      <Clock className="w-6 h-6 text-foreground" />
-                    </div>
-                    <p className="text-xl font-bold">{getTimeAgo(currentToken.created_at)}</p>
-                    <p className="text-sm text-muted-foreground">Launched</p>
+                  <div className="text-center space-y-1">
+                    <Clock className="w-4 h-4 mx-auto text-muted-foreground" />
+                    <p className="text-sm font-semibold">{getTimeAgo(currentToken.created_at)}</p>
+                    <p className="text-xs text-muted-foreground">Launched</p>
                   </div>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex gap-3 pt-2">
+                <div className="flex gap-2">
                   <Button
                     variant={hasGivenHeart ? "default" : "outline"}
                     onClick={handleGiveHeart}
                     disabled={isTogglingHeart}
-                    size="lg"
-                    className="flex-shrink-0 min-w-[120px]"
+                    className="flex-shrink-0"
                   >
-                    <Heart className={`w-5 h-5 mr-2 ${hasGivenHeart ? 'fill-current' : ''}`} />
-                    {hasGivenHeart ? 'Liked' : 'Give Heart'}
+                    <Heart className={`w-4 h-4 mr-2 ${hasGivenHeart ? 'fill-current' : ''}`} />
+                    {hasGivenHeart ? 'Liked' : 'Like'}
                   </Button>
-                  <Button className="flex-1" size="lg" disabled={!isWalletConnected}>
-                    <Wallet className="w-5 h-5 mr-2" />
-                    {isWalletConnected ? 'Back This Pool' : 'Connect Wallet to Back'}
+                  <Button className="flex-1" disabled={!isWalletConnected}>
+                    <Wallet className="w-4 h-4 mr-2" />
+                    {isWalletConnected ? 'Back This Pool' : 'Connect Wallet'}
                   </Button>
                 </div>
               </CardContent>
