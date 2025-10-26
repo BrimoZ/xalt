@@ -64,14 +64,15 @@ const LiveLaunchesFeed = () => {
     name: token.name,
     symbol: token.symbol,
     icon: token.image_url || "",
+    description: token.description,
     dev: {
       handle: `@${token.creator_id.slice(0, 8)}`,
       followers: Math.floor(Math.random() * 50000) + 5000,
       verified: true,
     },
-    totalTVL: Math.floor(token.current_amount * 5), // Simulated TVL
+    totalTVL: Number(token.current_amount), // Actual current amount raised
     apr: Math.floor(Math.random() * 15) + 5, // Random APR between 5-20%
-    marketCap: Math.floor(token.current_amount * 10),
+    marketCap: Number(token.goal_amount), // Actual goal amount
     stakers: Math.floor(Math.random() * 1000) + 100,
     launchedAt: token.created_at,
     trend: token.price_change_24h >= 0 ? 'up' : 'down' as 'up' | 'down',

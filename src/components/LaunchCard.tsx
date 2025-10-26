@@ -53,7 +53,12 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
   const formatNumber = (num: number) => {
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
     if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
-    return num.toString();
+    return num.toLocaleString();
+  };
+
+  const formatFundAmount = (num: number) => {
+    const formatted = formatNumber(num);
+    return `${formatted} $FUND`;
   };
 
   const getTimeAgo = (timestamp: string) => {
@@ -139,8 +144,8 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
         {/* Progress */}
         <div className="mb-3">
           <div className="flex items-baseline justify-between mb-1.5">
-            <span className="text-lg font-bold text-primary">${formatNumber(raised)}</span>
-            <span className="text-xs text-muted-foreground">of ${formatNumber(fundingGoal)}</span>
+            <span className="text-lg font-bold text-primary">{formatFundAmount(raised)}</span>
+            <span className="text-xs text-muted-foreground">of {formatFundAmount(fundingGoal)}</span>
           </div>
           <Progress value={progressPercentage} className="h-1.5" />
         </div>
@@ -226,13 +231,13 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
                 <Badge variant="outline" className="text-xs">{progressPercentage.toFixed(1)}% funded</Badge>
               </div>
               <div className="flex items-baseline justify-between mb-2">
-                <span className="text-2xl font-bold text-primary">${formatNumber(raised)}</span>
-                <span className="text-sm text-muted-foreground">of ${formatNumber(fundingGoal)}</span>
+                <span className="text-2xl font-bold text-primary">{formatFundAmount(raised)}</span>
+                <span className="text-sm text-muted-foreground">of {formatFundAmount(fundingGoal)}</span>
               </div>
               <Progress value={progressPercentage} className="h-2.5 mb-2" />
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>{formatNumber(token.stakers)} backers</span>
-                <span>${formatNumber(fundingGoal - raised)} remaining</span>
+                <span>{formatFundAmount(fundingGoal - raised)} remaining</span>
               </div>
             </div>
 
@@ -323,11 +328,11 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
               <div className="flex items-baseline justify-between mb-3">
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Total Raised</p>
-                  <span className="text-3xl font-bold text-primary">${formatNumber(raised)}</span>
+                  <span className="text-3xl font-bold text-primary">{formatFundAmount(raised)}</span>
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-muted-foreground mb-1">Goal</p>
-                  <span className="text-xl font-semibold text-foreground">${formatNumber(fundingGoal)}</span>
+                  <span className="text-xl font-semibold text-foreground">{formatFundAmount(fundingGoal)}</span>
                 </div>
               </div>
               <Progress value={progressPercentage} className="h-3 mb-2" />
@@ -355,9 +360,9 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
 
             {/* Description */}
             <div>
-              <h3 className="font-semibold text-lg mb-2">About This Project</h3>
+              <h3 className="font-semibold text-lg mb-2">About This Fund Pool</h3>
               <p className="text-muted-foreground leading-relaxed">
-                {token.description || "This is an innovative DeFi project bringing new opportunities to the community. Join us in building the future of decentralized finance."}
+                {token.description || "No description provided."}
               </p>
             </div>
 
