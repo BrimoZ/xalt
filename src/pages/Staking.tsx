@@ -123,266 +123,266 @@ const Staking = () => {
       <Navbar />
       
       <main className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[calc(100vh-12rem)]">
-          {/* Left Sidebar - Stats & Info */}
-          <div className="lg:col-span-4 space-y-6">
-            {/* Header Card */}
-            <Card className="bg-gradient-to-br from-primary/10 via-accent/5 to-background border-2">
-              <CardContent className="pt-6 space-y-4">
-                <div>
-                  <Badge className="mb-3">
-                    <TrendingUp className="w-3 h-3 mr-1" />
-                    {apr}% APR
-                  </Badge>
-                  <h1 className="text-3xl font-bold mb-2">Staking Pool</h1>
-                  <p className="text-sm text-muted-foreground">
-                    Earn rewards while supporting the community
-                  </p>
-                </div>
-                <Separator />
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Total Pooled</span>
-                    <span className="font-semibold">{totalPoolSize.toLocaleString()}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Your Contribution</span>
-                    <span className="font-semibold text-primary">{((stakedBalance / totalPoolSize) * 100).toFixed(2)}%</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+        {/* Statistics Section */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-muted-foreground">APR</span>
+                <TrendingUp className="w-4 h-4 text-primary" />
+              </div>
+              <p className="text-3xl font-bold text-primary">{apr}%</p>
+            </CardContent>
+          </Card>
 
-            {/* Quick Stats */}
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-muted-foreground">Total Pool</span>
+                <Users className="w-4 h-4 text-muted-foreground" />
+              </div>
+              <p className="text-3xl font-bold">{totalPoolSize.toLocaleString()}</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-muted-foreground">Your Stake</span>
+                <Coins className="w-4 h-4 text-primary" />
+              </div>
+              <p className="text-3xl font-bold">{stakedBalance.toLocaleString()}</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-muted-foreground">Claimable</span>
+                <Gift className="w-4 h-4 text-accent" />
+              </div>
+              <p className="text-3xl font-bold text-accent">{claimableRewards.toFixed(2)}</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Left: Staking Pool */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Staking Pool</CardTitle>
+              <CardDescription>Stake or unstake your tokens</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="stake" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-6">
+                  <TabsTrigger value="stake">Stake</TabsTrigger>
+                  <TabsTrigger value="unstake">Unstake</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="stake" className="space-y-4">
+                  <div>
+                    <div className="flex justify-between text-sm mb-3">
+                      <span className="text-muted-foreground">Available</span>
+                      <span className="font-medium">{walletBalance.toLocaleString()} $GIVE</span>
+                    </div>
+                    <div className="relative">
+                      <Input
+                        type="number"
+                        placeholder="0.00"
+                        value={stakeAmount}
+                        onChange={(e) => setStakeAmount(e.target.value)}
+                        className="h-12 text-lg pr-20"
+                      />
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="absolute right-2 top-1/2 -translate-y-1/2"
+                        onClick={() => setStakeAmount(walletBalance.toString())}
+                      >
+                        MAX
+                      </Button>
+                    </div>
+                  </div>
+                  <Button 
+                    onClick={handleStake} 
+                    className="w-full h-12"
+                    disabled={!user || !isXConnected}
+                  >
+                    Stake Tokens
+                  </Button>
+                </TabsContent>
+                
+                <TabsContent value="unstake" className="space-y-4">
+                  <div>
+                    <div className="flex justify-between text-sm mb-3">
+                      <span className="text-muted-foreground">Staked</span>
+                      <span className="font-medium">{stakedBalance.toLocaleString()} $GIVE</span>
+                    </div>
+                    <div className="relative">
+                      <Input
+                        type="number"
+                        placeholder="0.00"
+                        value={unstakeAmount}
+                        onChange={(e) => setUnstakeAmount(e.target.value)}
+                        className="h-12 text-lg pr-20"
+                      />
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="absolute right-2 top-1/2 -translate-y-1/2"
+                        onClick={() => setUnstakeAmount(stakedBalance.toString())}
+                      >
+                        MAX
+                      </Button>
+                    </div>
+                  </div>
+                  <Button 
+                    onClick={handleUnstake} 
+                    variant="outline"
+                    className="w-full h-12"
+                    disabled={!user || !isXConnected}
+                  >
+                    Unstake Tokens
+                  </Button>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+
+          {/* Right: Balances & Staking Data */}
+          <div className="space-y-6">
+            {/* Balances */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Your Balances</CardTitle>
+                <CardTitle>Balances</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-primary/5">
+              <CardContent className="space-y-3">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-muted">
                   <div className="flex items-center gap-2">
-                    <Wallet className="w-4 h-4 text-primary" />
+                    <Wallet className="w-4 h-4" />
                     <span className="text-sm">Wallet</span>
                   </div>
-                  <span className="font-bold">{walletBalance.toLocaleString()}</span>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-accent/5">
-                  <div className="flex items-center gap-2">
-                    <Coins className="w-4 h-4 text-accent" />
-                    <span className="text-sm">Staked</span>
-                  </div>
-                  <span className="font-bold">{stakedBalance.toLocaleString()}</span>
+                  <span className="font-bold">{walletBalance.toLocaleString()} $GIVE</span>
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-lg bg-muted">
                   <div className="flex items-center gap-2">
-                    <Heart className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-sm">Donated</span>
+                    <Coins className="w-4 h-4" />
+                    <span className="text-sm">Staked</span>
                   </div>
-                  <span className="font-bold">{donationBalance.toFixed(2)}</span>
+                  <span className="font-bold">{stakedBalance.toLocaleString()} $GIVE</span>
+                </div>
+                <div className="flex items-center justify-between p-3 rounded-lg bg-muted">
+                  <div className="flex items-center gap-2">
+                    <Heart className="w-4 h-4" />
+                    <span className="text-sm">Donations</span>
+                  </div>
+                  <span className="font-bold">{donationBalance.toFixed(2)} $GIVE</span>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Impact Card */}
-            <Card className="border-accent/50">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
-                    <Heart className="w-5 h-5 text-accent" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Total Impact</p>
-                    <p className="text-2xl font-bold text-accent">{donationBalance.toFixed(2)}</p>
-                  </div>
-                </div>
-                <Progress value={50} className="mb-2" />
-                <p className="text-xs text-muted-foreground">50% of rewards donated automatically</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Main Content Area */}
-          <div className="lg:col-span-8 space-y-6">
-            {/* Rewards Banner */}
-            <Card className="border-2 border-primary bg-gradient-to-r from-primary/5 to-accent/5">
-              <CardContent className="pt-6">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                  <div className="text-center md:text-left">
-                    <p className="text-sm text-muted-foreground mb-1">Claimable Rewards</p>
-                    <p className="text-5xl font-bold text-primary mb-2">{claimableRewards.toFixed(2)}</p>
-                    <p className="text-xs text-muted-foreground">$GIVE tokens ready to claim</p>
-                  </div>
-                  <div className="flex flex-col gap-2 w-full md:w-auto">
-                    <Button 
-                      onClick={handleClaim}
-                      size="lg"
-                      className="w-full md:w-48"
-                      disabled={!user || !isXConnected || claimableRewards <= 0}
-                    >
-                      <ArrowDownToLine className="w-4 h-4 mr-2" />
-                      Claim Now
-                    </Button>
-                    <div className="text-center">
-                      <p className="text-xs text-muted-foreground">
-                        +{donationBalance.toFixed(2)} donated automatically
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Staking Interface */}
+            {/* Staking Data */}
             <Card>
               <CardHeader>
-                <CardTitle>Manage Your Stake</CardTitle>
-                <CardDescription>Stake or unstake your tokens</CardDescription>
+                <CardTitle>Staking Data</CardTitle>
               </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="stake" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 mb-6">
-                    <TabsTrigger value="stake">Stake Tokens</TabsTrigger>
-                    <TabsTrigger value="unstake">Unstake Tokens</TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="stake" className="space-y-4">
-                    <div className="p-4 rounded-lg bg-muted/50 space-y-3">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Available to stake</span>
-                        <span className="font-medium">{walletBalance.toLocaleString()} $GIVE</span>
-                      </div>
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          placeholder="0.00"
-                          value={stakeAmount}
-                          onChange={(e) => setStakeAmount(e.target.value)}
-                          className="h-14 text-xl pr-20"
-                        />
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          className="absolute right-2 top-1/2 -translate-y-1/2 font-semibold"
-                          onClick={() => setStakeAmount(walletBalance.toString())}
-                        >
-                          MAX
-                        </Button>
-                      </div>
-                    </div>
-                    <Button 
-                      onClick={handleStake} 
-                      className="w-full h-12"
-                      disabled={!user || !isXConnected}
-                    >
-                      Stake Tokens
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </TabsContent>
-                  
-                  <TabsContent value="unstake" className="space-y-4">
-                    <div className="p-4 rounded-lg bg-muted/50 space-y-3">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Currently staked</span>
-                        <span className="font-medium">{stakedBalance.toLocaleString()} $GIVE</span>
-                      </div>
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          placeholder="0.00"
-                          value={unstakeAmount}
-                          onChange={(e) => setUnstakeAmount(e.target.value)}
-                          className="h-14 text-xl pr-20"
-                        />
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          className="absolute right-2 top-1/2 -translate-y-1/2 font-semibold"
-                          onClick={() => setUnstakeAmount(stakedBalance.toString())}
-                        >
-                          MAX
-                        </Button>
-                      </div>
-                    </div>
-                    <Button 
-                      onClick={handleUnstake} 
-                      variant="outline"
-                      className="w-full h-12"
-                      disabled={!user || !isXConnected}
-                    >
-                      Unstake Tokens
-                    </Button>
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
-
-            {/* Activity Tabs */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="transactions" className="w-full">
-                  <TabsList className="mb-4">
-                    <TabsTrigger value="transactions">
-                      <History className="w-4 h-4 mr-2" />
-                      Transactions
-                    </TabsTrigger>
-                    <TabsTrigger value="donations">
-                      <Heart className="w-4 h-4 mr-2" />
-                      Donations
-                    </TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="transactions" className="space-y-2">
-                    {transactions.map((tx) => (
-                      <div key={tx.id} className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                            tx.type === 'stake' ? 'bg-primary/10 text-primary' :
-                            tx.type === 'unstake' ? 'bg-muted text-muted-foreground' :
-                            tx.type === 'reward' ? 'bg-accent/10 text-accent' :
-                            'bg-primary/10 text-primary'
-                          }`}>
-                            {tx.type === 'stake' && <Coins className="w-4 h-4" />}
-                            {tx.type === 'unstake' && <Coins className="w-4 h-4" />}
-                            {tx.type === 'reward' && <Gift className="w-4 h-4" />}
-                            {tx.type === 'claim' && <ArrowDownToLine className="w-4 h-4" />}
-                          </div>
-                          <div>
-                            <p className="font-medium text-sm capitalize">{tx.type}</p>
-                            <p className="text-xs text-muted-foreground">{tx.date}</p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold">{tx.amount} $GIVE</p>
-                          <Badge variant="outline" className="text-xs">{tx.status}</Badge>
-                        </div>
-                      </div>
-                    ))}
-                  </TabsContent>
-                  
-                  <TabsContent value="donations" className="space-y-2">
-                    {donations.map((donation) => (
-                      <div key={donation.id} className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent/5 transition-colors">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
-                            <Heart className="w-4 h-4 text-accent" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-sm">{donation.pool}</p>
-                            <p className="text-xs text-muted-foreground">{donation.date}</p>
-                          </div>
-                        </div>
-                        <p className="font-semibold text-accent">{donation.amount} $GIVE</p>
-                      </div>
-                    ))}
-                  </TabsContent>
-                </Tabs>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Claimable Rewards</span>
+                  <span className="font-bold text-primary">{claimableRewards.toFixed(2)} $GIVE</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">To Donations (50%)</span>
+                  <span className="font-bold text-accent">{donationBalance.toFixed(2)} $GIVE</span>
+                </div>
+                <div className="flex items-center justify-between pt-3 border-t">
+                  <span className="text-sm text-muted-foreground">Total Earned</span>
+                  <span className="font-bold">{(claimableRewards + donationBalance).toFixed(2)} $GIVE</span>
+                </div>
+                <Button 
+                  onClick={handleClaim} 
+                  className="w-full h-12"
+                  disabled={!user || !isXConnected || claimableRewards <= 0}
+                >
+                  <ArrowDownToLine className="w-4 h-4 mr-2" />
+                  Claim Rewards
+                </Button>
               </CardContent>
             </Card>
           </div>
         </div>
+
+        {/* Transactions Table */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Transactions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="transactions" className="w-full">
+              <TabsList className="mb-6">
+                <TabsTrigger value="transactions">
+                  <History className="w-4 h-4 mr-2" />
+                  All Transactions
+                </TabsTrigger>
+                <TabsTrigger value="donations">
+                  <Heart className="w-4 h-4 mr-2" />
+                  Donations
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="transactions">
+                <div className="space-y-2">
+                  {transactions.map((tx) => (
+                    <div key={tx.id} className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          tx.type === 'stake' ? 'bg-primary/10 text-primary' :
+                          tx.type === 'unstake' ? 'bg-muted text-muted-foreground' :
+                          tx.type === 'reward' ? 'bg-accent/10 text-accent' :
+                          'bg-primary/10 text-primary'
+                        }`}>
+                          {tx.type === 'stake' && <Coins className="w-5 h-5" />}
+                          {tx.type === 'unstake' && <Coins className="w-5 h-5" />}
+                          {tx.type === 'reward' && <Gift className="w-5 h-5" />}
+                          {tx.type === 'claim' && <ArrowDownToLine className="w-5 h-5" />}
+                        </div>
+                        <div>
+                          <p className="font-medium capitalize">{tx.type}</p>
+                          <p className="text-sm text-muted-foreground">{tx.date}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold text-lg">{tx.amount} $GIVE</p>
+                        <Badge variant="outline" className="text-xs mt-1">{tx.status}</Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="donations">
+                <div className="space-y-2">
+                  {donations.map((donation) => (
+                    <div key={donation.id} className="flex items-center justify-between p-4 rounded-lg border hover:bg-accent/5 transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
+                          <Heart className="w-5 h-5 text-accent" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{donation.pool}</p>
+                          <p className="text-sm text-muted-foreground">{donation.date}</p>
+                        </div>
+                      </div>
+                      <p className="font-semibold text-lg text-accent">{donation.amount} $GIVE</p>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       </main>
       
       <Footer />
