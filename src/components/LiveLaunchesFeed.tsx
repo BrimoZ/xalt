@@ -260,15 +260,15 @@ const LiveLaunchesFeed = () => {
           <div className="flex items-center justify-center gap-2 mb-4">
             <span className="font-mono text-primary text-lg">&gt;</span>
             <Badge variant="default" className="font-mono">
-              LIVE LAUNCHES
+              ACTIVE POOLS
             </Badge>
             <span className="w-3 h-3 bg-primary rounded-full animate-pulse"></span>
           </div>
           <h2 className="text-3xl md:text-4xl font-orbitron font-bold mb-4">
-            Active Token Launches
+            Active Funding Pools
           </h2>
           <p className="font-mono text-muted-foreground max-w-2xl mx-auto">
-            Real-time launches from verified X accounts. All devs are human, all launches are transparent.
+            Support projects you believe in using your Donation Balance. Every contribution is transparent, on-chain, and trackable.
           </p>
         </div>
 
@@ -329,15 +329,15 @@ const LiveLaunchesFeed = () => {
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-card border border-border p-4 rounded-sm">
-            <p className="font-mono text-sm text-muted-foreground">LIVE_TOKENS</p>
+            <p className="font-mono text-sm text-muted-foreground">ACTIVE_POOLS</p>
             <p className="font-mono text-2xl font-bold text-primary">{filteredLaunches.length}</p>
           </div>
           <div className="bg-card border border-border p-4 rounded-sm">
-            <p className="font-mono text-sm text-muted-foreground">TOTAL_BONDED</p>
+            <p className="font-mono text-sm text-muted-foreground">TOTAL_FUNDED</p>
             <p className="font-mono text-2xl font-bold text-primary">{totalBonded.toLocaleString()}</p>
           </div>
           <div className="bg-card border border-border p-4 rounded-sm">
-            <p className="font-mono text-sm text-muted-foreground">24H_VOLUME</p>
+            <p className="font-mono text-sm text-muted-foreground">TOTAL_TVL</p>
             <p className="font-mono text-2xl font-bold text-primary">
               ${totalVolume24h >= 1000000 
                 ? `${(totalVolume24h / 1000000).toFixed(1)}M` 
@@ -347,7 +347,7 @@ const LiveLaunchesFeed = () => {
             </p>
           </div>
           <div className="bg-card border border-border p-4 rounded-sm">
-            <p className="font-mono text-sm text-muted-foreground">ACTIVE_USERS</p>
+            <p className="font-mono text-sm text-muted-foreground">DONORS</p>
             <p className="font-mono text-2xl font-bold text-primary">{activeUsers.toLocaleString()}</p>
           </div>
         </div>
@@ -362,7 +362,7 @@ const LiveLaunchesFeed = () => {
         {/* Load More */}
         <div className="text-center mt-12">
           <Button variant="cyber" size="lg">
-            Load More Launches
+            Load More Pools
           </Button>
         </div>
       </div>

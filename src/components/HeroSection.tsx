@@ -32,29 +32,30 @@ const HeroSection = () => {
         {/* Main Heading */}
         <div className="max-w-4xl mx-auto mb-8 space-y-4">
           <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight">
-            <span className="block text-foreground">Earn.</span>
+            <span className="block text-foreground">Build.</span>
             <span className="block bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-              Fund.
+              Launch.
             </span>
-            <span className="block text-foreground">Repeat.</span>
+            <span className="block text-foreground">Scale.</span>
           </h1>
         </div>
 
         {/* Subtitle */}
         <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-12 leading-relaxed">
-          GiveFi turns your staking rewards into real-world impact.
+          Xalt is the first Solana launchpad powered by real X identities.
           <br />
-          <span className="text-primary font-semibold">Stake tokens. Earn yield. Empower others — all in one place.</span>
+          <span className="text-primary font-semibold">Verified devs. Real buyers. No bots. No fake launches.</span>
         </p>
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-6 mb-16">
-          <Button size="lg" className="h-16 px-10 text-lg font-semibold group" onClick={() => window.location.href = '/staking'}>
-            Start Staking
+          <Button size="lg" className="h-16 px-10 text-lg font-semibold group" onClick={() => window.location.href = '/launch'}>
+            Launch Your Token
             <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
           </Button>
-          <Button variant="outline" size="lg" className="h-16 px-10 text-lg group" onClick={() => window.location.href = '/how-it-works'}>
-            How It Works
+          <Button variant="outline" size="lg" className="h-16 px-10 text-lg group" onClick={() => window.open('https://github.com/BrimoZ/xalt', '_blank')}>
+            <Github className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" />
+            Github
           </Button>
         </div>
 
