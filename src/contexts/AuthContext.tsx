@@ -5,7 +5,6 @@ import { User, Session } from '@supabase/supabase-js';
 interface Profile {
   id: string;
   wallet_address: string;
-  username: string | null;
   display_name: string | null;
   avatar_url: string | null;
   bio: string | null;
@@ -126,7 +125,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Generate display name
       const displayName = generateMockDisplayName();
-      const username = walletAddress.slice(0, 8);
       
       // Sign up with Supabase Auth
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
@@ -135,7 +133,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         options: {
           data: {
             wallet_address: walletAddress,
-            username: username,
             display_name: displayName,
           }
         }

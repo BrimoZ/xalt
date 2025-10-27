@@ -122,11 +122,11 @@ const TokenDetail = () => {
         .from('token_donations')
         .select(`
           *,
-          profiles:user_id (
-            display_name,
-            username,
-            avatar_url
-          )
+            profiles:user_id (
+              display_name,
+              avatar_url,
+              wallet_address
+            )
         `)
         .eq('token_id', tokenId)
         .order('created_at', { ascending: false })
@@ -206,11 +206,11 @@ const TokenDetail = () => {
         .from('token_questions')
         .select(`
           *,
-          profiles:user_id (
-            display_name,
-            username,
-            avatar_url
-          )
+            profiles:user_id (
+              display_name,
+              avatar_url,
+              wallet_address
+            )
         `)
         .eq('token_id', tokenId)
         .order('created_at', { ascending: false });
@@ -469,7 +469,9 @@ const TokenDetail = () => {
                     </Avatar>
                     <div>
                       <p className="font-semibold">{creatorProfile.display_name || 'Anonymous'}</p>
-                      <p className="text-sm text-muted-foreground">@{creatorProfile.username}</p>
+                      <p className="text-sm text-muted-foreground font-mono">
+                        {creatorProfile.wallet_address?.slice(0, 8)}...{creatorProfile.wallet_address?.slice(-6)}
+                      </p>
                     </div>
                   </div>
                   <div className="pt-3 border-t space-y-2">
@@ -728,8 +730,8 @@ const TokenDetail = () => {
                                       <p className="font-medium text-sm">
                                         {donation.profiles?.display_name || 'Anonymous'}
                                       </p>
-                                      <p className="text-xs text-muted-foreground">
-                                        @{donation.profiles?.username || 'anonymous'}
+                                      <p className="text-xs text-muted-foreground font-mono">
+                                        {donation.profiles?.wallet_address?.slice(0, 6)}...{donation.profiles?.wallet_address?.slice(-4)}
                                       </p>
                                     </div>
                                   </div>

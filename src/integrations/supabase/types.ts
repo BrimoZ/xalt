@@ -24,7 +24,6 @@ export type Database = {
           total_donated: number | null
           total_raised: number | null
           updated_at: string | null
-          username: string | null
           wallet_address: string
         }
         Insert: {
@@ -36,7 +35,6 @@ export type Database = {
           total_donated?: number | null
           total_raised?: number | null
           updated_at?: string | null
-          username?: string | null
           wallet_address: string
         }
         Update: {
@@ -48,7 +46,6 @@ export type Database = {
           total_donated?: number | null
           total_raised?: number | null
           updated_at?: string | null
-          username?: string | null
           wallet_address?: string
         }
         Relationships: []

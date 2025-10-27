@@ -255,18 +255,37 @@ const Profile = () => {
         <Card className="mb-8">
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-              <Avatar className="w-24 h-24">
-                <AvatarImage src={profile?.avatar_url || ''} />
-                <AvatarFallback>
-                  {profile?.display_name?.charAt(0) || profile?.username?.charAt(0) || 'U'}
+              <Avatar className="w-24 h-24 relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                <AvatarImage src={avatarPreview || profile?.avatar_url || ''} />
+                <AvatarFallback className="bg-primary/20 text-primary text-3xl">
+                  {profile?.display_name?.charAt(0) || profile?.wallet_address?.charAt(0) || 'U'}
                 </AvatarFallback>
+                {uploadingImage && (
+                  <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                  </div>
+                )}
+                {!uploadingImage && (
+                  <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Upload className="w-6 h-6" />
+                  </div>
+                )}
               </Avatar>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
               
               <div className="flex-1">
                 <h1 className="text-3xl font-bold mb-2">
                   {profile?.display_name || 'Anonymous User'}
                 </h1>
-                <p className="text-muted-foreground mb-2">@{profile?.username}</p>
+                <p className="text-muted-foreground mb-2 font-mono text-sm">
+                  {profile?.wallet_address?.slice(0, 8)}...{profile?.wallet_address?.slice(-6)}
+                </p>
                 
                 <div className="flex flex-wrap gap-4 items-center">
                   <div className="flex items-center gap-2">
@@ -465,8 +484,8 @@ const Profile = () => {
                 <div className="flex items-start gap-6">
                   <Avatar className="w-24 h-24">
                     <AvatarImage src={avatarPreview || profile?.avatar_url || ''} />
-                    <AvatarFallback>
-                      {profile?.display_name?.charAt(0) || profile?.username?.charAt(0) || 'U'}
+                    <AvatarFallback className="bg-primary/20 text-primary text-3xl">
+                      {profile?.display_name?.charAt(0) || profile?.wallet_address?.charAt(0) || 'U'}
                     </AvatarFallback>
                   </Avatar>
                   
@@ -514,9 +533,44 @@ const Profile = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label className="text-sm font-medium">Username</Label>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    @{profile?.username || profile?.wallet_address?.slice(0, 8)}
+                  <Label htmlFor="display-name" className="text-sm font-medium">Display Name</Label>
+                  <Input
+                    id="display-name"
+                    type="text"
+                    defaultValue={profile?.display_name || ''}
+                    onBlur={async (e) => {
+                      const newName = e.target.value.trim();
+                      if (newName && newName !== profile?.display_name && user?.id) {
+                        try {
+                          const { error } = await supabase
+                            .from('profiles')
+                            .update({ display_name: newName })
+                            .eq('id', user.id);
+                          
+                          if (error) throw error;
+                          
+                          toast({
+                            title: "Success",
+                            description: "Display name updated successfully",
+                          });
+                          
+                          // Refresh to show new name
+                          window.location.reload();
+                        } catch (error) {
+                          console.error('Error updating display name:', error);
+                          toast({
+                            title: "Error",
+                            description: "Failed to update display name",
+                            variant: "destructive",
+                          });
+                        }
+                      }
+                    }}
+                    placeholder="Enter your display name"
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    This is how others will see your name
                   </p>
                 </div>
                 

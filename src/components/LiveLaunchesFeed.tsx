@@ -85,6 +85,7 @@ const LiveLaunchesFeed = () => {
   // Convert tokens to staking pool format - only show real user-created pools
   const launches = tokens.map(token => {
     const creatorProfile = creatorProfiles[token.creator_id];
+    const displayHandle = creatorProfile?.display_name || creatorProfile?.wallet_address?.slice(0, 12) || token.creator_id.slice(0, 12);
     return {
       id: token.id,
       name: token.name,
@@ -92,7 +93,7 @@ const LiveLaunchesFeed = () => {
       icon: token.image_url || "",
       description: token.description,
       dev: {
-        handle: creatorProfile?.username || token.creator_id.slice(0, 12),
+        handle: displayHandle,
         avatar_url: creatorProfile?.avatar_url || null,
         wallet_address: creatorProfile?.wallet_address || token.creator_id,
         display_name: creatorProfile?.display_name || null,
