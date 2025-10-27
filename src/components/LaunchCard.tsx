@@ -234,11 +234,13 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
 
   return (
     <div 
-      className="bg-card border border-border rounded-lg overflow-hidden transition-all duration-300 hover:border-primary/50 hover:shadow-md cursor-pointer"
-      onClick={handleEnterPool}
+      className="bg-card border border-border rounded-lg overflow-hidden transition-all duration-300 hover:border-primary/50 hover:shadow-md"
     >
-      {/* Image */}
-      <div className="h-32 bg-gradient-to-br from-primary/20 via-accent/10 to-background relative overflow-hidden">
+      {/* Image - Clickable to enter pool */}
+      <div 
+        className="h-32 bg-gradient-to-br from-primary/20 via-accent/10 to-background relative overflow-hidden cursor-pointer"
+        onClick={handleEnterPool}
+      >
         {token.icon ? (
           <img 
             src={token.icon} 
@@ -283,10 +285,7 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
               {formatNumber(backers)}
             </span>
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleGiveHeart();
-              }}
+              onClick={handleGiveHeart}
               disabled={isTogglingHeart}
               className="flex items-center gap-1 text-accent hover:text-accent/80 transition-colors cursor-pointer"
             >
@@ -306,10 +305,7 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
             variant="outline" 
             size="sm" 
             className="flex-1 h-8 text-xs"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowDetails(true);
-            }}
+            onClick={() => setShowDetails(true)}
           >
             Details
           </Button>
@@ -317,10 +313,7 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
             variant="cyber" 
             size="sm" 
             className="flex-1 h-8 text-xs"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowDonateDialog(true);
-            }}
+            onClick={() => setShowDonateDialog(true)}
           >
             Donate
           </Button>
