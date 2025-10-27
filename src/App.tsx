@@ -13,6 +13,7 @@ import ConnectWallet from "./pages/ConnectWallet";
 import Profile from "./pages/Profile";
 import HowItWorks from "./pages/HowItWorks";
 import Staking from "./pages/Staking";
+import ImpactPools from "./pages/ImpactPools";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/staking" element={<Staking />} />
+                <Route path="/impact-pools" element={<ImpactPools />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

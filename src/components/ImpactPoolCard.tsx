@@ -1,0 +1,228 @@
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Users, LucideIcon } from "lucide-react";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+
+interface ImpactPool {
+  id: string;
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  goalAmount: number;
+  currentAmount: number;
+  backers: number;
+  imageUrl: string;
+}
+
+interface ImpactPoolCardProps {
+  pool: ImpactPool;
+}
+
+const ImpactPoolCard = ({ pool }: ImpactPoolCardProps) => {
+  const [showDetails, setShowDetails] = useState(false);
+  const [showDonate, setShowDonate] = useState(false);
+  const [donateAmount, setDonateAmount] = useState("");
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const Icon = pool.icon;
+
+  const fundingPercentage = (pool.currentAmount / pool.goalAmount) * 100;
+
+  const handleDonate = () => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please connect your wallet to donate",
+        variant: "destructive",
+      });
+      navigate("/connect-wallet");
+      return;
+    }
+
+    if (!donateAmount || parseFloat(donateAmount) <= 0) {
+      toast({
+        title: "Invalid amount",
+        description: "Please enter a valid donation amount",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Donation successful!",
+      description: `Thank you for donating $${donateAmount} to ${pool.title}`,
+    });
+    
+    setDonateAmount("");
+    setShowDonate(false);
+  };
+
+  return (
+    <>
+      <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+        <div className="relative h-48 overflow-hidden">
+          <img
+            src={pool.imageUrl}
+            alt={pool.title}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute top-4 left-4">
+            <div className="bg-primary/90 backdrop-blur-sm p-2 rounded-full">
+              <Icon className="w-5 h-5 text-primary-foreground" />
+            </div>
+          </div>
+        </div>
+
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="font-bold text-lg line-clamp-2">{pool.title}</h3>
+            <Badge variant="secondary" className="shrink-0">
+              {fundingPercentage.toFixed(0)}%
+            </Badge>
+          </div>
+        </CardHeader>
+
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground line-clamp-2">
+            {pool.description}
+          </p>
+
+          <div className="space-y-2">
+            <Progress value={fundingPercentage} className="h-2" />
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-semibold">
+                ${pool.currentAmount.toLocaleString()} / ${pool.goalAmount.toLocaleString()}
+              </span>
+              <div className="flex items-center gap-1 text-muted-foreground">
+                <Users className="w-3 h-3" />
+                <span>{pool.backers.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1"
+              onClick={() => setShowDetails(true)}
+            >
+              Details
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              className="flex-1"
+              onClick={() => setShowDonate(true)}
+            >
+              Donate
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Details Dialog */}
+      <Dialog open={showDetails} onOpenChange={setShowDetails}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon className="w-5 h-5" />
+              {pool.title}
+            </DialogTitle>
+            <DialogDescription>Impact Pool Details</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <img
+              src={pool.imageUrl}
+              alt={pool.title}
+              className="w-full h-64 object-cover rounded-lg"
+            />
+
+            <div className="space-y-2">
+              <h4 className="font-semibold">About This Pool</h4>
+              <p className="text-sm text-muted-foreground">{pool.description}</p>
+            </div>
+
+            <div className="space-y-2">
+              <Progress value={fundingPercentage} className="h-3" />
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <p className="text-2xl font-bold">{fundingPercentage.toFixed(0)}%</p>
+                  <p className="text-xs text-muted-foreground">Funded</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">${pool.currentAmount.toLocaleString()}</p>
+                  <p className="text-xs text-muted-foreground">Raised</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{pool.backers.toLocaleString()}</p>
+                  <p className="text-xs text-muted-foreground">Backers</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Donate Dialog */}
+      <Dialog open={showDonate} onOpenChange={setShowDonate}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Donate to {pool.title}</DialogTitle>
+            <DialogDescription>
+              Support this cause by making a donation
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="amount">Donation Amount ($)</Label>
+              <Input
+                id="amount"
+                type="number"
+                placeholder="Enter amount"
+                value={donateAmount}
+                onChange={(e) => setDonateAmount(e.target.value)}
+              />
+            </div>
+
+            <div className="flex gap-2">
+              {[10, 50, 100, 500].map((amount) => (
+                <Button
+                  key={amount}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setDonateAmount(amount.toString())}
+                >
+                  ${amount}
+                </Button>
+              ))}
+            </div>
+
+            <Button className="w-full" onClick={handleDonate}>
+              Donate Now
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};
+
+export default ImpactPoolCard;
