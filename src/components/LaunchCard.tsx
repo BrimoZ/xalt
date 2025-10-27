@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface LaunchCardProps {
   token: {
@@ -19,7 +20,9 @@ interface LaunchCardProps {
     description?: string;
     dev: {
       handle: string;
-      followers: number;
+      avatar_url: string | null;
+      wallet_address: string;
+      display_name: string | null;
       verified: boolean;
       bio?: string;
       website?: string;
@@ -518,18 +521,21 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
             <div className="border-t border-border pt-6">
               <h3 className="font-semibold text-lg mb-4">Created By</h3>
               <div className="flex items-start gap-4">
-                <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center">
-                  <span className="text-2xl font-bold text-primary">{token.dev.handle.slice(1, 3).toUpperCase()}</span>
-                </div>
+                <Avatar className="w-16 h-16">
+                  <AvatarImage src={token.dev.avatar_url || ''} />
+                  <AvatarFallback className="bg-primary/20 text-primary text-2xl">
+                    {token.dev.display_name?.charAt(0) || token.dev.handle.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <p className="font-semibold text-foreground">{token.dev.handle}</p>
+                    <p className="font-semibold text-foreground">{token.dev.display_name || token.dev.handle}</p>
                     {token.dev.verified && (
                       <Badge variant="default" className="text-xs">Verified</Badge>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    {token.dev.bio || `${formatNumber(token.dev.followers)} followers on X`}
+                  <p className="text-sm text-muted-foreground mb-3 font-mono">
+                    {token.dev.wallet_address.slice(0, 6)}...{token.dev.wallet_address.slice(-4)}
                   </p>
                   
                   {/* Social Links */}

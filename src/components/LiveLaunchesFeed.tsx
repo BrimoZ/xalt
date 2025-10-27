@@ -21,13 +21,34 @@ const LiveLaunchesFeed = () => {
   const [totalBonded, setTotalBonded] = useState(0);
   const [totalVolume24h, setTotalVolume24h] = useState(0);
   const [activeUsers, setActiveUsers] = useState(0);
+  const [creatorProfiles, setCreatorProfiles] = useState<{[key: string]: any}>({});
 
   const refreshLaunches = async () => {
     setIsRefreshing(true);
     await fetchStats();
+    await fetchCreatorProfiles();
     setTimeout(() => {
       setIsRefreshing(false);
     }, 1000);
+  };
+
+  const fetchCreatorProfiles = async () => {
+    try {
+      const creatorIds = [...new Set(tokens.map(t => t.creator_id))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('*')
+        .in('id', creatorIds);
+      
+      const profileMap = (profiles || []).reduce((acc, profile) => {
+        acc[profile.id] = profile;
+        return acc;
+      }, {} as {[key: string]: any});
+      
+      setCreatorProfiles(profileMap);
+    } catch (error) {
+      console.error('Error fetching creator profiles:', error);
+    }
   };
 
   const fetchStats = async () => {
@@ -58,28 +79,34 @@ const LiveLaunchesFeed = () => {
 
   useEffect(() => {
     fetchStats();
-  }, []);
+    fetchCreatorProfiles();
+  }, [tokens]);
 
   // Convert tokens to staking pool format - only show real user-created pools
-  const launches = tokens.map(token => ({
-    id: token.id,
-    name: token.name,
-    symbol: token.symbol,
-    icon: token.image_url || "",
-    description: token.description,
-    dev: {
-      handle: `@${token.creator_id.slice(0, 8)}`,
-      followers: Math.floor(Math.random() * 50000) + 5000,
-      verified: true,
-    },
-    totalTVL: Number(token.current_amount), // Actual current amount raised
-    apr: 0, // Not used anymore
-    marketCap: Number(token.goal_amount), // Actual goal amount
-    stakers: 0, // Will be fetched from database in LaunchCard
-    launchedAt: token.created_at,
-    trend: token.price_change_24h >= 0 ? 'up' : 'down' as 'up' | 'down',
-    trendValue: Math.abs(token.price_change_24h),
-  }));
+  const launches = tokens.map(token => {
+    const creatorProfile = creatorProfiles[token.creator_id];
+    return {
+      id: token.id,
+      name: token.name,
+      symbol: token.symbol,
+      icon: token.image_url || "",
+      description: token.description,
+      dev: {
+        handle: creatorProfile?.username || token.creator_id.slice(0, 12),
+        avatar_url: creatorProfile?.avatar_url || null,
+        wallet_address: creatorProfile?.wallet_address || token.creator_id,
+        display_name: creatorProfile?.display_name || null,
+        verified: false,
+      },
+      totalTVL: Number(token.current_amount), // Actual current amount raised
+      apr: 0, // Not used anymore
+      marketCap: Number(token.goal_amount), // Actual goal amount
+      stakers: 0, // Will be fetched from database in LaunchCard
+      launchedAt: token.created_at,
+      trend: token.price_change_24h >= 0 ? 'up' : 'down' as 'up' | 'down',
+      trendValue: Math.abs(token.price_change_24h),
+    };
+  });
 
   const filteredLaunches = launches.filter(launch =>
     launch.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
