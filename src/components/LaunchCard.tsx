@@ -360,17 +360,13 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
             <div className="bg-card/50 border border-border rounded-lg p-4">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-sm font-medium">Pool Funding Progress</p>
-                <Badge variant="outline" className="text-xs">{progressPercentage.toFixed(1)}% funded</Badge>
+                <Badge variant="outline" className="text-xs">{progressPercentage.toFixed(1)}%</Badge>
               </div>
               <div className="flex items-baseline justify-between mb-2">
                 <span className="text-2xl font-bold text-primary">{formatFundAmount(raised)}</span>
-                <span className="text-sm text-muted-foreground">of {formatFundAmount(fundingGoal)}</span>
+                <span className="text-sm text-muted-foreground">/ {formatFundAmount(fundingGoal)}</span>
               </div>
-              <Progress value={progressPercentage} className="h-2.5 mb-2" />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>{formatNumber(backers)} backers</span>
-                <span>{formatFundAmount(fundingGoal - raised)} remaining</span>
-              </div>
+              <Progress value={progressPercentage} className="h-2.5" />
             </div>
 
             {/* My Contribution */}
