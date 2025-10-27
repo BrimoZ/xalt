@@ -701,14 +701,16 @@ const TokenDetail = () => {
                     <CardTitle>Fund Information</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    {/* Fund Image */}
+                    {/* Fund Images Gallery */}
                     {currentToken.image_url && (
-                      <div className="max-w-md mx-auto rounded-lg overflow-hidden border border-border">
-                        <img 
-                          src={currentToken.image_url} 
-                          alt={currentToken.name}
-                          className="w-full h-auto object-cover"
-                        />
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <div className="rounded-lg overflow-hidden border border-border aspect-square">
+                          <img 
+                            src={currentToken.image_url} 
+                            alt={currentToken.name}
+                            className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
+                          />
+                        </div>
                       </div>
                     )}
 
