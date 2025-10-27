@@ -688,10 +688,69 @@ const TokenDetail = () => {
 
             {/* Tabs */}
             <Tabs defaultValue="donors" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="info">Fund Info</TabsTrigger>
                 <TabsTrigger value="donors">Recent Donors</TabsTrigger>
                 <TabsTrigger value="qa">Q&A ({questions.length})</TabsTrigger>
               </TabsList>
+
+              {/* Fund Info */}
+              <TabsContent value="info">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Fund Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {/* Fund Image */}
+                    {currentToken.image_url && (
+                      <div className="rounded-lg overflow-hidden border border-border">
+                        <img 
+                          src={currentToken.image_url} 
+                          alt={currentToken.name}
+                          className="w-full h-auto object-cover"
+                        />
+                      </div>
+                    )}
+
+                    {/* Fund Description */}
+                    <div className="space-y-3">
+                      <h3 className="text-lg font-semibold">About this Fund</h3>
+                      {currentToken.description ? (
+                        <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                          {currentToken.description}
+                        </p>
+                      ) : (
+                        <p className="text-muted-foreground italic">
+                          No description provided yet.
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Fund Details */}
+                    <div className="space-y-3 pt-4 border-t">
+                      <h3 className="text-lg font-semibold">Fund Details</h3>
+                      <div className="grid gap-3">
+                        <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
+                          <span className="text-sm text-muted-foreground">Token Symbol</span>
+                          <Badge variant="outline">{currentToken.symbol}</Badge>
+                        </div>
+                        <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
+                          <span className="text-sm text-muted-foreground">Goal Amount</span>
+                          <span className="font-semibold">{formatFundAmount(currentToken.goal_amount)}</span>
+                        </div>
+                        <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
+                          <span className="text-sm text-muted-foreground">Current Amount</span>
+                          <span className="font-semibold text-primary">{formatFundAmount(currentToken.current_amount)}</span>
+                        </div>
+                        <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
+                          <span className="text-sm text-muted-foreground">Created</span>
+                          <span className="font-semibold">{new Date(currentToken.created_at).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
               {/* Donors Table */}
               <TabsContent value="donors">
