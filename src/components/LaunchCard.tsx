@@ -422,7 +422,7 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
                 disabled={!user || !isWalletConnected}
               >
                 <Gift className="w-4 h-4 mr-2" />
-                Donate Now
+                Back this Pool
               </Button>
             </div>
 
@@ -600,7 +600,8 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
                   setShowDonateDialog(true);
                 }}
               >
-                Donate Now
+                <Gift className="w-4 h-4 mr-2" />
+                Back this Pool
               </Button>
             </div>
           </div>
