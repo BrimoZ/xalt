@@ -411,17 +411,21 @@ const TokenDetail = () => {
             <Card>
               <CardContent className="pt-6 text-center">
                 <div className="w-32 h-32 mx-auto mb-4 rounded-lg overflow-hidden border-2 border-border">
-                  {currentToken.image_url ? (
-                    <img src={currentToken.image_url} alt={currentToken.name} className="w-full h-full object-cover" />
+                  {creatorProfile?.avatar_url ? (
+                    <img src={creatorProfile.avatar_url} alt={creatorProfile.display_name || 'Creator'} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full bg-primary/20 flex items-center justify-center">
                       <span className="text-4xl font-bold text-primary">{currentToken.symbol.slice(0, 2)}</span>
                     </div>
                   )}
                 </div>
-                <h2 className="text-2xl font-bold mb-2">{currentToken.name}</h2>
+                <h2 className="text-2xl font-bold mb-2 break-words">{currentToken.name}</h2>
                 <Badge variant="outline" className="mb-4">{currentToken.symbol}</Badge>
-                <p className="text-sm text-muted-foreground mb-4">{currentToken.description}</p>
+                {currentToken.description && (
+                  <p className="text-sm text-muted-foreground mb-4 break-words whitespace-pre-wrap line-clamp-6">
+                    {currentToken.description}
+                  </p>
+                )}
                 
                 {/* Social Links */}
                 <div className="space-y-2">
