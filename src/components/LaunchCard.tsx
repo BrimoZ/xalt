@@ -235,6 +235,7 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
   return (
     <div 
       className="bg-card border border-border rounded-lg overflow-hidden transition-all duration-300 hover:border-primary/50 hover:shadow-md cursor-pointer"
+      onClick={handleEnterPool}
     >
       {/* Image */}
       <div className="h-32 bg-gradient-to-br from-primary/20 via-accent/10 to-background relative overflow-hidden">
@@ -578,17 +579,30 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
             </div>
 
             {/* CTA */}
-            <Button 
-              variant="cyber" 
-              size="lg" 
-              className="w-full"
-              onClick={() => {
-                setShowDetails(false);
-                handleEnterPool();
-              }}
-            >
-              Donate Now
-            </Button>
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="flex-1"
+                onClick={() => {
+                  setShowDetails(false);
+                  handleEnterPool();
+                }}
+              >
+                More Details
+              </Button>
+              <Button 
+                variant="cyber" 
+                size="lg" 
+                className="flex-1"
+                onClick={() => {
+                  setShowDetails(false);
+                  setShowDonateDialog(true);
+                }}
+              >
+                Donate Now
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

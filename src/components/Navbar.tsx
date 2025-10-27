@@ -133,7 +133,7 @@ const Navbar = () => {
                   <Button variant="ghost" size="sm" className="gap-2">
                     <Avatar className="w-6 h-6">
                       <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                        {profile?.wallet_address?.[0] || profile?.username?.[0]?.toUpperCase() || 'W'}
+                        {profile?.display_name?.[0]?.toUpperCase() || profile?.wallet_address?.[0] || 'W'}
                       </AvatarFallback>
                     </Avatar>
                     <span className="hidden sm:inline font-mono">
