@@ -696,50 +696,88 @@ const TokenDetail = () => {
 
               {/* Fund Info */}
               <TabsContent value="info">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Fund Information</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid md:grid-cols-2 gap-6">
-                      {/* Left Side - Images Gallery */}
-                      <div className="space-y-3">
-                        <h3 className="text-lg font-semibold">Fund Images</h3>
-                        {currentToken.image_url ? (
-                          <div className="grid grid-cols-1 gap-3">
-                            <div className="rounded-lg overflow-hidden border border-border aspect-video">
-                              <img 
-                                src={currentToken.image_url} 
-                                alt={currentToken.name}
-                                className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
-                              />
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="rounded-lg border border-dashed border-border aspect-video flex items-center justify-center bg-muted/20">
-                            <p className="text-sm text-muted-foreground">No images provided</p>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Right Side - Description */}
-                      <div className="space-y-3">
-                        <h3 className="text-lg font-semibold">About this Fund</h3>
-                        <div className="min-h-[200px] p-4 rounded-lg border border-border bg-muted/20">
-                          {currentToken.description ? (
-                            <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                              {currentToken.description}
-                            </p>
-                          ) : (
-                            <p className="text-muted-foreground italic">
-                              No description provided yet.
-                            </p>
-                          )}
+                <div className="space-y-6">
+                  {/* Hero Image Section */}
+                  {currentToken.image_url && (
+                    <Card className="overflow-hidden">
+                      <div className="relative h-[400px] w-full">
+                        <img 
+                          src={currentToken.image_url} 
+                          alt={currentToken.name}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 p-6">
+                          <Badge variant="outline" className="mb-2 bg-background/50 backdrop-blur-sm">
+                            {currentToken.symbol}
+                          </Badge>
+                          <h2 className="text-3xl font-bold text-foreground">{currentToken.name}</h2>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </Card>
+                  )}
+
+                  {/* Description Card */}
+                  <Card>
+                    <CardHeader>
+                      <div className="flex items-center gap-2">
+                        <div className="w-1 h-6 bg-primary rounded-full" />
+                        <CardTitle className="text-2xl">About This Fund</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      {currentToken.description ? (
+                        <div className="prose prose-sm max-w-none">
+                          <p className="text-base text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                            {currentToken.description}
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="text-center py-12">
+                          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+                            <MessageCircle className="w-8 h-8 text-muted-foreground" />
+                          </div>
+                          <p className="text-muted-foreground">No description provided yet.</p>
+                          {isCreator && (
+                            <p className="text-sm text-muted-foreground mt-2">Add a description to tell backers about your project.</p>
+                          )}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Stats Overview */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <Card>
+                      <CardContent className="pt-6 text-center">
+                        <Target className="w-8 h-8 mx-auto mb-2 text-primary" />
+                        <p className="text-2xl font-bold">{formatFundAmount(currentToken.goal_amount)}</p>
+                        <p className="text-xs text-muted-foreground mt-1">Goal</p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="pt-6 text-center">
+                        <TrendingUp className="w-8 h-8 mx-auto mb-2 text-accent" />
+                        <p className="text-2xl font-bold text-accent">{formatFundAmount(currentToken.current_amount)}</p>
+                        <p className="text-xs text-muted-foreground mt-1">Raised</p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="pt-6 text-center">
+                        <Users2 className="w-8 h-8 mx-auto mb-2 text-primary" />
+                        <p className="text-2xl font-bold">{formatNumber(backers)}</p>
+                        <p className="text-xs text-muted-foreground mt-1">Backers</p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="pt-6 text-center">
+                        <Heart className="w-8 h-8 mx-auto mb-2 text-accent" />
+                        <p className="text-2xl font-bold">{formatNumber(hearts)}</p>
+                        <p className="text-xs text-muted-foreground mt-1">Hearts</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
               </TabsContent>
 
               {/* Donors Table */}
