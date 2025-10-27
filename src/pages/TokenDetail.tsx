@@ -700,32 +700,43 @@ const TokenDetail = () => {
                   <CardHeader>
                     <CardTitle>Fund Information</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-6">
-                    {/* Fund Images Gallery */}
-                    {currentToken.image_url && (
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        <div className="rounded-lg overflow-hidden border border-border aspect-square">
-                          <img 
-                            src={currentToken.image_url} 
-                            alt={currentToken.name}
-                            className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
-                          />
+                  <CardContent>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {/* Left Side - Images Gallery */}
+                      <div className="space-y-3">
+                        <h3 className="text-lg font-semibold">Fund Images</h3>
+                        {currentToken.image_url ? (
+                          <div className="grid grid-cols-1 gap-3">
+                            <div className="rounded-lg overflow-hidden border border-border aspect-video">
+                              <img 
+                                src={currentToken.image_url} 
+                                alt={currentToken.name}
+                                className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="rounded-lg border border-dashed border-border aspect-video flex items-center justify-center bg-muted/20">
+                            <p className="text-sm text-muted-foreground">No images provided</p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Right Side - Description */}
+                      <div className="space-y-3">
+                        <h3 className="text-lg font-semibold">About this Fund</h3>
+                        <div className="min-h-[200px] p-4 rounded-lg border border-border bg-muted/20">
+                          {currentToken.description ? (
+                            <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                              {currentToken.description}
+                            </p>
+                          ) : (
+                            <p className="text-muted-foreground italic">
+                              No description provided yet.
+                            </p>
+                          )}
                         </div>
                       </div>
-                    )}
-
-                    {/* Fund Description */}
-                    <div className="space-y-3">
-                      <h3 className="text-lg font-semibold">About this Fund</h3>
-                      {currentToken.description ? (
-                        <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                          {currentToken.description}
-                        </p>
-                      ) : (
-                        <p className="text-muted-foreground italic">
-                          No description provided yet.
-                        </p>
-                      )}
                     </div>
                   </CardContent>
                 </Card>
