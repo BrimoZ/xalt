@@ -12,6 +12,7 @@ import { useTokens } from "@/contexts/TokenContext";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const LaunchToken = () => {
   const { user, profile, isWalletConnected } = useAuth();
@@ -23,11 +24,10 @@ const LaunchToken = () => {
     campaignName: "",
     description: "",
     goalAmount: "",
-    website: "",
+    category: "",
     x: "",
     telegram: "",
-    discord: "",
-    category: ""
+    discord: ""
   });
   const [isLaunching, setIsLaunching] = useState(false);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
@@ -146,10 +146,10 @@ const LaunchToken = () => {
     }
 
     // Validate required fields
-    if (!formData.campaignName || !formData.description || !formData.goalAmount) {
+    if (!formData.campaignName || !formData.description || !formData.goalAmount || !formData.category) {
       toast({
         title: "Missing Information",
-        description: "Please fill in all required fields.",
+        description: "Please fill in all required fields including category.",
         variant: "destructive",
       });
       return;
@@ -172,7 +172,6 @@ const LaunchToken = () => {
           price_change_24h: 0,
           images: uploadedImages.length > 0 ? uploadedImages : [`https://api.dicebear.com/7.x/identicon/svg?seed=${formData.campaignName}`],
           image_url: uploadedImages.length > 0 ? uploadedImages[0] : `https://api.dicebear.com/7.x/identicon/svg?seed=${formData.campaignName}`,
-          website_url: formData.website || null,
           x_url: formData.x || null,
           telegram_url: formData.telegram || null,
           discord_url: formData.discord || null,
@@ -287,14 +286,25 @@ const LaunchToken = () => {
                   </div>
                   
                   <div className="space-y-3">
-                    <Label htmlFor="category" className="text-base font-medium">Category</Label>
-                    <Input 
-                      id="category" 
-                      value={formData.category}
-                      onChange={(e) => handleInputChange('category', e.target.value)}
-                      placeholder="e.g., Community, Education, Healthcare" 
-                      className="h-12 bg-background/80 border-border/50 focus:border-primary"
-                    />
+                    <Label htmlFor="category" className="text-base font-medium">Category *</Label>
+                    <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
+                      <SelectTrigger className="h-12 bg-background/80 border-border/50">
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background border-border z-50">
+                        <SelectItem value="Medical & Healthcare">Medical & Healthcare</SelectItem>
+                        <SelectItem value="Education & Scholarship">Education & Scholarship</SelectItem>
+                        <SelectItem value="Community Development">Community Development</SelectItem>
+                        <SelectItem value="Emergency & Disaster Relief">Emergency & Disaster Relief</SelectItem>
+                        <SelectItem value="Environmental & Wildlife">Environmental & Wildlife</SelectItem>
+                        <SelectItem value="Arts & Culture">Arts & Culture</SelectItem>
+                        <SelectItem value="Sports & Recreation">Sports & Recreation</SelectItem>
+                        <SelectItem value="Technology & Innovation">Technology & Innovation</SelectItem>
+                        <SelectItem value="Business & Entrepreneurship">Business & Entrepreneurship</SelectItem>
+                        <SelectItem value="Social Causes">Social Causes</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
@@ -392,20 +402,6 @@ const LaunchToken = () => {
                   Social & Contact Links
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-3">
-                    <Label htmlFor="website" className="flex items-center gap-2 text-base font-medium">
-                      <Globe className="w-4 h-4" />
-                      Website
-                    </Label>
-                    <Input 
-                      id="website" 
-                      value={formData.website}
-                      onChange={(e) => handleInputChange('website', e.target.value)}
-                      placeholder="https://example.com" 
-                      className="h-12 bg-background/80 border-border/50 focus:border-primary"
-                    />
-                  </div>
-                  
                   <div className="space-y-3">
                     <Label htmlFor="x" className="flex items-center gap-2 text-base font-medium">
                       <X className="w-4 h-4" />
