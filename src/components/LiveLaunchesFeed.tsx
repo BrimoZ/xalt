@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
 const LiveLaunchesFeed = () => {
-  const { tokens } = useTokens();
+  const { tokens, loading } = useTokens();
   const { user, isWalletConnected } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
@@ -262,9 +262,16 @@ const LiveLaunchesFeed = () => {
           </TabsList>
 
           <TabsContent value="live">
-            {displayedLaunches.length === 0 ? (
+            {loading ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground font-mono">Loading pools...</p>
+              </div>
+            ) : displayedLaunches.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-muted-foreground font-mono">No live funding pools found</p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {tokens.length > 0 ? `Found ${tokens.length} total pools but none match current filters` : 'Be the first to create a funding pool!'}
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
