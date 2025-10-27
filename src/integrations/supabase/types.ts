@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      impact_pool_donations: {
+        Row: {
+          amount: number
+          created_at: string
+          donor_name: string | null
+          id: string
+          pool_name: string
+          transaction_hash: string
+          transaction_url: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          donor_name?: string | null
+          id?: string
+          pool_name: string
+          transaction_hash: string
+          transaction_url: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          donor_name?: string | null
+          id?: string
+          pool_name?: string
+          transaction_hash?: string
+          transaction_url?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
