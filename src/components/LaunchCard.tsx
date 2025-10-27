@@ -53,10 +53,10 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
   const [hasGivenHeart, setHasGivenHeart] = useState(false);
   const [isTogglingHeart, setIsTogglingHeart] = useState(false);
   
-  // Mock data - replace with real data from backend
-  const [walletBalance] = useState(5000); // User's main wallet balance
-  const [donationBalance] = useState(42.5); // User's donation balance from staking rewards
-  const [myPoolContribution] = useState(125); // How much user has already donated to this pool
+  // Wallet balances - will be implemented with actual blockchain data
+  const [walletBalance] = useState(0); // User's main wallet balance
+  const [donationBalance] = useState(0); // User's donation balance from staking rewards
+  const [myPoolContribution] = useState(0); // How much user has already donated to this pool
 
   // Fetch real heart and backer counts
   useEffect(() => {
