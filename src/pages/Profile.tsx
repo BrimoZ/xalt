@@ -16,13 +16,17 @@ import {
   Wallet,
   Target,
   TrendingUp,
-  CheckCircle2
+  CheckCircle2,
+  Upload,
+  Loader2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Token } from "@/contexts/TokenContext";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const Profile = () => {
   const { user, profile, loading, signOut, isWalletConnected } = useAuth();
@@ -30,6 +34,9 @@ const Profile = () => {
   const { toast } = useToast();
   const [myFundingPools, setMyFundingPools] = useState<Token[]>([]);
   const [loadingPools, setLoadingPools] = useState(true);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -111,6 +118,97 @@ const Profile = () => {
         description: "Failed to disconnect wallet",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user?.id) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid File",
+        description: "Please upload an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast({
+        title: "File Too Large",
+        description: "Please upload an image smaller than 2MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setUploadingImage(true);
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+
+      // Delete old avatar if exists
+      if (profile?.avatar_url) {
+        const oldPath = profile.avatar_url.split('/').pop();
+        if (oldPath) {
+          await supabase.storage
+            .from('avatars')
+            .remove([`${user.id}/${oldPath}`]);
+        }
+      }
+
+      // Upload new avatar
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `${user.id}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // Update profile
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+
+      toast({
+        title: "Success",
+        description: "Profile image updated successfully",
+      });
+
+      // Refresh the page to show new avatar
+      window.location.reload();
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Upload Failed",
+        description: "Failed to upload profile image",
+        variant: "destructive",
+      });
+      setAvatarPreview(null);
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -361,23 +459,75 @@ const Profile = () => {
           <TabsContent value="settings" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Account Settings</CardTitle>
+                <CardTitle>Profile Image</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-start gap-6">
+                  <Avatar className="w-24 h-24">
+                    <AvatarImage src={avatarPreview || profile?.avatar_url || ''} />
+                    <AvatarFallback>
+                      {profile?.display_name?.charAt(0) || profile?.username?.charAt(0) || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  
+                  <div className="flex-1">
+                    <Label htmlFor="avatar-upload" className="text-sm font-medium mb-2 block">
+                      Upload Profile Picture
+                    </Label>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      JPG, PNG or WEBP. Max size 2MB.
+                    </p>
+                    <Input
+                      id="avatar-upload"
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={uploadingImage}
+                      className="hidden"
+                    />
+                    <Button
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadingImage}
+                      variant="outline"
+                    >
+                      {uploadingImage ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Uploading...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-4 h-4 mr-2" />
+                          Upload Image
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Account Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <h3 className="font-medium mb-2">Profile Information</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Your profile information is automatically generated from your wallet connection.
+                  <Label className="text-sm font-medium">Username</Label>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    @{profile?.username || profile?.wallet_address?.slice(0, 8)}
                   </p>
-                  <Separator />
                 </div>
+                
+                <Separator />
                 
                 <div>
                   <h3 className="font-medium mb-2 flex items-center gap-2">
                     <Wallet className="w-4 h-4" />
                     Connected Wallet
                   </h3>
-                  <p className="text-sm text-muted-foreground mb-2">
+                  <p className="text-sm text-muted-foreground mb-2 font-mono">
                     {profile?.wallet_address}
                   </p>
                   <Button
