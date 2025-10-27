@@ -21,7 +21,6 @@ const LaunchToken = () => {
   
   const [formData, setFormData] = useState({
     campaignName: "",
-    creatorName: "",
     description: "",
     goalAmount: "",
     website: "",
@@ -147,7 +146,7 @@ const LaunchToken = () => {
     }
 
     // Validate required fields
-    if (!formData.campaignName || !formData.creatorName || !formData.description || !formData.goalAmount) {
+    if (!formData.campaignName || !formData.description || !formData.goalAmount) {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields.",
@@ -261,7 +260,7 @@ const LaunchToken = () => {
                 <h3 className="text-lg font-orbitron font-semibold text-foreground border-b border-border pb-2">
                   Campaign Information
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-6">
                   <div className="space-y-3">
                     <Label htmlFor="campaignName" className="text-base font-medium">Campaign Name *</Label>
                     <Input 
@@ -269,17 +268,6 @@ const LaunchToken = () => {
                       value={formData.campaignName}
                       onChange={(e) => handleInputChange('campaignName', e.target.value)}
                       placeholder="e.g., Help Build Community Center" 
-                      className="h-12 bg-background/80 border-border/50 focus:border-primary"
-                    />
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <Label htmlFor="creatorName" className="text-base font-medium">Your Name *</Label>
-                    <Input 
-                      id="creatorName" 
-                      value={formData.creatorName}
-                      onChange={(e) => handleInputChange('creatorName', e.target.value)}
-                      placeholder="e.g., John Doe" 
                       className="h-12 bg-background/80 border-border/50 focus:border-primary"
                     />
                   </div>
