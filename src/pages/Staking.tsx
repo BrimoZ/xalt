@@ -18,28 +18,19 @@ const Staking = () => {
   const [stakeAmount, setStakeAmount] = useState("");
   const [unstakeAmount, setUnstakeAmount] = useState("");
   
-  // Mock data - replace with real data from your backend
-  const [walletBalance] = useState(5000);
-  const [stakedBalance] = useState(1000);
-  const [claimableRewards] = useState(21.25); // 50% of total rewards
-  const [donationBalance] = useState(21.25); // 50% of total rewards
-  const [totalPoolSize] = useState(50000);
-  const apr = 12.5;
+  // Ready for real staking data - awaiting token contract address
+  const [walletBalance] = useState(0);
+  const [stakedBalance] = useState(0);
+  const [claimableRewards] = useState(0);
+  const [donationBalance] = useState(0);
+  const [totalPoolSize] = useState(0);
+  const apr = 0;
 
-  // Mock transaction history
-  const transactions = [
-    { id: 1, type: 'stake', amount: 500, date: '2025-01-20', status: 'completed' },
-    { id: 2, type: 'reward', amount: 10.5, date: '2025-01-19', status: 'completed' },
-    { id: 3, type: 'unstake', amount: 200, date: '2025-01-18', status: 'completed' },
-    { id: 4, type: 'claim', amount: 8.75, date: '2025-01-17', status: 'completed' },
-  ];
+  // Transaction history - will be populated from blockchain
+  const transactions: Array<{ id: number; type: string; amount: number; date: string; status: string }> = [];
 
-  // Mock donation history
-  const donations = [
-    { id: 1, pool: 'RabbitFi', amount: 15, date: '2025-01-20' },
-    { id: 2, pool: 'BunnySwap', amount: 10, date: '2025-01-19' },
-    { id: 3, pool: 'CarrotDAO', amount: 5, date: '2025-01-18' },
-  ];
+  // Donation history - will be populated from blockchain
+  const donations: Array<{ id: number; pool: string; amount: number; date: string }> = [];
 
   const handleStake = () => {
     if (!user || !isWalletConnected) {
