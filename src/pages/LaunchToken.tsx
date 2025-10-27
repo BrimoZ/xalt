@@ -31,8 +31,7 @@ const LaunchToken = () => {
     category: ""
   });
   const [isLaunching, setIsLaunching] = useState(false);
-  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [uploadingImage, setUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -43,37 +42,53 @@ const LaunchToken = () => {
     }));
   };
 
-  const handleImageUpload = async (file: File) => {
+  const handleImageUpload = async (files: FileList) => {
     if (!user) return;
+    
+    // Limit to 5 images
+    if (uploadedImages.length + files.length > 5) {
+      toast({
+        title: "Too Many Images",
+        description: "You can upload a maximum of 5 images.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setUploadingImage(true);
+    const newImages: string[] = [];
+    
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-      const filePath = `fund-pools/${fileName}`;
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user.id}-${Date.now()}-${i}.${fileExt}`;
+        const filePath = `fund-pools/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('token-images')
-        .upload(filePath, file);
+        const { error: uploadError } = await supabase.storage
+          .from('token-images')
+          .upload(filePath, file);
 
-      if (uploadError) {
-        throw uploadError;
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('token-images')
+          .getPublicUrl(filePath);
+
+        newImages.push(publicUrl);
       }
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('token-images')
-        .getPublicUrl(filePath);
-
-      setUploadedImage(publicUrl);
-      setImageFile(file);
+      
+      setUploadedImages(prev => [...prev, ...newImages]);
       
       toast({
-        title: "Image Uploaded",
-        description: "Your campaign image has been uploaded successfully.",
+        title: "Images Uploaded",
+        description: `${newImages.length} image(s) uploaded successfully.`,
       });
     } catch (error: any) {
-      console.error('Error uploading image:', error);
-      const errorMessage = error?.message || 'Failed to upload image. Please try again.';
+      console.error('Error uploading images:', error);
+      const errorMessage = error?.message || 'Failed to upload images. Please try again.';
       toast({
         title: "Upload Failed",
         description: errorMessage,
@@ -85,35 +100,36 @@ const LaunchToken = () => {
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        toast({
-          title: "Invalid File Type",
-          description: "Please select an image file (PNG, JPG, GIF, etc.)",
-          variant: "destructive",
-        });
-        return;
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      // Validate file types
+      for (let i = 0; i < files.length; i++) {
+        if (!files[i].type.startsWith('image/')) {
+          toast({
+            title: "Invalid File Type",
+            description: "Please select only image files (PNG, JPG, GIF, etc.)",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Validate file size (max 5MB each)
+        if (files[i].size > 5 * 1024 * 1024) {
+          toast({
+            title: "File Too Large",
+            description: "Each image must be smaller than 5MB.",
+            variant: "destructive",
+          });
+          return;
+        }
       }
 
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast({
-          title: "File Too Large",
-          description: "Please select an image smaller than 5MB.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      handleImageUpload(file);
+      handleImageUpload(files);
     }
   };
 
-  const removeImage = () => {
-    setUploadedImage(null);
-    setImageFile(null);
+  const removeImage = (index: number) => {
+    setUploadedImages(prev => prev.filter((_, i) => i !== index));
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -155,7 +171,8 @@ const LaunchToken = () => {
           current_amount: 0,
           current_price: 0,
           price_change_24h: 0,
-          image_url: uploadedImage || `https://api.dicebear.com/7.x/identicon/svg?seed=${formData.campaignName}`,
+          images: uploadedImages.length > 0 ? uploadedImages : [`https://api.dicebear.com/7.x/identicon/svg?seed=${formData.campaignName}`],
+          image_url: uploadedImages.length > 0 ? uploadedImages[0] : `https://api.dicebear.com/7.x/identicon/svg?seed=${formData.campaignName}`,
           website_url: formData.website || null,
           x_url: formData.x || null,
           telegram_url: formData.telegram || null,
@@ -305,38 +322,44 @@ const LaunchToken = () => {
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-base font-medium">Campaign Image</Label>
-                  {uploadedImage ? (
-                    <div className="relative">
-                      <div className="relative group border-2 border-primary/20 rounded-xl overflow-hidden">
-                        <img 
-                          src={uploadedImage} 
-                          alt="Campaign preview" 
-                          className="w-full h-64 object-cover"
-                        />
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            onClick={removeImage}
-                            className="gap-2"
-                          >
-                            <X className="w-4 h-4" />
-                            Remove
-                          </Button>
-                        </div>
+                  <Label className="text-base font-medium">Campaign Images (Max 5)</Label>
+                  {uploadedImages.length > 0 ? (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {uploadedImages.map((image, index) => (
+                          <div key={index} className="relative group border-2 border-primary/20 rounded-lg overflow-hidden aspect-video">
+                            <img 
+                              src={image} 
+                              alt={`Campaign preview ${index + 1}`} 
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => removeImage(index)}
+                                className="gap-2"
+                              >
+                                <X className="w-4 h-4" />
+                                Remove
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="w-full mt-3"
-                        disabled={uploadingImage}
-                      >
-                        <Upload className="w-4 h-4 mr-2" />
-                        {uploadingImage ? "Uploading..." : "Change Image"}
-                      </Button>
+                      {uploadedImages.length < 5 && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="w-full"
+                          disabled={uploadingImage}
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          {uploadingImage ? "Uploading..." : `Add More Images (${uploadedImages.length}/5)`}
+                        </Button>
+                      )}
                     </div>
                   ) : (
                     <div 
@@ -352,10 +375,10 @@ const LaunchToken = () => {
                           )}
                         </div>
                         <p className="text-foreground font-medium mb-2">
-                          {uploadingImage ? "Uploading image..." : "Click to upload campaign image"}
+                          {uploadingImage ? "Uploading images..." : "Click to upload campaign images"}
                         </p>
                         <p className="text-muted-foreground text-sm">
-                          {uploadingImage ? "Please wait..." : "PNG, JPG, GIF up to 5MB"}
+                          {uploadingImage ? "Please wait..." : "PNG, JPG, GIF up to 5MB each (Max 5 images)"}
                         </p>
                       </div>
                     </div>
@@ -364,12 +387,13 @@ const LaunchToken = () => {
                     ref={fileInputRef}
                     type="file"
                     accept="image/*"
+                    multiple
                     onChange={handleFileChange}
                     className="hidden"
                     disabled={uploadingImage}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Upload a compelling image that represents your campaign. A good image helps tell your story.
+                    Upload compelling images that represent your campaign. Multiple images help tell your story better.
                   </p>
                 </div>
               </div>

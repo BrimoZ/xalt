@@ -177,6 +177,7 @@ export type Database = {
           goal_amount: number
           id: string
           image_url: string | null
+          images: string[] | null
           name: string
           price_change_24h: number | null
           symbol: string
@@ -195,6 +196,7 @@ export type Database = {
           goal_amount: number
           id?: string
           image_url?: string | null
+          images?: string[] | null
           name: string
           price_change_24h?: number | null
           symbol: string
@@ -213,6 +215,7 @@ export type Database = {
           goal_amount?: number
           id?: string
           image_url?: string | null
+          images?: string[] | null
           name?: string
           price_change_24h?: number | null
           symbol?: string

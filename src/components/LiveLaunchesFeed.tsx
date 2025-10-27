@@ -90,11 +90,11 @@ const LiveLaunchesFeed = () => {
       id: token.id,
       name: token.name,
       symbol: token.symbol,
-      icon: token.image_url || "",
+      icon: (token.images && token.images.length > 0) ? token.images[0] : (token.image_url || ""),
       description: token.description,
       dev: {
         handle: displayHandle,
-        avatar_url: creatorProfile?.avatar_url || null,
+        avatar_url: token.image_url || creatorProfile?.avatar_url || null,
         wallet_address: creatorProfile?.wallet_address || token.creator_id,
         display_name: creatorProfile?.display_name || null,
         verified: false,

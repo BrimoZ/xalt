@@ -8,6 +8,7 @@ export interface Token {
   symbol: string;
   description: string | null;
   image_url: string | null;
+  images: string[] | null;
   website_url: string | null;
   x_url: string | null;
   telegram_url: string | null;

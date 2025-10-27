@@ -699,20 +699,32 @@ const TokenDetail = () => {
                 <Card>
                   <CardContent className="p-6 space-y-8">
                     {/* Images Gallery */}
-                    {currentToken.image_url && (
+                    {((currentToken.images && currentToken.images.length > 0) || currentToken.image_url) && (
                       <div className="space-y-4">
                         <h3 className="text-lg font-semibold flex items-center gap-2">
                           <div className="w-1 h-5 bg-primary rounded-full" />
                           Gallery
                         </h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                          <div className="group relative rounded-lg overflow-hidden border border-border aspect-video bg-muted">
-                            <img 
-                              src={currentToken.image_url} 
-                              alt={currentToken.name}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                            />
-                          </div>
+                          {currentToken.images && currentToken.images.length > 0 ? (
+                            currentToken.images.map((image: string, index: number) => (
+                              <div key={index} className="group relative rounded-lg overflow-hidden border border-border aspect-video bg-muted">
+                                <img 
+                                  src={image} 
+                                  alt={`${currentToken.name} - Image ${index + 1}`}
+                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                />
+                              </div>
+                            ))
+                          ) : currentToken.image_url ? (
+                            <div className="group relative rounded-lg overflow-hidden border border-border aspect-video bg-muted">
+                              <img 
+                                src={currentToken.image_url} 
+                                alt={currentToken.name}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                              />
+                            </div>
+                          ) : null}
                         </div>
                       </div>
                     )}
