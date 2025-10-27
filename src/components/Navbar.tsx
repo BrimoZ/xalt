@@ -95,13 +95,13 @@ const Navbar = () => {
             </Button>
             
             <Button
-              variant={location.pathname === "/how-it-works" ? "cyber" : "ghost"}
+              variant={location.pathname === "/impact-pools" ? "cyber" : "ghost"}
               size="sm"
-              onClick={() => navigate("/how-it-works")}
+              onClick={() => navigate("/impact-pools")}
               className="gap-2"
             >
-              <HelpCircle className="w-4 h-4" />
-              How it works
+              <Globe className="w-4 h-4" />
+              Impact Pools
             </Button>
             
             <Button
@@ -115,13 +115,13 @@ const Navbar = () => {
             </Button>
             
             <Button
-              variant={location.pathname === "/impact-pools" ? "cyber" : "ghost"}
+              variant={location.pathname === "/how-it-works" ? "cyber" : "ghost"}
               size="sm"
-              onClick={() => navigate("/impact-pools")}
+              onClick={() => navigate("/how-it-works")}
               className="gap-2"
             >
-              <Globe className="w-4 h-4" />
-              Impact Pools
+              <HelpCircle className="w-4 h-4" />
+              How it works
             </Button>
           </div>
 
