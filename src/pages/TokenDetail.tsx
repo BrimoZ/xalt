@@ -36,8 +36,8 @@ const TokenDetail = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDonateDialog, setShowDonateDialog] = useState(false);
   const [donateAmount, setDonateAmount] = useState("");
-  const [walletBalance] = useState(1000);
-  const [donationBalance] = useState(250.5);
+  const [walletBalance] = useState(0);
+  const [donationBalance] = useState(0);
   const [myPoolContribution] = useState(0);
 
   useEffect(() => {
@@ -598,7 +598,7 @@ const TokenDetail = () => {
                         <p className="text-xs text-muted-foreground">Wallet Balance</p>
                       </div>
                       <p className="text-2xl font-bold text-foreground">{walletBalance.toLocaleString()}</p>
-                      <p className="text-xs text-muted-foreground mt-1">$GIVE tokens</p>
+                      <p className="text-xs text-muted-foreground mt-1">$FUND tokens</p>
                     </div>
                     
                     <div className="bg-accent/5 border border-accent/20 rounded-lg p-4">
@@ -740,7 +740,7 @@ const TokenDetail = () => {
                         Description
                       </h3>
                       {currentToken.description ? (
-                        <div className="text-muted-foreground leading-relaxed whitespace-pre-wrap text-base">
+                        <div className="text-muted-foreground leading-relaxed whitespace-pre-wrap text-base break-words overflow-wrap-anywhere">
                           {currentToken.description}
                         </div>
                       ) : (

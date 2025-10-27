@@ -168,7 +168,7 @@ const Staking = () => {
                     <Coins className="w-6 h-6 text-primary" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold">Stake $GIVE Tokens</h2>
+                    <h2 className="text-2xl font-bold">Stake $FUND Tokens</h2>
                     <p className="text-sm text-muted-foreground">Earn rewards while making an impact</p>
                   </div>
                 </div>
@@ -183,7 +183,7 @@ const Staking = () => {
                     <div className="p-4 rounded-lg bg-background/80 backdrop-blur-sm border">
                       <div className="flex justify-between text-sm mb-3">
                         <span className="text-muted-foreground">Available Balance</span>
-                        <span className="font-semibold">{walletBalance.toLocaleString()} $GIVE</span>
+                        <span className="font-semibold">{walletBalance.toLocaleString()} $FUND</span>
                       </div>
                       <div className="relative">
                         <Input
@@ -217,7 +217,7 @@ const Staking = () => {
                     <div className="p-4 rounded-lg bg-background/80 backdrop-blur-sm border">
                       <div className="flex justify-between text-sm mb-3">
                         <span className="text-muted-foreground">Staked Balance</span>
-                        <span className="font-semibold">{stakedBalance.toLocaleString()} $GIVE</span>
+                        <span className="font-semibold">{stakedBalance.toLocaleString()} $FUND</span>
                       </div>
                       <div className="relative">
                         <Input
@@ -261,7 +261,7 @@ const Staking = () => {
                     <Badge variant="outline" className="text-xs">50% Split</Badge>
                   </div>
                   <div className="text-4xl font-bold text-primary mb-6">
-                    {claimableRewards.toFixed(2)} $GIVE
+                    {claimableRewards.toFixed(2)} $FUND
                   </div>
                   <Button 
                     onClick={handleClaim} 
@@ -279,7 +279,7 @@ const Staking = () => {
                     <span className="text-sm font-medium">Donation APR</span>
                   </div>
                   <div className="text-4xl font-bold text-accent mb-2">
-                    {donationBalance.toFixed(2)} $GIVE
+                    {donationBalance.toFixed(2)} $FUND
                   </div>
                   <p className="text-xs text-muted-foreground">
                     50% of rewards available for you to donate
@@ -332,7 +332,7 @@ const Staking = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-lg">{tx.amount} $GIVE</p>
+                      <p className="font-bold text-lg">{tx.amount} $FUND</p>
                       <Badge variant="outline" className="text-xs mt-1">{tx.status}</Badge>
                     </div>
                   </div>
@@ -351,7 +351,7 @@ const Staking = () => {
                         <p className="text-sm text-muted-foreground">{donation.date}</p>
                       </div>
                     </div>
-                    <p className="font-bold text-lg text-accent">+{donation.amount} $GIVE</p>
+                    <p className="font-bold text-lg text-accent">+{donation.amount} $FUND</p>
                   </div>
                 ))}
               </TabsContent>

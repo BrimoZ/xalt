@@ -343,7 +343,7 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
                   <p className="text-xs text-muted-foreground">Wallet Balance</p>
                 </div>
                 <p className="text-2xl font-bold text-foreground">{walletBalance.toLocaleString()}</p>
-                <p className="text-xs text-muted-foreground mt-1">$GIVE tokens</p>
+                <p className="text-xs text-muted-foreground mt-1">$FUND tokens</p>
               </div>
               
               <div className="bg-accent/5 border border-accent/20 rounded-lg p-4">
