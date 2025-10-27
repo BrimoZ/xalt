@@ -50,6 +50,22 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         .order('created_at', { ascending: false });
 
       if (error) {
+        // If JWT expired, try to refresh session or clear it
+        if (error.code === 'PGRST303') {
+          await supabase.auth.refreshSession();
+          // Retry the query
+          const { data: retryData, error: retryError } = await supabase
+            .from('tokens')
+            .select('*')
+            .order('created_at', { ascending: false });
+          
+          if (retryError) {
+            console.error('Error fetching tokens after refresh:', retryError);
+            return;
+          }
+          setTokens(retryData || []);
+          return;
+        }
         console.error('Error fetching tokens:', error);
         return;
       }
