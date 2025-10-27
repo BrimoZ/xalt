@@ -696,88 +696,45 @@ const TokenDetail = () => {
 
               {/* Fund Info */}
               <TabsContent value="info">
-                <div className="space-y-6">
-                  {/* Hero Image Section */}
-                  {currentToken.image_url && (
-                    <Card className="overflow-hidden">
-                      <div className="relative h-[400px] w-full">
-                        <img 
-                          src={currentToken.image_url} 
-                          alt={currentToken.name}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
-                        <div className="absolute bottom-0 left-0 right-0 p-6">
-                          <Badge variant="outline" className="mb-2 bg-background/50 backdrop-blur-sm">
-                            {currentToken.symbol}
-                          </Badge>
-                          <h2 className="text-3xl font-bold text-foreground">{currentToken.name}</h2>
+                <Card>
+                  <CardContent className="p-6 space-y-8">
+                    {/* Images Gallery */}
+                    {currentToken.image_url && (
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold flex items-center gap-2">
+                          <div className="w-1 h-5 bg-primary rounded-full" />
+                          Gallery
+                        </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                          <div className="group relative rounded-lg overflow-hidden border border-border aspect-video bg-muted">
+                            <img 
+                              src={currentToken.image_url} 
+                              alt={currentToken.name}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                            />
+                          </div>
                         </div>
                       </div>
-                    </Card>
-                  )}
+                    )}
 
-                  {/* Description Card */}
-                  <Card>
-                    <CardHeader>
-                      <div className="flex items-center gap-2">
-                        <div className="w-1 h-6 bg-primary rounded-full" />
-                        <CardTitle className="text-2xl">About This Fund</CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
+                    {/* Description */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        <div className="w-1 h-5 bg-primary rounded-full" />
+                        Description
+                      </h3>
                       {currentToken.description ? (
-                        <div className="prose prose-sm max-w-none">
-                          <p className="text-base text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                            {currentToken.description}
-                          </p>
+                        <div className="text-muted-foreground leading-relaxed whitespace-pre-wrap text-base">
+                          {currentToken.description}
                         </div>
                       ) : (
-                        <div className="text-center py-12">
-                          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
-                            <MessageCircle className="w-8 h-8 text-muted-foreground" />
-                          </div>
-                          <p className="text-muted-foreground">No description provided yet.</p>
-                          {isCreator && (
-                            <p className="text-sm text-muted-foreground mt-2">Add a description to tell backers about your project.</p>
-                          )}
+                        <div className="text-center py-16 border border-dashed border-border rounded-lg">
+                          <p className="text-muted-foreground">No description available</p>
                         </div>
                       )}
-                    </CardContent>
-                  </Card>
-
-                  {/* Stats Overview */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <Card>
-                      <CardContent className="pt-6 text-center">
-                        <Target className="w-8 h-8 mx-auto mb-2 text-primary" />
-                        <p className="text-2xl font-bold">{formatFundAmount(currentToken.goal_amount)}</p>
-                        <p className="text-xs text-muted-foreground mt-1">Goal</p>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="pt-6 text-center">
-                        <TrendingUp className="w-8 h-8 mx-auto mb-2 text-accent" />
-                        <p className="text-2xl font-bold text-accent">{formatFundAmount(currentToken.current_amount)}</p>
-                        <p className="text-xs text-muted-foreground mt-1">Raised</p>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="pt-6 text-center">
-                        <Users2 className="w-8 h-8 mx-auto mb-2 text-primary" />
-                        <p className="text-2xl font-bold">{formatNumber(backers)}</p>
-                        <p className="text-xs text-muted-foreground mt-1">Backers</p>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="pt-6 text-center">
-                        <Heart className="w-8 h-8 mx-auto mb-2 text-accent" />
-                        <p className="text-2xl font-bold">{formatNumber(hearts)}</p>
-                        <p className="text-xs text-muted-foreground mt-1">Hearts</p>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </TabsContent>
 
               {/* Donors Table */}
