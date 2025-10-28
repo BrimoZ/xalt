@@ -20,9 +20,8 @@ const impactPools = [
     title: "Palestine Relief Fund",
     description: "Supporting humanitarian aid and essential supplies for families affected by the crisis in Palestine.",
     icon: Heart,
-    goalAmount: 1000000,
-    currentAmount: 450000,
-    backers: 3420,
+    totalDonations: 0,
+    backers: 0,
     imageUrl: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&q=80"
   },
   {
@@ -30,9 +29,8 @@ const impactPools = [
     title: "Global Clean Water Initiative",
     description: "Providing access to clean drinking water for communities in developing regions across Africa and Asia.",
     icon: Droplet,
-    goalAmount: 750000,
-    currentAmount: 320000,
-    backers: 2150,
+    totalDonations: 0,
+    backers: 0,
     imageUrl: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80"
   },
   {
@@ -40,9 +38,8 @@ const impactPools = [
     title: "Emergency Disaster Relief",
     description: "Rapid response fund for natural disasters and humanitarian emergencies worldwide.",
     icon: Globe,
-    goalAmount: 500000,
-    currentAmount: 180000,
-    backers: 1890,
+    totalDonations: 0,
+    backers: 0,
     imageUrl: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&q=80"
   }
 ];

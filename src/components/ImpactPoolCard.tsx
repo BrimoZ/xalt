@@ -22,8 +22,7 @@ interface ImpactPool {
   title: string;
   description: string;
   icon: LucideIcon;
-  goalAmount: number;
-  currentAmount: number;
+  totalDonations: number;
   backers: number;
   imageUrl: string;
 }
@@ -40,8 +39,6 @@ const ImpactPoolCard = ({ pool }: ImpactPoolCardProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const Icon = pool.icon;
-
-  const fundingPercentage = (pool.currentAmount / pool.goalAmount) * 100;
 
   const handleDonate = () => {
     if (!user) {
@@ -89,12 +86,7 @@ const ImpactPoolCard = ({ pool }: ImpactPoolCardProps) => {
         </div>
 
         <CardHeader className="pb-3">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="font-bold text-lg line-clamp-2">{pool.title}</h3>
-            <Badge variant="secondary" className="shrink-0">
-              {fundingPercentage.toFixed(0)}%
-            </Badge>
-          </div>
+          <h3 className="font-bold text-lg line-clamp-2">{pool.title}</h3>
         </CardHeader>
 
         <CardContent className="space-y-4">
@@ -102,15 +94,18 @@ const ImpactPoolCard = ({ pool }: ImpactPoolCardProps) => {
             {pool.description}
           </p>
 
-          <div className="space-y-2">
-            <Progress value={fundingPercentage} className="h-2" />
-            <div className="flex items-center justify-between text-sm">
-              <span className="font-semibold">
-                ${pool.currentAmount.toLocaleString()} / ${pool.goalAmount.toLocaleString()}
+          <div className="flex items-center justify-between text-sm">
+            <div>
+              <p className="text-xs text-muted-foreground">Total Raised</p>
+              <span className="font-semibold text-lg">
+                ${pool.totalDonations.toLocaleString()}
               </span>
-              <div className="flex items-center gap-1 text-muted-foreground">
-                <Users className="w-3 h-3" />
-                <span>{pool.backers.toLocaleString()}</span>
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-muted-foreground">Backers</p>
+              <div className="flex items-center gap-1 justify-end">
+                <Users className="w-4 h-4" />
+                <span className="font-semibold">{pool.backers.toLocaleString()}</span>
               </div>
             </div>
           </div>
@@ -159,21 +154,14 @@ const ImpactPoolCard = ({ pool }: ImpactPoolCardProps) => {
               <p className="text-sm text-muted-foreground">{pool.description}</p>
             </div>
 
-            <div className="space-y-2">
-              <Progress value={fundingPercentage} className="h-3" />
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <p className="text-2xl font-bold">{fundingPercentage.toFixed(0)}%</p>
-                  <p className="text-xs text-muted-foreground">Funded</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">${pool.currentAmount.toLocaleString()}</p>
-                  <p className="text-xs text-muted-foreground">Raised</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{pool.backers.toLocaleString()}</p>
-                  <p className="text-xs text-muted-foreground">Backers</p>
-                </div>
+            <div className="grid grid-cols-2 gap-4 text-center p-4 bg-muted/50 rounded-lg">
+              <div>
+                <p className="text-2xl font-bold">${pool.totalDonations.toLocaleString()}</p>
+                <p className="text-xs text-muted-foreground">Total Raised</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{pool.backers.toLocaleString()}</p>
+                <p className="text-xs text-muted-foreground">Backers</p>
               </div>
             </div>
           </div>
