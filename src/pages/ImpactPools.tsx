@@ -34,13 +34,13 @@ const impactPools = [
     imageUrl: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80"
   },
   {
-    id: "disaster-relief",
-    title: "Emergency Disaster Relief",
-    description: "Rapid response fund for natural disasters and humanitarian emergencies worldwide.",
-    icon: Globe,
+    id: "refugee-families",
+    title: "Refugee Family Support",
+    description: "Helping displaced families rebuild their lives with shelter, food, education, and hope for a better tomorrow.",
+    icon: Heart,
     totalDonations: 0,
     backers: 0,
-    imageUrl: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&q=80"
+    imageUrl: "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=800&q=80"
   }
 ];
 
