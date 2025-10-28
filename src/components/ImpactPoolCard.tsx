@@ -25,6 +25,10 @@ interface ImpactPool {
   totalDonations: number;
   backers: number;
   imageUrl: string;
+  foundations?: Array<{
+    name: string;
+    acceptsCrypto: boolean;
+  }>;
 }
 
 interface ImpactPoolCardProps {
@@ -164,6 +168,23 @@ const ImpactPoolCard = ({ pool }: ImpactPoolCardProps) => {
                 <p className="text-xs text-muted-foreground">Backers</p>
               </div>
             </div>
+
+            {pool.foundations && pool.foundations.length > 0 && (
+              <div className="space-y-2 p-4 bg-muted/30 rounded-lg">
+                <h4 className="font-semibold flex items-center gap-2">
+                  Supported Foundations
+                  <Badge variant="secondary" className="text-xs">Crypto Accepted</Badge>
+                </h4>
+                <ul className="space-y-2">
+                  {pool.foundations.map((foundation, index) => (
+                    <li key={index} className="text-sm flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      {foundation.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>

@@ -22,7 +22,11 @@ const impactPools = [
     icon: Heart,
     totalDonations: 0,
     backers: 0,
-    imageUrl: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&q=80"
+    imageUrl: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&q=80",
+    foundations: [
+      { name: "Palestine Children's Relief Fund", acceptsCrypto: true },
+      { name: "UNRWA", acceptsCrypto: true }
+    ]
   },
   {
     id: "clean-water",
@@ -31,16 +35,25 @@ const impactPools = [
     icon: Droplet,
     totalDonations: 0,
     backers: 0,
-    imageUrl: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80"
+    imageUrl: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80",
+    foundations: [
+      { name: "Water.org", acceptsCrypto: true },
+      { name: "Charity: Water", acceptsCrypto: true }
+    ]
   },
   {
-    id: "refugee-families",
-    title: "Refugee Family Support",
-    description: "Helping displaced families rebuild their lives with shelter, food, education, and hope for a better tomorrow.",
+    id: "animal-rescue",
+    title: "Animal Rescue & Care",
+    description: "Feeding, sheltering, and providing medical care for abandoned and stray animals, giving them a second chance at life.",
     icon: Heart,
     totalDonations: 0,
     backers: 0,
-    imageUrl: "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=800&q=80"
+    imageUrl: "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=800&q=80",
+    foundations: [
+      { name: "Best Friends Animal Society", acceptsCrypto: true },
+      { name: "The Humane Society", acceptsCrypto: true },
+      { name: "RedRover", acceptsCrypto: true }
+    ]
   }
 ];
 
