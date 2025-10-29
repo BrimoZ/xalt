@@ -34,80 +34,20 @@ interface ImpactPool {
 
 interface ImpactPoolCardProps {
   pool: ImpactPool;
+  walletBalance?: number;
+  donationBalance?: number;
+  onDonationSuccess?: () => void;
 }
 
-const ImpactPoolCard = ({ pool }: ImpactPoolCardProps) => {
+const ImpactPoolCard = ({ pool, walletBalance = 0, donationBalance = 0, onDonationSuccess }: ImpactPoolCardProps) => {
   const [showDetails, setShowDetails] = useState(false);
   const [showDonate, setShowDonate] = useState(false);
   const [donateAmount, setDonateAmount] = useState("");
-  const [walletBalance, setWalletBalance] = useState(0);
-  const [donationBalance, setDonationBalance] = useState(0);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
   const Icon = pool.icon;
-
-  useEffect(() => {
-    if (showDonate && user) {
-      console.log('Dialog opened, fetching balances for user:', user.id);
-      fetchBalances();
-    }
-  }, [showDonate, user]);
-
-  const fetchBalances = async () => {
-    if (!user) return;
-    
-    setLoading(true);
-    try {
-      // Fetch donation balance from staking
-      const { data: stakingData, error: stakingError } = await supabase
-        .from('staking')
-        .select('donation_balance')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (stakingError) {
-        console.error('Staking fetch error:', stakingError);
-        throw stakingError;
-      }
-      
-      const fetchedDonationBalance = Number(stakingData?.donation_balance) || 0;
-      console.log('Fetched donation balance:', fetchedDonationBalance);
-      setDonationBalance(fetchedDonationBalance);
-
-      // Fetch wallet balance from edge function
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        const { data: balanceData, error: balanceError } = await supabase.functions.invoke(
-          'check-token-balance',
-          {
-            headers: {
-              Authorization: `Bearer ${session.access_token}`,
-            },
-          }
-        );
-
-        if (balanceError) {
-          console.error('Balance fetch error:', balanceError);
-          throw balanceError;
-        }
-        
-        const fetchedWalletBalance = balanceData?.balance || 0;
-        console.log('Fetched wallet balance:', fetchedWalletBalance);
-        setWalletBalance(fetchedWalletBalance);
-      }
-    } catch (error) {
-      console.error('Error fetching balances:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch balances",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDonate = async () => {
     if (!user) {
@@ -182,7 +122,11 @@ const ImpactPoolCard = ({ pool }: ImpactPoolCardProps) => {
       
       setDonateAmount("");
       setShowDonate(false);
-      setDonationBalance(donationBalance - amount);
+      
+      // Refresh balances in parent
+      if (onDonationSuccess) {
+        onDonationSuccess();
+      }
     } catch (error) {
       console.error('Error processing donation:', error);
       toast({

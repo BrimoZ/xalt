@@ -4,6 +4,7 @@ import ImpactPoolCard from "@/components/ImpactPoolCard";
 import { Globe, Heart, Droplet, ExternalLink } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Table,
   TableBody,
@@ -71,10 +72,45 @@ interface Donation {
 const ImpactPools = () => {
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [donationBalance, setDonationBalance] = useState(0);
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchDonations();
-  }, []);
+    if (user) {
+      fetchBalances();
+    }
+  }, [user]);
+
+  const fetchBalances = async () => {
+    if (!user) return;
+    
+    try {
+      const { data: stakingData } = await supabase
+        .from('staking')
+        .select('donation_balance')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      setDonationBalance(Number(stakingData?.donation_balance) || 0);
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: balanceData } = await supabase.functions.invoke(
+          'check-token-balance',
+          {
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+            },
+          }
+        );
+        setWalletBalance(balanceData?.balance || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching balances:', error);
+    }
+  };
 
   const fetchDonations = async () => {
     try {
@@ -118,7 +154,13 @@ const ImpactPools = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
           {impactPools.map((pool) => (
-            <ImpactPoolCard key={pool.id} pool={pool} />
+            <ImpactPoolCard 
+              key={pool.id} 
+              pool={pool}
+              walletBalance={walletBalance}
+              donationBalance={donationBalance}
+              onDonationSuccess={fetchBalances}
+            />
           ))}
         </div>
 
