@@ -10,9 +10,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Coins, TrendingUp, Wallet, Gift, ArrowDownToLine, History, Heart, Users, Sparkles, ArrowRight, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const TOKEN_MINT = "EtEFsNoUmUaGGe8Bpi3GnUguJCndaW57G5X4BkvLpump";
-const APR = 333;
 
 const Staking = () => {
   const { user, isWalletConnected, profile } = useAuth();
@@ -21,39 +21,91 @@ const Staking = () => {
   const [unstakeAmount, setUnstakeAmount] = useState("");
   
   const [walletBalance, setWalletBalance] = useState(0);
-  const [stakedBalance, setStakedBalance] = useState(() => {
-    const saved = localStorage.getItem('stakedBalance');
-    return saved ? parseFloat(saved) : 0;
-  });
-  const [claimableRewards, setClaimableRewards] = useState(() => {
-    const saved = localStorage.getItem('claimableRewards');
-    return saved ? parseFloat(saved) : 0;
-  });
-  const [donationBalance, setDonationBalance] = useState(() => {
-    const saved = localStorage.getItem('donationBalance');
-    return saved ? parseFloat(saved) : 0;
-  });
-  const [totalPoolSize, setTotalPoolSize] = useState(50000000); // 50M tokens
+  const [stakedBalance, setStakedBalance] = useState(0);
+  const [claimableRewards, setClaimableRewards] = useState(0);
+  const [donationBalance, setDonationBalance] = useState(0);
+  const [totalPoolSize, setTotalPoolSize] = useState(0);
+  const [aprRate, setAprRate] = useState(150);
   const [isCheckingBalance, setIsCheckingBalance] = useState(false);
-  const [nextRewardTime, setNextRewardTime] = useState(5 * 60); // 5 minutes in seconds
-  const [blockchainBalance, setBlockchainBalance] = useState(0); // Store the actual blockchain balance
+  const [nextRewardTime, setNextRewardTime] = useState(5 * 60);
+  const [blockchainBalance, setBlockchainBalance] = useState(0);
+  const [transactions, setTransactions] = useState<Array<{ id: string; transaction_type: string; amount: number; created_at: string }>>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Save staked balance to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('stakedBalance', stakedBalance.toString());
-  }, [stakedBalance]);
+  // Fetch staking data from database
+  const fetchStakingData = async () => {
+    if (!user) return;
+    
+    try {
+      const { data: stakingData, error: stakingError } = await supabase
+        .from('staking')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
 
-  // Save rewards to localStorage
-  useEffect(() => {
-    localStorage.setItem('claimableRewards', claimableRewards.toString());
-    localStorage.setItem('donationBalance', donationBalance.toString());
-  }, [claimableRewards, donationBalance]);
+      if (stakingError && stakingError.code !== 'PGRST116') {
+        console.error('Error fetching staking data:', stakingError);
+        return;
+      }
+
+      if (stakingData) {
+        setStakedBalance(Number(stakingData.staked_amount) || 0);
+        setClaimableRewards(Number(stakingData.claimable_rewards) || 0);
+        setDonationBalance(Number(stakingData.donation_balance) || 0);
+      }
+
+      // Fetch pool config
+      const { data: poolData, error: poolError } = await supabase
+        .from('pool_config')
+        .select('*')
+        .single();
+
+      if (poolError) {
+        console.error('Error fetching pool config:', poolError);
+      } else if (poolData) {
+        setTotalPoolSize(Number(poolData.total_pool_size) || 0);
+        setAprRate(Number(poolData.apr_rate) || 150);
+        
+        // Calculate next reward time based on last distribution
+        if (poolData.last_reward_distribution) {
+          const lastDistribution = new Date(poolData.last_reward_distribution).getTime();
+          const now = Date.now();
+          const timeSinceLastReward = Math.floor((now - lastDistribution) / 1000);
+          const nextReward = (5 * 60) - (timeSinceLastReward % (5 * 60));
+          setNextRewardTime(nextReward > 0 ? nextReward : 5 * 60);
+        }
+      }
+
+      // Fetch recent transactions
+      const { data: transData, error: transError } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (transError) {
+        console.error('Error fetching transactions:', transError);
+      } else if (transData) {
+        setTransactions(transData);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Update wallet balance based on blockchain balance and staked amount
   useEffect(() => {
     const availableBalance = blockchainBalance - stakedBalance;
     setWalletBalance(availableBalance >= 0 ? availableBalance : 0);
   }, [blockchainBalance, stakedBalance]);
+
+  // Fetch data on mount and when user changes
+  useEffect(() => {
+    if (user) {
+      fetchStakingData();
+    }
+  }, [user]);
 
   // Check token balance from Solana blockchain via edge function
   const checkTokenBalance = async () => {
@@ -92,72 +144,28 @@ const Staking = () => {
     }
   };
 
-  // Countdown timer for next reward
+  // Countdown timer for next reward (syncs with server)
   useEffect(() => {
     const countdownInterval = setInterval(() => {
       setNextRewardTime(prev => {
         if (prev <= 1) {
-          return 5 * 60; // Reset to 5 minutes
+          // Refresh data when countdown reaches zero
+          fetchStakingData();
+          return 5 * 60;
         }
         return prev - 1;
       });
-    }, 1000); // Update every second
+    }, 1000);
 
     return () => clearInterval(countdownInterval);
   }, []);
-
-  // Calculate and add rewards every 5 minutes
-  useEffect(() => {
-    const rewardInterval = setInterval(() => {
-      if (stakedBalance > 0) {
-        // APR 333% = 333% per year
-        // Per minute = 333 / (365 * 24 * 60) = 0.000633%
-        // Per 5 minutes = 0.003165%
-        const rewardPercentage = (APR / (365 * 24 * 60)) * 5 / 100;
-        const reward = stakedBalance * rewardPercentage;
-        
-        // Check if pool has enough tokens
-        if (totalPoolSize >= reward) {
-          // 50% to claimable rewards, 50% to donation balance
-          setClaimableRewards(prev => prev + reward * 0.5);
-          setDonationBalance(prev => prev + reward * 0.5);
-          
-          // Deduct from pool
-          setTotalPoolSize(prev => prev - reward);
-          
-          // Reset countdown
-          setNextRewardTime(5 * 60);
-          
-          toast({
-            title: "Rewards Added!",
-            description: `+${(reward * 0.5).toFixed(4)} $FUND to Claimable & Donation`,
-          });
-        } else {
-          toast({
-            title: "Pool Depleted",
-            description: "Reward pool is empty. No more rewards can be distributed.",
-            variant: "destructive",
-          });
-        }
-      }
-    }, 5 * 60 * 1000); // 5 minutes
-
-    return () => clearInterval(rewardInterval);
-  }, [stakedBalance, totalPoolSize, toast]);
 
   // Check balance on mount and when wallet connects
   useEffect(() => {
     if (isWalletConnected && profile?.wallet_address) {
       checkTokenBalance();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isWalletConnected, profile?.wallet_address]);
-
-  // Transaction history - will be populated from blockchain
-  const transactions: Array<{ id: number; type: string; amount: number; date: string; status: string }> = [];
-
-  // Donation history - will be populated from blockchain
-  const donations: Array<{ id: number; pool: string; amount: number; date: string }> = [];
 
   const handleStake = async () => {
     if (!user || !isWalletConnected) {
@@ -198,17 +206,53 @@ const Staking = () => {
       return;
     }
 
-    // Update staked balance (this will trigger localStorage save)
-    setStakedBalance(prev => prev + amount);
+    try {
+      // Upsert staking record
+      const newStakedAmount = stakedBalance + amount;
+      const { error: stakingError } = await supabase
+        .from('staking')
+        .upsert({
+          user_id: user.id,
+          wallet_address: profile?.wallet_address || '',
+          staked_amount: newStakedAmount,
+          claimable_rewards: claimableRewards,
+          donation_balance: donationBalance
+        });
 
-    toast({
-      title: "Tokens staked successfully!",
-      description: `You've staked ${amount.toFixed(2)} $FUND at ${APR}% APR`,
-    });
-    setStakeAmount("");
+      if (stakingError) throw stakingError;
+
+      // Insert transaction record
+      const { error: transError } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: user.id,
+          wallet_address: profile?.wallet_address || '',
+          transaction_type: 'stake',
+          amount: amount
+        });
+
+      if (transError) throw transError;
+
+      // Update local state
+      setStakedBalance(newStakedAmount);
+
+      toast({
+        title: "Tokens staked successfully!",
+        description: `You've staked ${amount.toFixed(2)} $FUND at ${aprRate}% APR`,
+      });
+      setStakeAmount("");
+      fetchStakingData(); // Refresh data
+    } catch (error: any) {
+      console.error('Error staking:', error);
+      toast({
+        title: "Staking failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleUnstake = () => {
+  const handleUnstake = async () => {
     if (!user || !isWalletConnected) {
       toast({
         title: "Connect your wallet",
@@ -238,14 +282,47 @@ const Staking = () => {
       return;
     }
 
-    // Update staked balance (this will trigger localStorage save and wallet balance recalculation)
-    setStakedBalance(prev => prev - amount);
+    try {
+      // Update staking record
+      const newStakedAmount = stakedBalance - amount;
+      const { error: stakingError } = await supabase
+        .from('staking')
+        .update({
+          staked_amount: newStakedAmount
+        })
+        .eq('user_id', user.id);
 
-    toast({
-      title: "Tokens unstaked successfully!",
-      description: `You've unstaked ${amount.toFixed(2)} $FUND`,
-    });
-    setUnstakeAmount("");
+      if (stakingError) throw stakingError;
+
+      // Insert transaction record
+      const { error: transError } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: user.id,
+          wallet_address: profile?.wallet_address || '',
+          transaction_type: 'unstake',
+          amount: amount
+        });
+
+      if (transError) throw transError;
+
+      // Update local state
+      setStakedBalance(newStakedAmount);
+
+      toast({
+        title: "Tokens unstaked successfully!",
+        description: `You've unstaked ${amount.toFixed(2)} $FUND`,
+      });
+      setUnstakeAmount("");
+      fetchStakingData(); // Refresh data
+    } catch (error: any) {
+      console.error('Error unstaking:', error);
+      toast({
+        title: "Unstaking failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   const handleClaim = () => {
@@ -287,7 +364,7 @@ const Staking = () => {
               </div>
               <span className="text-xs font-medium text-muted-foreground">APR</span>
             </div>
-            <p className="text-2xl font-bold text-primary">{APR}%</p>
+            <p className="text-2xl font-bold text-primary">{aprRate}%</p>
           </Card>
 
           <Card className="p-4 hover:border-primary/50 transition-colors">
@@ -482,48 +559,44 @@ const Staking = () => {
               </TabsList>
               
               <TabsContent value="transactions" className="space-y-3">
-                {transactions.map((tx) => (
-                  <div key={tx.id} className="flex items-center justify-between p-5 rounded-xl border hover:bg-muted/30 transition-all">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                        tx.type === 'stake' ? 'bg-primary/10 text-primary' :
-                        tx.type === 'unstake' ? 'bg-muted text-muted-foreground' :
-                        tx.type === 'reward' ? 'bg-accent/10 text-accent' :
-                        'bg-primary/10 text-primary'
-                      }`}>
-                        {tx.type === 'stake' && <Coins className="w-6 h-6" />}
-                        {tx.type === 'unstake' && <ArrowRight className="w-6 h-6" />}
-                        {tx.type === 'reward' && <Gift className="w-6 h-6" />}
-                        {tx.type === 'claim' && <ArrowDownToLine className="w-6 h-6" />}
-                      </div>
-                      <div>
-                        <p className="font-semibold capitalize text-base">{tx.type}</p>
-                        <p className="text-sm text-muted-foreground">{tx.date}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold text-lg">{tx.amount} $FUND</p>
-                      <Badge variant="outline" className="text-xs mt-1">{tx.status}</Badge>
-                    </div>
+                {transactions.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No transactions yet
                   </div>
-                ))}
+                ) : (
+                  transactions.map((tx) => (
+                    <div key={tx.id} className="flex items-center justify-between p-5 rounded-xl border hover:bg-muted/30 transition-all">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                          tx.transaction_type === 'stake' ? 'bg-primary/10 text-primary' :
+                          tx.transaction_type === 'unstake' ? 'bg-muted text-muted-foreground' :
+                          tx.transaction_type === 'reward' ? 'bg-accent/10 text-accent' :
+                          'bg-primary/10 text-primary'
+                        }`}>
+                          {tx.transaction_type === 'stake' && <Coins className="w-6 h-6" />}
+                          {tx.transaction_type === 'unstake' && <ArrowRight className="w-6 h-6" />}
+                          {tx.transaction_type === 'reward' && <Gift className="w-6 h-6" />}
+                          {tx.transaction_type === 'claim' && <ArrowDownToLine className="w-6 h-6" />}
+                        </div>
+                        <div>
+                          <p className="font-semibold capitalize text-base">{tx.transaction_type}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(tx.created_at).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-lg">{Number(tx.amount).toFixed(4)} $FUND</p>
+                      </div>
+                    </div>
+                  ))
+                )}
               </TabsContent>
               
               <TabsContent value="donations" className="space-y-3">
-                {donations.map((donation) => (
-                  <div key={donation.id} className="flex items-center justify-between p-5 rounded-xl border hover:bg-accent/5 transition-all">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
-                        <Heart className="w-6 h-6 text-accent" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-base">{donation.pool}</p>
-                        <p className="text-sm text-muted-foreground">{donation.date}</p>
-                      </div>
-                    </div>
-                    <p className="font-bold text-lg text-accent">+{donation.amount} $FUND</p>
-                  </div>
-                ))}
+                <div className="text-center py-8 text-muted-foreground">
+                  Donation history coming soon
+                </div>
               </TabsContent>
             </Tabs>
           </CardContent>
