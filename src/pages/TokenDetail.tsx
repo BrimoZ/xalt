@@ -453,14 +453,6 @@ const TokenDetail = () => {
                       </a>
                     </Button>
                   )}
-                  {currentToken.discord_url && (
-                    <Button variant="outline" size="sm" className="w-full" asChild>
-                      <a href={currentToken.discord_url} target="_blank" rel="noopener noreferrer">
-                        <MessageCircle className="w-4 h-4 mr-2" />
-                        Discord
-                      </a>
-                    </Button>
-                  )}
                 </div>
               </CardContent>
             </Card>
