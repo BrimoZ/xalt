@@ -24,7 +24,7 @@ const Staking = () => {
   const [stakedBalance, setStakedBalance] = useState(0);
   const [claimableRewards, setClaimableRewards] = useState(0);
   const [donationBalance, setDonationBalance] = useState(0);
-  const [totalPoolSize] = useState(0);
+  const [totalPoolSize, setTotalPoolSize] = useState(50000000); // 50M tokens
   const [isCheckingBalance, setIsCheckingBalance] = useState(false);
 
   // Check token balance from Solana blockchain via edge function
@@ -74,19 +74,31 @@ const Staking = () => {
         const rewardPercentage = (APR / (365 * 24 * 60)) * 5 / 100;
         const reward = stakedBalance * rewardPercentage;
         
-        // 50% to claimable rewards, 50% to donation balance
-        setClaimableRewards(prev => prev + reward * 0.5);
-        setDonationBalance(prev => prev + reward * 0.5);
-        
-        toast({
-          title: "Rewards Added!",
-          description: `+${(reward * 0.5).toFixed(4)} $FUND to Claimable & Donation`,
-        });
+        // Check if pool has enough tokens
+        if (totalPoolSize >= reward) {
+          // 50% to claimable rewards, 50% to donation balance
+          setClaimableRewards(prev => prev + reward * 0.5);
+          setDonationBalance(prev => prev + reward * 0.5);
+          
+          // Deduct from pool
+          setTotalPoolSize(prev => prev - reward);
+          
+          toast({
+            title: "Rewards Added!",
+            description: `+${(reward * 0.5).toFixed(4)} $FUND to Claimable & Donation`,
+          });
+        } else {
+          toast({
+            title: "Pool Depleted",
+            description: "Reward pool is empty. No more rewards can be distributed.",
+            variant: "destructive",
+          });
+        }
       }
     }, 5 * 60 * 1000); // 5 minutes
 
     return () => clearInterval(rewardInterval);
-  }, [stakedBalance, toast]);
+  }, [stakedBalance, totalPoolSize, toast]);
 
   // Check balance on mount and when wallet connects
   useEffect(() => {
@@ -245,7 +257,7 @@ const Staking = () => {
               </div>
               <span className="text-xs font-medium text-muted-foreground">Pool Size</span>
             </div>
-            <p className="text-2xl font-bold">{totalPoolSize.toLocaleString()}</p>
+            <p className="text-2xl font-bold">{totalPoolSize.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
           </Card>
 
           <Card className="p-4 hover:border-primary/50 transition-colors">
