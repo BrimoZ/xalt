@@ -326,7 +326,10 @@ export type Database = {
           amount: number
           created_at: string
           id: string
+          status: string | null
+          transaction_hash: string | null
           transaction_type: string
+          transaction_url: string | null
           user_id: string
           wallet_address: string
         }
@@ -334,7 +337,10 @@ export type Database = {
           amount: number
           created_at?: string
           id?: string
+          status?: string | null
+          transaction_hash?: string | null
           transaction_type: string
+          transaction_url?: string | null
           user_id: string
           wallet_address: string
         }
@@ -342,7 +348,10 @@ export type Database = {
           amount?: number
           created_at?: string
           id?: string
+          status?: string | null
+          transaction_hash?: string | null
           transaction_type?: string
+          transaction_url?: string | null
           user_id?: string
           wallet_address?: string
         }

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { Coins, TrendingUp, Wallet, Gift, ArrowDownToLine, History, Heart, Users, Sparkles, ArrowRight, Clock } from "lucide-react";
+import { Coins, TrendingUp, Wallet, Gift, ArrowDownToLine, History, Heart, Users, Sparkles, ArrowRight, Clock, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -29,7 +29,7 @@ const Staking = () => {
   const [isCheckingBalance, setIsCheckingBalance] = useState(false);
   const [nextRewardTime, setNextRewardTime] = useState(5 * 60);
   const [blockchainBalance, setBlockchainBalance] = useState(0);
-  const [transactions, setTransactions] = useState<Array<{ id: string; transaction_type: string; amount: number; created_at: string }>>([]);
+  const [transactions, setTransactions] = useState<Array<{ id: string; transaction_type: string; amount: number; created_at: string; status?: string; transaction_hash?: string; transaction_url?: string }>>([]);
   const [donations, setDonations] = useState<Array<{ id: string; token_id: string; amount: number; created_at: string; token_name: string; token_symbol: string }>>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -437,7 +437,7 @@ const Staking = () => {
     }
   };
 
-  const handleClaim = () => {
+  const handleClaim = async () => {
     if (!user || !isWalletConnected) {
       toast({
         title: "Connect your wallet",
@@ -456,10 +456,57 @@ const Staking = () => {
       return;
     }
 
-    toast({
-      title: "Rewards claimed successfully!",
-      description: `You've claimed ${claimableRewards.toFixed(2)} tokens to your wallet`,
-    });
+    // Check 5% minimum threshold
+    const minimumClaim = blockchainBalance * 0.05;
+    if (claimableRewards < minimumClaim) {
+      toast({
+        title: "Minimum claim not reached",
+        description: `You need at least ${minimumClaim.toFixed(2)} $FUND (5% of your ${blockchainBalance.toFixed(2)} balance) in claimable rewards to claim.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Insert pending claim transaction
+      const { error: transError } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: user.id,
+          wallet_address: profile?.wallet_address || '',
+          transaction_type: 'claim',
+          amount: claimableRewards,
+          status: 'pending'
+        });
+
+      if (transError) throw transError;
+
+      // Update staking record to reset claimable rewards
+      const { error: stakingError } = await supabase
+        .from('staking')
+        .update({
+          claimable_rewards: 0
+        })
+        .eq('user_id', user.id);
+
+      if (stakingError) throw stakingError;
+
+      setClaimableRewards(0);
+
+      toast({
+        title: "Claim request submitted!",
+        description: `Your claim of ${claimableRewards.toFixed(2)} $FUND is pending. Admin will process it manually and you'll see the transaction hash once completed.`,
+      });
+
+      fetchStakingData(); // Refresh data
+    } catch (error: any) {
+      console.error('Error claiming rewards:', error);
+      toast({
+        title: "Claim failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -625,11 +672,16 @@ const Staking = () => {
                   <Button 
                     onClick={handleClaim} 
                     className="w-full h-12"
-                    disabled={true}
+                    disabled={!user || !isWalletConnected || claimableRewards <= 0 || claimableRewards < (blockchainBalance * 0.05)}
                   >
                     <ArrowDownToLine className="w-4 h-4 mr-2" />
                     Claim to Wallet
                   </Button>
+                  {claimableRewards > 0 && claimableRewards < (blockchainBalance * 0.05) && (
+                    <p className="text-xs text-muted-foreground text-center mt-2">
+                      Minimum: {(blockchainBalance * 0.05).toFixed(2)} $FUND (5% of balance)
+                    </p>
+                  )}
                 </div>
 
                 <div className="p-6 rounded-xl bg-gradient-to-br from-accent/10 to-primary/10 border-2 border-accent/20">
@@ -691,14 +743,34 @@ const Staking = () => {
                           {tx.transaction_type === 'claim' && <ArrowDownToLine className="w-6 h-6" />}
                         </div>
                         <div>
-                          <p className="font-semibold capitalize text-base">{tx.transaction_type}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold capitalize text-base">{tx.transaction_type}</p>
+                            {tx.status && (
+                              <Badge variant={tx.status === 'pending' ? 'outline' : tx.status === 'completed' ? 'default' : 'destructive'} className="text-xs">
+                                {tx.status}
+                              </Badge>
+                            )}
+                          </div>
                           <p className="text-sm text-muted-foreground">
                             {new Date(tx.created_at).toLocaleString()}
                           </p>
+                          {tx.transaction_url && (
+                            <a 
+                              href={tx.transaction_url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-xs text-primary hover:underline flex items-center gap-1 mt-1"
+                            >
+                              View on explorer <ExternalLink className="w-3 h-3" />
+                            </a>
+                          )}
                         </div>
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-lg">{Number(tx.amount).toFixed(4)} $FUND</p>
+                        {tx.status === 'pending' && (
+                          <p className="text-xs text-muted-foreground">Admin processing...</p>
+                        )}
                       </div>
                     </div>
                   ))
