@@ -2,8 +2,8 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Users, LucideIcon } from "lucide-react";
-import { useState } from "react";
+import { Users, LucideIcon, Wallet, Gift } from "lucide-react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ImpactPool {
   id: string;
@@ -39,12 +40,63 @@ const ImpactPoolCard = ({ pool }: ImpactPoolCardProps) => {
   const [showDetails, setShowDetails] = useState(false);
   const [showDonate, setShowDonate] = useState(false);
   const [donateAmount, setDonateAmount] = useState("");
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [donationBalance, setDonationBalance] = useState(0);
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
   const Icon = pool.icon;
 
-  const handleDonate = () => {
+  useEffect(() => {
+    if (showDonate && user) {
+      fetchBalances();
+    }
+  }, [showDonate, user]);
+
+  const fetchBalances = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      // Fetch donation balance from staking
+      const { data: stakingData, error: stakingError } = await supabase
+        .from('staking')
+        .select('donation_balance')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (stakingError) throw stakingError;
+      setDonationBalance(Number(stakingData?.donation_balance) || 0);
+
+      // Fetch wallet balance from edge function
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: balanceData, error: balanceError } = await supabase.functions.invoke(
+          'check-token-balance',
+          {
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+            },
+          }
+        );
+
+        if (balanceError) throw balanceError;
+        setWalletBalance(balanceData?.balance || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching balances:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch balances",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDonate = async () => {
     if (!user) {
       toast({
         title: "Authentication required",
@@ -55,7 +107,9 @@ const ImpactPoolCard = ({ pool }: ImpactPoolCardProps) => {
       return;
     }
 
-    if (!donateAmount || parseFloat(donateAmount) <= 0) {
+    const amount = parseFloat(donateAmount);
+    
+    if (!donateAmount || amount <= 0) {
       toast({
         title: "Invalid amount",
         description: "Please enter a valid donation amount",
@@ -64,13 +118,58 @@ const ImpactPoolCard = ({ pool }: ImpactPoolCardProps) => {
       return;
     }
 
-    toast({
-      title: "Donation successful!",
-      description: `Thank you for donating $${donateAmount} to ${pool.title}`,
-    });
-    
-    setDonateAmount("");
-    setShowDonate(false);
+    if (amount > donationBalance) {
+      toast({
+        title: "Insufficient balance",
+        description: `You only have ${donationBalance.toFixed(2)} $FUND in your donation balance`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Deduct from donation balance
+      const { error: updateError } = await supabase
+        .from('staking')
+        .update({ 
+          donation_balance: donationBalance - amount 
+        })
+        .eq('user_id', user.id);
+
+      if (updateError) throw updateError;
+
+      // Record donation
+      const { error: donationError } = await supabase
+        .from('impact_pool_donations')
+        .insert({
+          pool_name: pool.title,
+          amount: amount,
+          transaction_hash: `0x${Math.random().toString(16).slice(2, 66)}`,
+          transaction_url: `https://solscan.io/tx/simulated_${Date.now()}`,
+          donor_name: user.user_metadata?.display_name || null
+        });
+
+      if (donationError) throw donationError;
+
+      toast({
+        title: "Donation successful!",
+        description: `Thank you for donating ${amount.toFixed(2)} $FUND to ${pool.title}`,
+      });
+      
+      setDonateAmount("");
+      setShowDonate(false);
+      setDonationBalance(donationBalance - amount);
+    } catch (error) {
+      console.error('Error processing donation:', error);
+      toast({
+        title: "Donation failed",
+        description: "There was an error processing your donation",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -128,7 +227,6 @@ const ImpactPoolCard = ({ pool }: ImpactPoolCardProps) => {
               size="sm"
               className="flex-1"
               onClick={() => setShowDonate(true)}
-              disabled={true}
             >
               Donate
             </Button>
@@ -201,33 +299,87 @@ const ImpactPoolCard = ({ pool }: ImpactPoolCardProps) => {
           </DialogHeader>
 
           <div className="space-y-4">
+            {/* Balance Cards */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                <div className="flex items-center gap-2 mb-1">
+                  <Wallet className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">Wallet Balance</span>
+                </div>
+                <p className="text-lg font-bold">{loading ? '...' : walletBalance.toFixed(2)}</p>
+                <p className="text-xs text-muted-foreground">$FUND tokens</p>
+              </div>
+              
+              <div className="bg-primary/10 rounded-lg p-3 border border-primary/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <Gift className="w-4 h-4 text-primary" />
+                  <span className="text-xs text-primary">Donation Balance</span>
+                </div>
+                <p className="text-lg font-bold text-primary">{loading ? '...' : donationBalance.toFixed(2)}</p>
+                <p className="text-xs text-muted-foreground">Available to donate</p>
+              </div>
+            </div>
+
+            <div className="bg-muted/30 rounded-lg p-3 text-sm text-muted-foreground">
+              Donations use your Donation Balance from staking rewards
+            </div>
+
             <div className="space-y-2">
-              <Label htmlFor="amount">Donation Amount ($)</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="amount">Amount to Donate</Label>
+                <Button
+                  variant="link"
+                  size="sm"
+                  className="h-auto p-0 text-xs"
+                  onClick={() => setDonateAmount(donationBalance.toString())}
+                  disabled={loading || donationBalance <= 0}
+                >
+                  MAX
+                </Button>
+              </div>
               <Input
                 id="amount"
                 type="number"
-                placeholder="Enter amount"
+                placeholder="0.00"
                 value={donateAmount}
                 onChange={(e) => setDonateAmount(e.target.value)}
+                disabled={loading}
+                max={donationBalance}
+                step="0.01"
               />
             </div>
 
-            <div className="flex gap-2">
-              {[10, 50, 100, 500].map((amount) => (
+            <div className="flex gap-2 flex-wrap">
+              {[10, 50, 100].map((amount) => (
                 <Button
                   key={amount}
                   variant="outline"
                   size="sm"
                   onClick={() => setDonateAmount(amount.toString())}
+                  disabled={loading || amount > donationBalance}
                 >
-                  ${amount}
+                  {amount} $FUND
                 </Button>
               ))}
             </div>
 
-            <Button className="w-full" onClick={handleDonate}>
-              Donate Now
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                className="flex-1" 
+                onClick={() => setShowDonate(false)}
+                disabled={loading}
+              >
+                CANCEL
+              </Button>
+              <Button 
+                className="flex-1 bg-primary" 
+                onClick={handleDonate}
+                disabled={loading || !donateAmount || parseFloat(donateAmount) <= 0 || parseFloat(donateAmount) > donationBalance}
+              >
+                {loading ? 'Processing...' : 'BACK THIS POOL'}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
