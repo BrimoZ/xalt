@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Coins, TrendingUp, Wallet, Gift, ArrowDownToLine, History, Heart, Users, Sparkles, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
 
 const TOKEN_MINT = "EtEFsNoUmUaGGe8Bpi3GnUguJCndaW57G5X4BkvLpump";
 const APR = 333;
@@ -26,16 +27,41 @@ const Staking = () => {
   const [totalPoolSize] = useState(0);
   const [isCheckingBalance, setIsCheckingBalance] = useState(false);
 
-  // Check token balance - simplified for now
+  // Check token balance from Solana blockchain via edge function
   const checkTokenBalance = async () => {
     if (!profile?.wallet_address || !isWalletConnected) return;
     setIsCheckingBalance(true);
     
-    // Mock balance check - in production this would call Solana RPC
-    setTimeout(() => {
-      setWalletBalance(1000); // Mock balance
+    try {
+      const { data, error } = await supabase.functions.invoke('check-token-balance', {
+        body: {
+          walletAddress: profile.wallet_address,
+          tokenMint: TOKEN_MINT
+        }
+      });
+
+      if (error) throw error;
+
+      const balance = data?.balance || 0;
+      setWalletBalance(balance);
+      
+      if (balance > 0) {
+        toast({
+          title: "Balance Updated",
+          description: `You have ${balance.toFixed(2)} $FUND tokens`,
+        });
+      }
+    } catch (error: any) {
+      console.error("Error checking token balance:", error);
+      setWalletBalance(0);
+      toast({
+        title: "Balance Check Failed",
+        description: error?.message || "Unable to fetch token balance from blockchain",
+        variant: "destructive",
+      });
+    } finally {
       setIsCheckingBalance(false);
-    }, 500);
+    }
   };
 
   // Calculate and add rewards every 5 minutes
