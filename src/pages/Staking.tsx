@@ -30,6 +30,7 @@ const Staking = () => {
   const [nextRewardTime, setNextRewardTime] = useState(5 * 60);
   const [blockchainBalance, setBlockchainBalance] = useState(0);
   const [transactions, setTransactions] = useState<Array<{ id: string; transaction_type: string; amount: number; created_at: string }>>([]);
+  const [donations, setDonations] = useState<Array<{ id: string; token_id: string; amount: number; created_at: string; token_name: string; token_symbol: string }>>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Fetch staking data from database
@@ -88,6 +89,37 @@ const Staking = () => {
         console.error('Error fetching transactions:', transError);
       } else if (transData) {
         setTransactions(transData);
+      }
+
+      // Fetch donation history with token details
+      const { data: donationsData, error: donationsError } = await supabase
+        .from('token_donations')
+        .select(`
+          id,
+          token_id,
+          amount,
+          created_at,
+          tokens (
+            name,
+            symbol
+          )
+        `)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (donationsError) {
+        console.error('Error fetching donations:', donationsError);
+      } else if (donationsData) {
+        const formattedDonations = donationsData.map(d => ({
+          id: d.id,
+          token_id: d.token_id,
+          amount: d.amount,
+          created_at: d.created_at,
+          token_name: (d.tokens as any)?.name || 'Unknown Token',
+          token_symbol: (d.tokens as any)?.symbol || 'N/A'
+        }));
+        setDonations(formattedDonations);
       }
     } finally {
       setIsLoading(false);
@@ -162,6 +194,19 @@ const Staking = () => {
         },
         () => {
           // Refresh transactions when new one is added
+          fetchStakingData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'token_donations',
+          filter: `user_id=eq.${user.id}`
+        },
+        () => {
+          // Refresh donations when new one is added
           fetchStakingData();
         }
       )
@@ -661,9 +706,31 @@ const Staking = () => {
               </TabsContent>
               
               <TabsContent value="donations" className="space-y-3">
-                <div className="text-center py-8 text-muted-foreground">
-                  Donation history coming soon
-                </div>
+                {donations.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No donations yet
+                  </div>
+                ) : (
+                  donations.map((donation) => (
+                    <div key={donation.id} className="flex items-center justify-between p-5 rounded-xl border hover:bg-muted/30 transition-all">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-accent/10 text-accent">
+                          <Heart className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-base">Donated to {donation.token_name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(donation.created_at).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-lg">{Number(donation.amount).toFixed(2)} $FUND</p>
+                        <p className="text-xs text-muted-foreground">{donation.token_symbol}</p>
+                      </div>
+                    </div>
+                  ))
+                )}
               </TabsContent>
             </Tabs>
           </CardContent>
