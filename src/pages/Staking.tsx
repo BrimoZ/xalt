@@ -21,12 +21,39 @@ const Staking = () => {
   const [unstakeAmount, setUnstakeAmount] = useState("");
   
   const [walletBalance, setWalletBalance] = useState(0);
-  const [stakedBalance, setStakedBalance] = useState(0);
-  const [claimableRewards, setClaimableRewards] = useState(0);
-  const [donationBalance, setDonationBalance] = useState(0);
+  const [stakedBalance, setStakedBalance] = useState(() => {
+    const saved = localStorage.getItem('stakedBalance');
+    return saved ? parseFloat(saved) : 0;
+  });
+  const [claimableRewards, setClaimableRewards] = useState(() => {
+    const saved = localStorage.getItem('claimableRewards');
+    return saved ? parseFloat(saved) : 0;
+  });
+  const [donationBalance, setDonationBalance] = useState(() => {
+    const saved = localStorage.getItem('donationBalance');
+    return saved ? parseFloat(saved) : 0;
+  });
   const [totalPoolSize, setTotalPoolSize] = useState(50000000); // 50M tokens
   const [isCheckingBalance, setIsCheckingBalance] = useState(false);
   const [nextRewardTime, setNextRewardTime] = useState(5 * 60); // 5 minutes in seconds
+  const [blockchainBalance, setBlockchainBalance] = useState(0); // Store the actual blockchain balance
+
+  // Save staked balance to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('stakedBalance', stakedBalance.toString());
+  }, [stakedBalance]);
+
+  // Save rewards to localStorage
+  useEffect(() => {
+    localStorage.setItem('claimableRewards', claimableRewards.toString());
+    localStorage.setItem('donationBalance', donationBalance.toString());
+  }, [claimableRewards, donationBalance]);
+
+  // Update wallet balance based on blockchain balance and staked amount
+  useEffect(() => {
+    const availableBalance = blockchainBalance - stakedBalance;
+    setWalletBalance(availableBalance >= 0 ? availableBalance : 0);
+  }, [blockchainBalance, stakedBalance]);
 
   // Check token balance from Solana blockchain via edge function
   const checkTokenBalance = async () => {
@@ -44,17 +71,17 @@ const Staking = () => {
       if (error) throw error;
 
       const balance = data?.balance || 0;
-      setWalletBalance(balance);
+      setBlockchainBalance(balance); // Store the blockchain balance
       
       if (balance > 0) {
         toast({
           title: "Balance Updated",
-          description: `You have ${balance.toFixed(2)} $FUND tokens`,
+          description: `Total balance: ${balance.toFixed(2)} $FUND`,
         });
       }
     } catch (error: any) {
       console.error("Error checking token balance:", error);
-      setWalletBalance(0);
+      setBlockchainBalance(0);
       toast({
         title: "Balance Check Failed",
         description: error?.message || "Unable to fetch token balance from blockchain",
@@ -153,10 +180,7 @@ const Staking = () => {
 
     const amount = parseFloat(stakeAmount);
 
-    // Calculate available balance (wallet balance - already staked)
-    const availableBalance = walletBalance;
-
-    if (availableBalance === 0) {
+    if (walletBalance === 0) {
       toast({
         title: "No available balance",
         description: "You don't have any tokens available to stake",
@@ -165,17 +189,16 @@ const Staking = () => {
       return;
     }
 
-    if (amount > availableBalance) {
+    if (amount > walletBalance) {
       toast({
         title: "Insufficient balance",
-        description: `You only have ${availableBalance.toFixed(2)} $FUND available. You already have ${stakedBalance.toFixed(2)} staked.`,
+        description: `You only have ${walletBalance.toFixed(2)} $FUND available. You already have ${stakedBalance.toFixed(2)} staked.`,
         variant: "destructive",
       });
       return;
     }
 
-    // Update balances - deduct from wallet balance
-    setWalletBalance(prev => prev - amount);
+    // Update staked balance (this will trigger localStorage save)
     setStakedBalance(prev => prev + amount);
 
     toast({
@@ -215,13 +238,12 @@ const Staking = () => {
       return;
     }
 
-    // Update balances
+    // Update staked balance (this will trigger localStorage save and wallet balance recalculation)
     setStakedBalance(prev => prev - amount);
-    setWalletBalance(prev => prev + amount);
 
     toast({
       title: "Tokens unstaked successfully!",
-      description: `You've unstaked ${amount} $FUND`,
+      description: `You've unstaked ${amount.toFixed(2)} $FUND`,
     });
     setUnstakeAmount("");
   };
