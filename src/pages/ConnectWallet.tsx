@@ -192,29 +192,6 @@ const ConnectWallet = () => {
             </Card>
           )}
 
-          {/* Demo Notice */}
-          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mt-6">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-4 h-4 bg-amber-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-xs font-bold">!</span>
-              </div>
-              <span className="font-medium text-amber-800 dark:text-amber-200">Demo Mode</span>
-            </div>
-            <p className="text-xs text-amber-700 dark:text-amber-300">
-              This is a mock wallet connection for testing. No real Phantom connection is made. 
-              Click "Connect Phantom Wallet" to simulate the connection flow with random demo data.
-            </p>
-          </div>
-
-          {/* Footer Links */}
-          <div className="text-center mt-6">
-            <p className="text-xs text-muted-foreground">
-              By connecting, you agree to our{" "}
-              <a href="#" className="text-primary hover:underline">Privacy Policy</a>
-              {" "}and{" "}
-              <a href="#" className="text-primary hover:underline">Terms of Service</a>
-            </p>
-          </div>
         </div>
       </div>
 
