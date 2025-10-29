@@ -165,8 +165,10 @@ const LiveLaunchesFeed = () => {
           <p className="font-mono text-muted-foreground max-w-2xl mx-auto mb-6">
             Support funding pools you believe in using your Donation Balance. Every contribution is transparent, on-chain, and trackable.
           </p>
-          <Button variant="outline" size="lg" className="font-mono">
-            $FUND Token
+          <Button variant="outline" size="lg" className="font-mono" asChild>
+            <a href="https://pump.fun/coin/EtEFsNoUmUaGGe8Bpi3GnUguJCndaW57G5X4BkvLpump" target="_blank" rel="noopener noreferrer">
+              $FUND Token
+            </a>
           </Button>
         </div>
 
