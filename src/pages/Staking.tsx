@@ -241,7 +241,7 @@ const Staking = () => {
                       onClick={handleUnstake} 
                       variant="outline"
                       className="w-full h-14 text-base"
-                      disabled={!user || !isWalletConnected}
+                      disabled={true}
                     >
                       <ArrowRight className="w-5 h-5 mr-2" />
                       Unstake
