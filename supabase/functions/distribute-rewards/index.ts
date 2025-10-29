@@ -66,11 +66,17 @@ serve(async (req) => {
       const reward = (parseFloat(staker.staked_amount) * APR * rewardInterval) / timeInYear
       
       if (reward > 0 && poolConfig.total_pool_size >= reward) {
-        const newRewards = parseFloat(staker.claimable_rewards) + reward
+        // Split reward 50/50 between claimable and donation
+        const claimableShare = reward * 0.5
+        const donationShare = reward * 0.5
+        
+        const newClaimableRewards = parseFloat(staker.claimable_rewards) + claimableShare
+        const newDonationBalance = parseFloat(staker.donation_balance) + donationShare
         
         updates.push({
           id: staker.id,
-          claimable_rewards: newRewards
+          claimable_rewards: newClaimableRewards,
+          donation_balance: newDonationBalance
         })
 
         transactions.push({
@@ -106,7 +112,10 @@ serve(async (req) => {
     for (const update of updates) {
       const { error: updateError } = await supabaseClient
         .from('staking')
-        .update({ claimable_rewards: update.claimable_rewards })
+        .update({ 
+          claimable_rewards: update.claimable_rewards,
+          donation_balance: update.donation_balance
+        })
         .eq('id', update.id)
 
       if (updateError) {
