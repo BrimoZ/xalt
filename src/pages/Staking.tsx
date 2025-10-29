@@ -123,34 +123,34 @@ const Staking = () => {
 
     const amount = parseFloat(stakeAmount);
 
-    // Check balance first
-    await checkTokenBalance();
+    // Calculate available balance (wallet balance - already staked)
+    const availableBalance = walletBalance;
 
-    if (walletBalance === 0) {
+    if (availableBalance === 0) {
       toast({
-        title: "No $FUND tokens found",
-        description: "You need to hold $FUND tokens to stake",
+        title: "No available balance",
+        description: "You don't have any tokens available to stake",
         variant: "destructive",
       });
       return;
     }
 
-    if (amount > walletBalance) {
+    if (amount > availableBalance) {
       toast({
         title: "Insufficient balance",
-        description: `You only have ${walletBalance.toFixed(2)} $FUND tokens`,
+        description: `You only have ${availableBalance.toFixed(2)} $FUND available. You already have ${stakedBalance.toFixed(2)} staked.`,
         variant: "destructive",
       });
       return;
     }
 
-    // Update balances
+    // Update balances - deduct from wallet balance
     setWalletBalance(prev => prev - amount);
     setStakedBalance(prev => prev + amount);
 
     toast({
       title: "Tokens staked successfully!",
-      description: `You've staked ${amount} $FUND at ${APR}% APR`,
+      description: `You've staked ${amount.toFixed(2)} $FUND at ${APR}% APR`,
     });
     setStakeAmount("");
   };
@@ -265,7 +265,7 @@ const Staking = () => {
               </div>
               <span className="text-xs font-medium text-muted-foreground">Wallet</span>
             </div>
-            <p className="text-2xl font-bold">{walletBalance.toLocaleString()}</p>
+            <p className="text-2xl font-bold">{walletBalance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
           </Card>
         </div>
 
@@ -295,7 +295,7 @@ const Staking = () => {
                     <div className="p-4 rounded-lg bg-background/80 backdrop-blur-sm border">
                       <div className="flex justify-between text-sm mb-3">
                         <span className="text-muted-foreground">Available Balance</span>
-                        <span className="font-semibold">{walletBalance.toLocaleString()} $FUND</span>
+                        <span className="font-semibold">{walletBalance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} $FUND</span>
                       </div>
                       <div className="relative">
                         <Input
