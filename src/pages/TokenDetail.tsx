@@ -90,6 +90,15 @@ const TokenDetail = () => {
       .single();
     
     if (tokenData) {
+      // Calculate current_amount from donations
+      const { data: donationData } = await supabase
+        .from('token_donations')
+        .select('amount')
+        .eq('token_id', tokenId);
+      
+      const totalDonated = donationData?.reduce((sum, d) => sum + Number(d.amount), 0) || 0;
+      tokenData.current_amount = totalDonated;
+      
       setCurrentToken(tokenData);
       
       const { data: profileData } = await supabase
@@ -393,16 +402,6 @@ const TokenDetail = () => {
         });
 
       if (donationError) throw donationError;
-
-      // Update token current_amount
-      const { error: tokenError } = await supabase
-        .from('tokens')
-        .update({
-          current_amount: (currentToken.current_amount || 0) + amount
-        })
-        .eq('id', tokenId!);
-
-      if (tokenError) throw tokenError;
 
       toast({
         title: "Donation successful!",
