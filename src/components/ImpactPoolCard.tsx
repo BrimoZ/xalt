@@ -66,8 +66,14 @@ const ImpactPoolCard = ({ pool }: ImpactPoolCardProps) => {
         .eq('user_id', user.id)
         .maybeSingle();
 
-      if (stakingError) throw stakingError;
-      setDonationBalance(Number(stakingData?.donation_balance) || 0);
+      if (stakingError) {
+        console.error('Staking fetch error:', stakingError);
+        throw stakingError;
+      }
+      
+      const fetchedDonationBalance = Number(stakingData?.donation_balance) || 0;
+      console.log('Fetched donation balance:', fetchedDonationBalance);
+      setDonationBalance(fetchedDonationBalance);
 
       // Fetch wallet balance from edge function
       const { data: { session } } = await supabase.auth.getSession();
@@ -81,8 +87,14 @@ const ImpactPoolCard = ({ pool }: ImpactPoolCardProps) => {
           }
         );
 
-        if (balanceError) throw balanceError;
-        setWalletBalance(balanceData?.balance || 0);
+        if (balanceError) {
+          console.error('Balance fetch error:', balanceError);
+          throw balanceError;
+        }
+        
+        const fetchedWalletBalance = balanceData?.balance || 0;
+        console.log('Fetched wallet balance:', fetchedWalletBalance);
+        setWalletBalance(fetchedWalletBalance);
       }
     } catch (error) {
       console.error('Error fetching balances:', error);
@@ -306,7 +318,9 @@ const ImpactPoolCard = ({ pool }: ImpactPoolCardProps) => {
                   <Wallet className="w-4 h-4 text-muted-foreground" />
                   <span className="text-xs text-muted-foreground">Wallet Balance</span>
                 </div>
-                <p className="text-lg font-bold">{loading ? '...' : walletBalance.toFixed(2)}</p>
+                <p className="text-lg font-bold">
+                  {loading ? '...' : walletBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </p>
                 <p className="text-xs text-muted-foreground">$FUND tokens</p>
               </div>
               
@@ -315,7 +329,9 @@ const ImpactPoolCard = ({ pool }: ImpactPoolCardProps) => {
                   <Gift className="w-4 h-4 text-primary" />
                   <span className="text-xs text-primary">Donation Balance</span>
                 </div>
-                <p className="text-lg font-bold text-primary">{loading ? '...' : donationBalance.toFixed(2)}</p>
+                <p className="text-lg font-bold text-primary">
+                  {loading ? '...' : donationBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </p>
                 <p className="text-xs text-muted-foreground">Available to donate</p>
               </div>
             </div>
