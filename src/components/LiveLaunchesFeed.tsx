@@ -162,9 +162,12 @@ const LiveLaunchesFeed = () => {
           <h2 className="text-3xl md:text-4xl font-orbitron font-bold mb-4">
             Live Funding Pools
           </h2>
-          <p className="font-mono text-muted-foreground max-w-2xl mx-auto">
+          <p className="font-mono text-muted-foreground max-w-2xl mx-auto mb-6">
             Support funding pools you believe in using your Donation Balance. Every contribution is transparent, on-chain, and trackable.
           </p>
+          <Button variant="outline" size="lg" className="font-mono">
+            $FUND Token
+          </Button>
         </div>
 
         {/* Controls */}
