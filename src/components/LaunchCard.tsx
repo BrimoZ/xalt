@@ -53,16 +53,48 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
   const [hasGivenHeart, setHasGivenHeart] = useState(false);
   const [isTogglingHeart, setIsTogglingHeart] = useState(false);
   
-  // Wallet balances - will be implemented with actual blockchain data
-  const [walletBalance] = useState(0); // User's main wallet balance
-  const [donationBalance] = useState(0); // User's donation balance from staking rewards
-  const [myPoolContribution] = useState(0); // How much user has already donated to this pool
+  // Wallet balances
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [donationBalance, setDonationBalance] = useState(0);
+  const [myPoolContribution] = useState(0);
 
   // Fetch real heart and backer counts
   useEffect(() => {
     fetchHeartData();
     fetchBackerCount();
-  }, [token.id, user?.id]);
+    if (user && showDonateDialog) {
+      fetchBalances();
+    }
+  }, [token.id, user?.id, showDonateDialog]);
+
+  const fetchBalances = async () => {
+    if (!user?.id) return;
+
+    try {
+      // Fetch donation balance from staking table
+      const { data: stakingData } = await supabase
+        .from('staking')
+        .select('donation_balance')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      setDonationBalance(stakingData?.donation_balance || 0);
+
+      // Fetch wallet balance from edge function
+      const walletAddress = user.user_metadata?.wallet_address;
+      if (walletAddress) {
+        const { data, error } = await supabase.functions.invoke('check-token-balance', {
+          body: { walletAddress }
+        });
+
+        if (!error && data?.balance) {
+          setWalletBalance(data.balance);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching balances:', error);
+    }
+  };
 
   const fetchHeartData = async () => {
     try {
@@ -191,7 +223,7 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
     }
   };
 
-  const handleDonate = () => {
+  const handleDonate = async () => {
     if (!user || !isWalletConnected) {
       toast({
         title: "Connect your wallet",
@@ -201,7 +233,8 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
       return;
     }
 
-    if (!donateAmount || parseFloat(donateAmount) <= 0) {
+    const amount = parseFloat(donateAmount);
+    if (!donateAmount || amount <= 0) {
       toast({
         title: "Invalid amount",
         description: "Please enter a valid amount to donate",
@@ -210,7 +243,7 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
       return;
     }
 
-    if (parseFloat(donateAmount) > donationBalance) {
+    if (amount > donationBalance) {
       toast({
         title: "Insufficient balance",
         description: "You don't have enough in your Donation Balance. Stake tokens to earn more!",
@@ -219,13 +252,45 @@ const LaunchCard = ({ token }: LaunchCardProps) => {
       return;
     }
 
-    // TODO: Implement actual donation logic with backend
-    toast({
-      title: "Donation successful!",
-      description: `You've donated ${donateAmount} tokens to ${token.name}`,
-    });
-    setDonateAmount("");
-    setShowDonateDialog(false);
+    try {
+      // Update staking table - deduct from donation balance
+      const { error: stakingError } = await supabase
+        .from('staking')
+        .update({
+          donation_balance: donationBalance - amount
+        })
+        .eq('user_id', user.id);
+
+      if (stakingError) throw stakingError;
+
+      // Insert donation record
+      const { error: donationError } = await supabase
+        .from('token_donations')
+        .insert({
+          token_id: token.id,
+          user_id: user.id,
+          amount: amount
+        });
+
+      if (donationError) throw donationError;
+
+      toast({
+        title: "Donation successful!",
+        description: `You've donated ${donateAmount} $FUND to ${token.name}`,
+      });
+      
+      setDonateAmount("");
+      setShowDonateDialog(false);
+      fetchBalances();
+      fetchBackerCount();
+    } catch (error: any) {
+      console.error('Error donating:', error);
+      toast({
+        title: "Donation failed",
+        description: error.message || "Failed to process donation",
+        variant: "destructive",
+      });
+    }
   };
 
   const fundingGoal = token.marketCap;
