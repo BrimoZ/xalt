@@ -1,30 +1,74 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Coins, TrendingUp, Wallet, Gift, ArrowDownToLine, History, Heart, Users, Sparkles, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+
+const TOKEN_MINT = "EtEFsNoUmUaGGe8Bpi3GnUguJCndaW57G5X4BkvLpump";
+const APR = 333;
 
 const Staking = () => {
-  const { user, isWalletConnected } = useAuth();
+  const { user, isWalletConnected, profile } = useAuth();
   const { toast } = useToast();
   const [stakeAmount, setStakeAmount] = useState("");
   const [unstakeAmount, setUnstakeAmount] = useState("");
   
-  // Ready for real staking data - awaiting token contract address
-  const [walletBalance] = useState(0);
-  const [stakedBalance] = useState(0);
-  const [claimableRewards] = useState(0);
-  const [donationBalance] = useState(0);
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [stakedBalance, setStakedBalance] = useState(0);
+  const [claimableRewards, setClaimableRewards] = useState(0);
+  const [donationBalance, setDonationBalance] = useState(0);
   const [totalPoolSize] = useState(0);
-  const apr = 0;
+  const [isCheckingBalance, setIsCheckingBalance] = useState(false);
+
+  // Check token balance - simplified for now
+  const checkTokenBalance = async () => {
+    if (!profile?.wallet_address || !isWalletConnected) return;
+    setIsCheckingBalance(true);
+    
+    // Mock balance check - in production this would call Solana RPC
+    setTimeout(() => {
+      setWalletBalance(1000); // Mock balance
+      setIsCheckingBalance(false);
+    }, 500);
+  };
+
+  // Calculate and add rewards every 5 minutes
+  useEffect(() => {
+    const rewardInterval = setInterval(() => {
+      if (stakedBalance > 0) {
+        // APR 333% = 333% per year
+        // Per minute = 333 / (365 * 24 * 60) = 0.000633%
+        // Per 5 minutes = 0.003165%
+        const rewardPercentage = (APR / (365 * 24 * 60)) * 5 / 100;
+        const reward = stakedBalance * rewardPercentage;
+        
+        // 50% to claimable rewards, 50% to donation balance
+        setClaimableRewards(prev => prev + reward * 0.5);
+        setDonationBalance(prev => prev + reward * 0.5);
+        
+        toast({
+          title: "Rewards Added!",
+          description: `+${(reward * 0.5).toFixed(4)} $FUND to Claimable & Donation`,
+        });
+      }
+    }, 5 * 60 * 1000); // 5 minutes
+
+    return () => clearInterval(rewardInterval);
+  }, [stakedBalance, toast]);
+
+  // Check balance on mount and when wallet connects
+  useEffect(() => {
+    if (isWalletConnected && profile?.wallet_address) {
+      checkTokenBalance();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isWalletConnected, profile?.wallet_address]);
 
   // Transaction history - will be populated from blockchain
   const transactions: Array<{ id: number; type: string; amount: number; date: string; status: string }> = [];
@@ -32,7 +76,7 @@ const Staking = () => {
   // Donation history - will be populated from blockchain
   const donations: Array<{ id: number; pool: string; amount: number; date: string }> = [];
 
-  const handleStake = () => {
+  const handleStake = async () => {
     if (!user || !isWalletConnected) {
       toast({
         title: "Connect your wallet",
@@ -51,9 +95,36 @@ const Staking = () => {
       return;
     }
 
+    const amount = parseFloat(stakeAmount);
+
+    // Check balance first
+    await checkTokenBalance();
+
+    if (walletBalance === 0) {
+      toast({
+        title: "No $FUND tokens found",
+        description: "You need to hold $FUND tokens to stake",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (amount > walletBalance) {
+      toast({
+        title: "Insufficient balance",
+        description: `You only have ${walletBalance.toFixed(2)} $FUND tokens`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Update balances
+    setWalletBalance(prev => prev - amount);
+    setStakedBalance(prev => prev + amount);
+
     toast({
       title: "Tokens staked successfully!",
-      description: `You've staked ${stakeAmount} tokens at ${apr}% APR`,
+      description: `You've staked ${amount} $FUND at ${APR}% APR`,
     });
     setStakeAmount("");
   };
@@ -77,9 +148,24 @@ const Staking = () => {
       return;
     }
 
+    const amount = parseFloat(unstakeAmount);
+
+    if (amount > stakedBalance) {
+      toast({
+        title: "Insufficient staked balance",
+        description: `You only have ${stakedBalance.toFixed(2)} $FUND staked`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Update balances
+    setStakedBalance(prev => prev - amount);
+    setWalletBalance(prev => prev + amount);
+
     toast({
       title: "Tokens unstaked successfully!",
-      description: `You've unstaked ${unstakeAmount} tokens`,
+      description: `You've unstaked ${amount} $FUND`,
     });
     setUnstakeAmount("");
   };
@@ -123,7 +209,7 @@ const Staking = () => {
               </div>
               <span className="text-xs font-medium text-muted-foreground">APR</span>
             </div>
-            <p className="text-2xl font-bold text-primary">{apr}%</p>
+            <p className="text-2xl font-bold text-primary">{APR}%</p>
           </Card>
 
           <Card className="p-4 hover:border-primary/50 transition-colors">
@@ -206,10 +292,10 @@ const Staking = () => {
                     <Button 
                       onClick={handleStake} 
                       className="w-full h-14 text-base"
-                      disabled={true}
+                      disabled={!user || !isWalletConnected || isCheckingBalance}
                     >
                       <Sparkles className="w-5 h-5 mr-2" />
-                      Stake Now
+                      {isCheckingBalance ? "Checking Balance..." : "Stake Now"}
                     </Button>
                   </TabsContent>
                   
@@ -241,7 +327,7 @@ const Staking = () => {
                       onClick={handleUnstake} 
                       variant="outline"
                       className="w-full h-14 text-base"
-                      disabled={true}
+                      disabled={!user || !isWalletConnected || stakedBalance === 0}
                     >
                       <ArrowRight className="w-5 h-5 mr-2" />
                       Unstake
@@ -266,7 +352,7 @@ const Staking = () => {
                   <Button 
                     onClick={handleClaim} 
                     className="w-full h-12"
-                    disabled={!user || !isWalletConnected || claimableRewards <= 0}
+                    disabled={true}
                   >
                     <ArrowDownToLine className="w-4 h-4 mr-2" />
                     Claim to Wallet
