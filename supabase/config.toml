@@ -1,1 +1,4 @@
 project_id = "lprckedqkmygimsqbeih"
+
+[functions.distribute-rewards]
+verify_jwt = false

@@ -107,6 +107,71 @@ const Staking = () => {
     }
   }, [user]);
 
+  // Real-time subscription for staking updates
+  useEffect(() => {
+    if (!user) return;
+
+    const stakingChannel = supabase
+      .channel('staking-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'staking',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Staking updated:', payload);
+          const newData = payload.new as any;
+          setStakedBalance(Number(newData.staked_amount) || 0);
+          setClaimableRewards(Number(newData.claimable_rewards) || 0);
+          setDonationBalance(Number(newData.donation_balance) || 0);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'pool_config'
+        },
+        (payload) => {
+          console.log('Pool updated:', payload);
+          const newData = payload.new as any;
+          setTotalPoolSize(Number(newData.total_pool_size) || 0);
+          setAprRate(Number(newData.apr_rate) || 150);
+          
+          // Recalculate countdown based on last distribution
+          if (newData.last_reward_distribution) {
+            const lastDistribution = new Date(newData.last_reward_distribution).getTime();
+            const now = Date.now();
+            const timeSinceLastReward = Math.floor((now - lastDistribution) / 1000);
+            const nextReward = (5 * 60) - (timeSinceLastReward % (5 * 60));
+            setNextRewardTime(nextReward > 0 ? nextReward : 5 * 60);
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'transactions',
+          filter: `user_id=eq.${user.id}`
+        },
+        () => {
+          // Refresh transactions when new one is added
+          fetchStakingData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(stakingChannel);
+    };
+  }, [user]);
+
   // Check token balance from Solana blockchain via edge function
   const checkTokenBalance = async () => {
     if (!profile?.wallet_address || !isWalletConnected) return;
