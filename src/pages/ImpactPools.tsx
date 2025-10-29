@@ -25,7 +25,8 @@ const impactPools = [
     imageUrl: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&q=80",
     foundations: [
       { name: "Palestine Children's Relief Fund", acceptsCrypto: true },
-      { name: "UNRWA", acceptsCrypto: true }
+      { name: "UNRWA", acceptsCrypto: true },
+      { name: "islamicdonate.com", acceptsCrypto: true }
     ]
   },
   {
