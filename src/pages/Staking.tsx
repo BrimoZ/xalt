@@ -207,7 +207,7 @@ const Staking = () => {
     }
 
     try {
-      // Upsert staking record
+      // Upsert staking record (use user_id for conflict resolution)
       const newStakedAmount = stakedBalance + amount;
       const { error: stakingError } = await supabase
         .from('staking')
@@ -217,6 +217,8 @@ const Staking = () => {
           staked_amount: newStakedAmount,
           claimable_rewards: claimableRewards,
           donation_balance: donationBalance
+        }, {
+          onConflict: 'user_id'
         });
 
       if (stakingError) throw stakingError;
