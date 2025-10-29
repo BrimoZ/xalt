@@ -50,6 +50,7 @@ const ImpactPoolCard = ({ pool }: ImpactPoolCardProps) => {
 
   useEffect(() => {
     if (showDonate && user) {
+      console.log('Dialog opened, fetching balances for user:', user.id);
       fetchBalances();
     }
   }, [showDonate, user]);
@@ -121,6 +122,8 @@ const ImpactPoolCard = ({ pool }: ImpactPoolCardProps) => {
 
     const amount = parseFloat(donateAmount);
     
+    console.log('Attempting to donate:', amount, 'Available donation balance:', donationBalance);
+    
     if (!donateAmount || amount <= 0) {
       toast({
         title: "Invalid amount",
@@ -141,6 +144,8 @@ const ImpactPoolCard = ({ pool }: ImpactPoolCardProps) => {
 
     setLoading(true);
     try {
+      console.log('Updating donation balance from', donationBalance, 'to', donationBalance - amount);
+      
       // Deduct from donation balance
       const { error: updateError } = await supabase
         .from('staking')
@@ -149,7 +154,10 @@ const ImpactPoolCard = ({ pool }: ImpactPoolCardProps) => {
         })
         .eq('user_id', user.id);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('Update error:', updateError);
+        throw updateError;
+      }
 
       // Record donation
       const { error: donationError } = await supabase
@@ -162,7 +170,10 @@ const ImpactPoolCard = ({ pool }: ImpactPoolCardProps) => {
           donor_name: user.user_metadata?.display_name || null
         });
 
-      if (donationError) throw donationError;
+      if (donationError) {
+        console.error('Donation insert error:', donationError);
+        throw donationError;
+      }
 
       toast({
         title: "Donation successful!",
