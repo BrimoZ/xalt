@@ -44,6 +44,30 @@ export type Database = {
         }
         Relationships: []
       }
+      pool_config: {
+        Row: {
+          apr_rate: number
+          id: string
+          last_reward_distribution: string | null
+          total_pool_size: number
+          updated_at: string
+        }
+        Insert: {
+          apr_rate?: number
+          id?: string
+          last_reward_distribution?: string | null
+          total_pool_size?: number
+          updated_at?: string
+        }
+        Update: {
+          apr_rate?: number
+          id?: string
+          last_reward_distribution?: string | null
+          total_pool_size?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -76,6 +100,39 @@ export type Database = {
           total_donated?: number | null
           total_raised?: number | null
           updated_at?: string | null
+          wallet_address?: string
+        }
+        Relationships: []
+      }
+      staking: {
+        Row: {
+          claimable_rewards: number
+          created_at: string
+          donation_balance: number
+          id: string
+          staked_amount: number
+          updated_at: string
+          user_id: string
+          wallet_address: string
+        }
+        Insert: {
+          claimable_rewards?: number
+          created_at?: string
+          donation_balance?: number
+          id?: string
+          staked_amount?: number
+          updated_at?: string
+          user_id: string
+          wallet_address: string
+        }
+        Update: {
+          claimable_rewards?: number
+          created_at?: string
+          donation_balance?: number
+          id?: string
+          staked_amount?: number
+          updated_at?: string
+          user_id?: string
           wallet_address?: string
         }
         Relationships: []
@@ -263,6 +320,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          transaction_type: string
+          user_id: string
+          wallet_address: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          transaction_type: string
+          user_id: string
+          wallet_address: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          transaction_type?: string
+          user_id?: string
+          wallet_address?: string
+        }
+        Relationships: []
       }
     }
     Views: {
