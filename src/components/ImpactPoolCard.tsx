@@ -128,6 +128,7 @@ const ImpactPoolCard = ({ pool }: ImpactPoolCardProps) => {
               size="sm"
               className="flex-1"
               onClick={() => setShowDonate(true)}
+              disabled={true}
             >
               Donate
             </Button>
