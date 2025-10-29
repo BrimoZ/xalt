@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { Coins, TrendingUp, Wallet, Gift, ArrowDownToLine, History, Heart, Users, Sparkles, ArrowRight } from "lucide-react";
+import { Coins, TrendingUp, Wallet, Gift, ArrowDownToLine, History, Heart, Users, Sparkles, ArrowRight, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -26,6 +26,7 @@ const Staking = () => {
   const [donationBalance, setDonationBalance] = useState(0);
   const [totalPoolSize, setTotalPoolSize] = useState(50000000); // 50M tokens
   const [isCheckingBalance, setIsCheckingBalance] = useState(false);
+  const [nextRewardTime, setNextRewardTime] = useState(5 * 60); // 5 minutes in seconds
 
   // Check token balance from Solana blockchain via edge function
   const checkTokenBalance = async () => {
@@ -64,6 +65,20 @@ const Staking = () => {
     }
   };
 
+  // Countdown timer for next reward
+  useEffect(() => {
+    const countdownInterval = setInterval(() => {
+      setNextRewardTime(prev => {
+        if (prev <= 1) {
+          return 5 * 60; // Reset to 5 minutes
+        }
+        return prev - 1;
+      });
+    }, 1000); // Update every second
+
+    return () => clearInterval(countdownInterval);
+  }, []);
+
   // Calculate and add rewards every 5 minutes
   useEffect(() => {
     const rewardInterval = setInterval(() => {
@@ -82,6 +97,9 @@ const Staking = () => {
           
           // Deduct from pool
           setTotalPoolSize(prev => prev - reward);
+          
+          // Reset countdown
+          setNextRewardTime(5 * 60);
           
           toast({
             title: "Rewards Added!",
@@ -384,8 +402,14 @@ const Staking = () => {
                     </div>
                     <Badge variant="outline" className="text-xs">50% Split</Badge>
                   </div>
-                  <div className="text-4xl font-bold text-primary mb-6">
+                  <div className="text-4xl font-bold text-primary mb-2">
                     {claimableRewards.toFixed(2)} $FUND
+                  </div>
+                  <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
+                    <Clock className="w-4 h-4" />
+                    <span>
+                      Next reward in: {Math.floor(nextRewardTime / 60)}:{(nextRewardTime % 60).toString().padStart(2, '0')}
+                    </span>
                   </div>
                   <Button 
                     onClick={handleClaim} 
