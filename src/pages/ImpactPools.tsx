@@ -20,8 +20,8 @@ const impactPools = [
     title: "Palestine Relief Fund",
     description: "Supporting humanitarian aid and essential supplies for families affected by the crisis in Palestine.",
     icon: Heart,
-    totalDonations: 0,
-    backers: 0,
+    totalDonations: 50,
+    backers: 1,
     imageUrl: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&q=80",
     foundations: [
       { name: "Palestine Children's Relief Fund", acceptsCrypto: true },
