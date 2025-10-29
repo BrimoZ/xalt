@@ -63,14 +63,45 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             console.error('Error fetching tokens after refresh:', retryError);
             return;
           }
-          setTokens(retryData || []);
+          
+          // Calculate current_amount from donations
+          if (retryData) {
+            const tokensWithDonations = await Promise.all(
+              retryData.map(async (token) => {
+                const { data: donationData } = await supabase
+                  .from('token_donations')
+                  .select('amount')
+                  .eq('token_id', token.id);
+                
+                const totalDonated = donationData?.reduce((sum, d) => sum + Number(d.amount), 0) || 0;
+                return { ...token, current_amount: totalDonated };
+              })
+            );
+            setTokens(tokensWithDonations);
+          }
           return;
         }
         console.error('Error fetching tokens:', error);
         return;
       }
 
-      setTokens(data || []);
+      // Calculate current_amount from donations for each token
+      if (data) {
+        const tokensWithDonations = await Promise.all(
+          data.map(async (token) => {
+            const { data: donationData } = await supabase
+              .from('token_donations')
+              .select('amount')
+              .eq('token_id', token.id);
+            
+            const totalDonated = donationData?.reduce((sum, d) => sum + Number(d.amount), 0) || 0;
+            return { ...token, current_amount: totalDonated };
+          })
+        );
+        setTokens(tokensWithDonations);
+      } else {
+        setTokens([]);
+      }
     } catch (error) {
       console.error('Error fetching tokens:', error);
     } finally {
