@@ -35,13 +35,11 @@ const Navbar = () => {
               className="flex items-center gap-2 cursor-pointer hover-glitch" 
               onClick={() => navigate("/")}
             >
-              <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg hover:bg-yellow-300 transition-colors">
-                <img 
-                  src="/lovable-uploads/998b4520-3cd3-4308-930f-35d870244c7d.png" 
-                  alt="FundMe Logo" 
-                  className="w-6 h-6 object-contain"
-                />
-              </div>
+              <img 
+                src="/fundme-logo.png" 
+                alt="FundMe Logo" 
+                className="w-10 h-10 object-contain"
+              />
               <span className="font-orbitron font-bold text-xl text-foreground">
                 FundMe
               </span>
