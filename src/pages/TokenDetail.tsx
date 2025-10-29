@@ -36,8 +36,8 @@ const TokenDetail = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDonateDialog, setShowDonateDialog] = useState(false);
   const [donateAmount, setDonateAmount] = useState("");
-  const [walletBalance] = useState(0);
-  const [donationBalance] = useState(0);
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [donationBalance, setDonationBalance] = useState(0);
   const [myPoolContribution] = useState(0);
 
   useEffect(() => {
@@ -48,7 +48,39 @@ const TokenDetail = () => {
       fetchQuestions();
       fetchDonations();
     }
+    if (user) {
+      fetchBalances();
+    }
   }, [tokenId, user?.id]);
+
+  const fetchBalances = async () => {
+    if (!user) return;
+    
+    try {
+      const { data: stakingData } = await supabase
+        .from('staking')
+        .select('donation_balance')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      setDonationBalance(Number(stakingData?.donation_balance) || 0);
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: balanceData } = await supabase.functions.invoke(
+          'check-token-balance',
+          {
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+            },
+          }
+        );
+        setWalletBalance(balanceData?.balance || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching balances:', error);
+    }
+  };
 
   const loadTokenData = async () => {
     const { data: tokenData } = await supabase
@@ -320,7 +352,9 @@ const TokenDetail = () => {
       return;
     }
 
-    if (!donateAmount || parseFloat(donateAmount) <= 0) {
+    const amount = parseFloat(donateAmount);
+    
+    if (!donateAmount || amount <= 0) {
       toast({
         title: "Invalid amount",
         description: "Please enter a valid amount to donate",
@@ -329,7 +363,7 @@ const TokenDetail = () => {
       return;
     }
 
-    if (parseFloat(donateAmount) > donationBalance) {
+    if (amount > donationBalance) {
       toast({
         title: "Insufficient balance",
         description: "You don't have enough in your Donation Balance. Stake tokens to earn more!",
@@ -338,18 +372,59 @@ const TokenDetail = () => {
       return;
     }
 
-    // TODO: Implement actual donation logic with backend
-    toast({
-      title: "Donation successful!",
-      description: `You've donated ${donateAmount} tokens to ${currentToken.name}`,
-    });
-    setDonateAmount("");
-    setShowDonateDialog(false);
-    
-    // Refresh data
-    await loadTokenData();
-    await fetchBackerCount();
-    await fetchDonations();
+    try {
+      // Deduct from donation balance
+      const { error: updateError } = await supabase
+        .from('staking')
+        .update({ 
+          donation_balance: donationBalance - amount 
+        })
+        .eq('user_id', user.id);
+
+      if (updateError) throw updateError;
+
+      // Record the donation
+      const { error: donationError } = await supabase
+        .from('token_donations')
+        .insert({
+          token_id: tokenId!,
+          user_id: user.id,
+          amount: amount
+        });
+
+      if (donationError) throw donationError;
+
+      // Update token current_amount
+      const { error: tokenError } = await supabase
+        .from('tokens')
+        .update({
+          current_amount: (currentToken.current_amount || 0) + amount
+        })
+        .eq('id', tokenId!);
+
+      if (tokenError) throw tokenError;
+
+      toast({
+        title: "Donation successful!",
+        description: `You've donated ${amount.toFixed(2)} $FUND to ${currentToken.name}`,
+      });
+      
+      setDonateAmount("");
+      setShowDonateDialog(false);
+      
+      // Refresh data
+      await loadTokenData();
+      await fetchBalances();
+      await fetchBackerCount();
+      await fetchDonations();
+    } catch (error: any) {
+      console.error('Error processing donation:', error);
+      toast({
+        title: "Donation failed",
+        description: error.message || "Failed to process donation",
+        variant: "destructive",
+      });
+    }
   };
 
   const isCreator = user?.id === currentToken?.creator_id;
